@@ -1,4 +1,5 @@
-var imageBaseUrl = "https://project.primacyinfotech.com/multistore/";
+//var imageBaseUrl = "https://project.primacyinfotech.com/multistore/";
+var imageBaseUrl = "https://project.primacyinfotech.com/multistore/new/";
 var baseUrl = imageBaseUrl+"api/";
 var registerApi = Uri.parse(baseUrl + "user_register");
 var verifyPhone = Uri.parse(baseUrl + "verify_phone");

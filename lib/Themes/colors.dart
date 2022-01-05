@@ -25,3 +25,11 @@ final font_18 = 18.0;
 final font_20 = 20.0;
 final font_25 = 25.0;
 final font_30 = 30.0;
+
+
+Color lightBlue = Color(0xFFE3F2FD);
+Color lightRed = Color(0xFFFFEBEE);
+Color lightYellow = Color(0xFFFDFDC8);
+Color lightGreen = Color(0xFFD9F8E2);
+Color lightPink = Color(0xFFF6D5E1);
+Color lightGrey = Color(0xFFEEEEEE);
