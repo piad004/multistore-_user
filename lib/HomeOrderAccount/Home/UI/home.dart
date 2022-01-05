@@ -599,6 +599,12 @@ class _HomeState extends State<Home> {
                             ? nearStores.map((e) {
                                 pos = nearStores.indexOf(e) % 3;
                                 return Card(
+                                  child: InkWell(
+                                    onTap: () => hitNavigator(
+                                        context,
+                                        e.category_name,
+                                        e.ui_type,
+                                        e.vendor_category_id),
                                   child: Container(
                                     height: 170,
                                     width: double.infinity,
@@ -614,7 +620,6 @@ class _HomeState extends State<Home> {
                                   end: Alignment.bottomCenter,
                                   stops: [0.2, 1,1,1],
                                   tileMode: TileMode.decal),*/
-
                                         borderRadius:
                                             BorderRadius.circular(5.0),
                                         image: DecorationImage(
@@ -631,8 +636,9 @@ class _HomeState extends State<Home> {
                                               fontWeight: FontWeight.bold,
                                               color: colors[pos])),
                                     ),
-                                  ),
                                   margin: EdgeInsets.all(5.0),
+                                  ),
+                                  ),
                                 );
                                 /*return ReusableCard(
                       cardChild: CardContent(
@@ -1013,35 +1019,146 @@ class _HomeState extends State<Home> {
                       ),
                     ),
                     SizedBox(
-                      height: 5,
+                      height: 10,
                     ),
-                    Image.asset(
-                      'images/delivery_boy.jpg',
-                      width: 150,
-                      height: 150,
-                      fit: BoxFit.fitWidth,
-                    ),
+                   Row(
+                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                     children: [
+                       Column(
+                         children: [
+                           Container(
+                             //child:Text("List item ")
+                             child:Row(
+                               children: [
+                                 Image.asset(
+                                   'images/checkout.png',
+                                   width: 50,
+                                   height: 50,
+                                   fit: BoxFit.fitWidth,),
+                                 Text("  Instant delivery\n  at door step",
+                                   style: TextStyle(
+                                       color: Colors.black,fontSize: 15),),
+                               ],
+
+                             ),
+                           ),
+                           SizedBox(
+                             height: 5,
+                           ),
+                           Container(
+                             //child:Text("List item ")
+                             child:Row(
+                               children: [SizedBox(
+                                 width: 5,
+                               ),
+                                 Image.asset(
+                                   'images/checkout.png',
+                                   width: 50,
+                                   height: 50,
+                                   fit: BoxFit.fitWidth,),
+                                 Text("  Order wide range\n  of variety",
+                                   style: TextStyle(
+                                       color: Colors.black,fontSize: 15),),
+                               ],
+
+                             ),
+                           ),
+                           SizedBox(
+                             height: 5,
+                           ),
+                           Container(
+                             //child:Text("List item ")
+                             child:Row(
+                               children: [
+                                 Image.asset(
+                                   'images/checkout.png',
+                                   width: 50,
+                                   height: 50,
+                                   fit: BoxFit.fitWidth,),
+                                 Text("  No minimum     \n  order value",
+                                   style: TextStyle(
+                                       color: Colors.black,fontSize: 15),),
+                               ],
+
+                             ),
+                           ),
+                           SizedBox(
+                             height: 5,
+                           ),
+                           Container(
+                             //child:Text("List item ")
+                             child:Row(
+                               children: [
+                                 Image.asset(
+                                   'images/checkout.png',
+                                   width: 50,
+                                   height: 50,
+                                   fit: BoxFit.fitWidth,),
+                                 Text("  All in one          ",
+                                   style: TextStyle(
+                                       color: Colors.black,fontSize: 15),),
+                               ],
+
+                             ),
+                           ),
+                           SizedBox(
+                             height: 5,
+                           ),
+                           Container(
+                             //child:Text("List item ")
+                             child:Row(
+                               children: [
+                                 Image.asset(
+                                   'images/checkout.png',
+                                   width: 50,
+                                   height: 50,
+                                   fit: BoxFit.fitWidth,),
+                                 Text("  Local test         ",
+                                   style: TextStyle(
+                                       color: Colors.black,fontSize: 15),),
+                               ],
+
+                             ),
+                           ),
+                         ],
+                       ),
+                       Image.asset(
+                         'images/delivery_boy.png',
+                         width: 145,
+                         height: 160,
+                         fit: BoxFit.fitWidth,
+                       ),
+                     ],
+                   ),
                     SizedBox(
                       height: 5,
                     ),
                     Card(
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          side: BorderSide(width: 1, color: Colors.red)),
+                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                          /*side: BorderSide(width: 0, )*/),
                       // child: ListTile(),
                       child: Container(
                         alignment: Alignment.center,
-                        margin: EdgeInsets.only(top:10,bottom: 10),
+                        padding: EdgeInsets.only(top:12,bottom: 12),
                         //height: 50,
                         width: MediaQuery.of(context).size.width-20,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(2.0),
+                          gradient: LinearGradient(
+                            begin: Alignment.topRight,
+                            end: Alignment.bottomLeft,
+                            colors: [
+                              Colors.yellow,
+                              Colors.red,
+                            ],
+                          )
                         ),
                         child:  Column(
                           children: <Widget>[
                             Text(
                               'Partner with us and earn',
-                              style: TextStyle(color: Colors.black,fontSize: 16,),
+                              style: TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
