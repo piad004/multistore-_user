@@ -90,7 +90,8 @@ class _SavedAddressesState extends State<SavedAddresses> {
     var url = address_selection;
     http.post(url, body: {
       'user_id': '${userId}',
-      'vendor_id': '${widget.vendorId}'
+      'vendor_id': '${widget.vendorId}',
+      'product_name_list': ''
     }).then((value) {
       print('${value.statusCode} ${value.body}');
       if (value.statusCode == 200) {

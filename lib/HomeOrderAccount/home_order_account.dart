@@ -159,17 +159,19 @@ class _HomeOrderAccountState extends State<HomeOrderAccount> {
   }
 
   List<TabItem> tabItems = List.of([
-    new TabItem(Icons.home, "Home", Colors.blue,
+    new TabItem(Icons.home, "Home", Colors.red,
         labelStyle: TextStyle(fontWeight: FontWeight.normal)),
-    new TabItem(Icons.local_offer, "Update", Colors.orange,
-        labelStyle: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-    new TabItem(Icons.reorder, "Order", Colors.red),
-    new TabItem(Icons.account_circle, "Account", Colors.cyan),
+    new TabItem(Icons.supervisor_account_rounded, "Refer & Earn", Colors.grey,
+        labelStyle: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+    new TabItem(Icons.shopping_bag_outlined, "Order", Colors.grey),
+    new TabItem(Icons.set_meal_outlined, "Meat & Fish", Colors.grey),
+    new TabItem(Icons.account_circle_outlined, "Account", Colors.grey),
   ]);
 
   final List<Widget> _children = [
     HomePage(),
     OfferScreen(),
+    OrderPage(),
     OrderPage(),
     AccountPage(),
   ];
@@ -186,12 +188,16 @@ class _HomeOrderAccountState extends State<HomeOrderAccount> {
 
     setState(() {
       tabItems = List.of([
-        new TabItem(Icons.home, locale.homeText, Colors.blue,
-            labelStyle: TextStyle(fontWeight: FontWeight.normal)),
-        new TabItem(Icons.local_offer, locale.updateText, Colors.orange,
-            labelStyle: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-        new TabItem(Icons.reorder, locale.orderText, Colors.red),
-        new TabItem(Icons.account_circle, locale.accountText, Colors.cyan),
+        new TabItem(Icons.home, locale.homeText, Colors.red,
+            labelStyle: TextStyle(color: Colors.red,fontSize:12,fontWeight: FontWeight.bold)),
+        new TabItem(Icons.supervisor_account_rounded, "Refer & Earn", Colors.red,
+            labelStyle: TextStyle(color: Colors.red,fontSize:12, fontWeight: FontWeight.bold)),
+        new TabItem(Icons.shopping_bag_outlined, "Order", Colors.red,
+            labelStyle: TextStyle(color: Colors.red,fontSize:12, fontWeight: FontWeight.bold)),
+        new TabItem(Icons.set_meal_outlined, "Meat & Fish", Colors.red,
+            labelStyle: TextStyle(color: Colors.red,fontSize:12, fontWeight: FontWeight.bold)),
+        new TabItem(Icons.account_circle_outlined, "Account", Colors.red,
+            labelStyle: TextStyle(color: Colors.red,fontSize:12, fontWeight: FontWeight.bold)),
       ]);
     });
 
@@ -260,11 +266,12 @@ Future<void> _showNotification(
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
     dynamic title,
     dynamic body) async {
-  final Int64List vibrationPattern = Int64List(4);
+  final Int64List vibrationPattern = Int64List(5);
   vibrationPattern[0] = 0;
   vibrationPattern[1] = 1000;
   vibrationPattern[2] = 5000;
   vibrationPattern[3] = 2000;
+  vibrationPattern[4] = 2000;
   final AndroidNotificationDetails androidPlatformChannelSpecifics =
   AndroidNotificationDetails('7458', 'Notify', 'Notify On Shopping',
       vibrationPattern: vibrationPattern,

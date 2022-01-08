@@ -72,6 +72,9 @@ class _HomeState extends State<Home> {
     lightPink
   ];
   var pos = 0;
+  var isDelvmartBanner;
+  var delvmartBanner;
+  var delvmartBannerId;
 
   TextEditingController searchController = TextEditingController();
   bool enteredFirst = false;
@@ -598,7 +601,7 @@ class _HomeState extends State<Home> {
                         children: (nearStores != null && nearStores.length > 0)
                             ? nearStores.map((e) {
                                 pos = nearStores.indexOf(e) % 3;
-                                return Card(
+                                return Container(
                                   child: InkWell(
                                     onTap: () => hitNavigator(
                                         context,
@@ -623,14 +626,17 @@ class _HomeState extends State<Home> {
                                         borderRadius:
                                             BorderRadius.circular(5.0),
                                         image: DecorationImage(
-                                            fit: BoxFit.cover,
-                                            image: new AssetImage(
-                                              'images/grocery.png',
-                                            )
-                                        )),
+                                            fit: BoxFit.fill,
+                                            image: NetworkImage(
+                                              '${e.category_image}',
+                                              //'${imageBaseUrl}${e.category_image}',
+                                              ),
+                                            ),
+                                        ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(10.0),
-                                      child: Text('${e.category_name}',
+                                      child: Text('',
+                                     // child: Text('${e.category_name}',
                                           style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold,
@@ -706,9 +712,12 @@ class _HomeState extends State<Home> {
                     ),SizedBox(
                       height: 10,
                     ),
+
                     InkWell(
                       onTap: () {},
-                      child: Padding(
+                      child:
+                       // if(isDelvmartBanner=="on"){
+                          Padding(
                         padding:
                             EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                         child: Material(
@@ -723,9 +732,9 @@ class _HomeState extends State<Home> {
                               color: white_color,
                               borderRadius: BorderRadius.circular(10.0),
                             ),
-                            child:  Image.asset(
+                            child: Image.network(
                               'images/delvmart.png',
-                              //'https://www.gstatic.com/webp/gallery/4.jpg',
+                             // delvmartBanner,
                               fit: BoxFit.fill,
                               errorBuilder: (context, exception, stackTrack) =>
                                   Image.asset(
@@ -734,7 +743,8 @@ class _HomeState extends State<Home> {
                             ),
                           ),
                         ),
-                      ),
+                      )/*}else {Text(
+                    '',)}*/,
                     ),
                     SizedBox(
                       height: 10,
@@ -1030,11 +1040,19 @@ class _HomeState extends State<Home> {
                              //child:Text("List item ")
                              child:Row(
                                children: [
-                                 Image.asset(
-                                   'images/checkout.png',
+                                 Container(
                                    width: 50,
                                    height: 50,
-                                   fit: BoxFit.fitWidth,),
+                                   padding: EdgeInsets.all(10),
+                                   child:  Image.asset(
+                                     'images/instantdelivery.png',
+                                     width: 30,
+                                     height: 30,
+                                     fit: BoxFit.fitWidth,),
+                                   decoration: BoxDecoration(
+                                       shape: BoxShape.circle,
+                                       color: Color(0xffe8442e)),
+                                 ),
                                  Text("  Instant delivery\n  at door step",
                                    style: TextStyle(
                                        color: Colors.black,fontSize: 15),),
@@ -1049,13 +1067,21 @@ class _HomeState extends State<Home> {
                              //child:Text("List item ")
                              child:Row(
                                children: [SizedBox(
-                                 width: 5,
+                                 width: 10,
                                ),
-                                 Image.asset(
-                                   'images/checkout.png',
+                                 Container(
                                    width: 50,
                                    height: 50,
-                                   fit: BoxFit.fitWidth,),
+                                   padding: EdgeInsets.all(10),
+                                   child:  Image.asset(
+                                     'images/orderwide.png',
+                                     width: 30,
+                                     height: 30,
+                                     fit: BoxFit.fitWidth,),
+                                   decoration: BoxDecoration(
+                                       shape: BoxShape.circle,
+                                       color: Color(0xffe8442e)),
+                                 ),
                                  Text("  Order wide range\n  of variety",
                                    style: TextStyle(
                                        color: Colors.black,fontSize: 15),),
@@ -1070,11 +1096,19 @@ class _HomeState extends State<Home> {
                              //child:Text("List item ")
                              child:Row(
                                children: [
-                                 Image.asset(
-                                   'images/checkout.png',
+                                 Container(
                                    width: 50,
                                    height: 50,
-                                   fit: BoxFit.fitWidth,),
+                                   padding: EdgeInsets.all(10),
+                                   child:  Image.asset(
+                                     'images/localtest.png',
+                                     width: 30,
+                                     height: 30,
+                                     fit: BoxFit.fitWidth,),
+                                   decoration: BoxDecoration(
+                                       shape: BoxShape.circle,
+                                       color: Color(0xffe8442e)),
+                                 ),
                                  Text("  No minimum     \n  order value",
                                    style: TextStyle(
                                        color: Colors.black,fontSize: 15),),
@@ -1089,11 +1123,19 @@ class _HomeState extends State<Home> {
                              //child:Text("List item ")
                              child:Row(
                                children: [
-                                 Image.asset(
-                                   'images/checkout.png',
+                                 Container(
                                    width: 50,
                                    height: 50,
-                                   fit: BoxFit.fitWidth,),
+                                   padding: EdgeInsets.all(10),
+                                   child:  Image.asset(
+                                     'images/allinone.png',
+                                     width: 10,
+                                     height: 10,
+                                     fit: BoxFit.fitWidth,),
+                                   decoration: BoxDecoration(
+                                       shape: BoxShape.circle,
+                                       color: Color(0xffe8442e)),
+                                 ),
                                  Text("  All in one          ",
                                    style: TextStyle(
                                        color: Colors.black,fontSize: 15),),
@@ -1108,11 +1150,19 @@ class _HomeState extends State<Home> {
                              //child:Text("List item ")
                              child:Row(
                                children: [
-                                 Image.asset(
-                                   'images/checkout.png',
+                                 Container(
                                    width: 50,
                                    height: 50,
-                                   fit: BoxFit.fitWidth,),
+                                   padding: EdgeInsets.all(10),
+                                   child:  Image.asset(
+                                     'images/localtest.png',
+                                     width: 30,
+                                     height: 30,
+                                     fit: BoxFit.fitWidth,),
+                                   decoration: BoxDecoration(
+                                       shape: BoxShape.circle,
+                                       color: Color(0xffe8442e)),
+                                 ),
                                  Text("  Local test         ",
                                    style: TextStyle(
                                        color: Colors.black,fontSize: 15),),
@@ -1149,8 +1199,8 @@ class _HomeState extends State<Home> {
                             begin: Alignment.topRight,
                             end: Alignment.bottomLeft,
                             colors: [
-                              Colors.yellow,
-                              Colors.red,
+                              darkYellowColor,
+                              darkRedColor,
                             ],
                           )
                         ),
@@ -1258,7 +1308,13 @@ class _HomeState extends State<Home> {
           List<BannerDetails> tagObjs = tagObjsJson
               .map((tagJson) => BannerDetails.fromJson(tagJson))
               .toList();
-          if (tagObjs.isNotEmpty) {
+          setState(() {
+            isDelvmartBanner=jsonData['delvmart_set'];
+            delvmartBanner=jsonData['dbanner_url'];
+            delvmartBannerId=jsonData['dbanner_store_id'];
+          });
+
+      if (tagObjs.isNotEmpty) {
             setState(() {
               listImage.clear();
               listImage = tagObjs;

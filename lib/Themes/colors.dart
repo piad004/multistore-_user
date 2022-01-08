@@ -13,6 +13,8 @@ Color kHintColor = Color(0xff999e93);
 Color darkPrimaryColor = Color(0xFFEB1344);
 Color scaffoldBgColor = Color(0xFFF4F4F4);
 Color kGreenColor = Color(0xFF044702);
+Color darkYellowColor = Color(0xFFEE934C);
+Color darkRedColor = Color(0xFFCD0834);
 
 final appbar_color = Colors.blue;
 final white_color = Colors.white;

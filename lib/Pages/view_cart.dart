@@ -98,6 +98,7 @@ class _ViewCartState extends State<ViewCart> {
         isCartFetch = false;
         cartListI.clear();
         cartListI = tagObjs;
+        getAddress(context,AppLocalizations.of(context));
       });
     });
   }
@@ -128,12 +129,24 @@ class _ViewCartState extends State<ViewCart> {
       isCartFetch = true;
       currency = prefs.getString('curency');
     });
+    var productsJson="";
+    if(cartListI!=null && cartListI.length>0) {
+      List<String> productList=[];
+      for (int i = 0; i < cartListI.length; i++) {
+        productList.add(cartListI[i].product_name);
+      }
+
+       productsJson = jsonEncode(
+          productList.map((product) => product.toString()).toList());
+    }
+
     int userId = prefs.getInt('user_id');
     String vendorId = prefs.getString('vendor_id');
     var url = address_selection;
     http.post(url, body: {
       'user_id': '${userId}',
-      'vendor_id': '${vendorId}'
+      'vendor_id': '${vendorId}',
+      'product_name_list': '${productsJson}'
     }).then((value) {
       if (value.statusCode == 200) {
         var jsonData = json.decode(value.body);
@@ -194,7 +207,7 @@ class _ViewCartState extends State<ViewCart> {
       setState(() {
         isEnteredFirst = true;
       });
-      getAddress(context,locale);
+      //getAddress(context,locale);
       // firstDate = toDateMonthYear(DateTime.now());
       // prepareData(firstDate);
       // dateTimeSt =
@@ -671,7 +684,8 @@ class _ViewCartState extends State<ViewCart> {
                                   ),
                                   Text(
                                       addressDelivery != null
-                                          ? '${addressDelivery.address != null ? '${addressDelivery.address})' : ''} \n ${(addressDelivery.delivery_charge != null) ? addressDelivery.delivery_charge : ''}'
+                                          ? '${addressDelivery.address != null ? '${addressDelivery.address})' : ''} '
+                                          //'\n ${(addressDelivery.delivery_charge != null) ? addressDelivery.delivery_charge : ''}'
                                           : '',
                                       style: Theme.of(context)
                                           .textTheme
