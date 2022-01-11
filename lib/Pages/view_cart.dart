@@ -799,7 +799,7 @@ class _ViewCartState extends State<ViewCart> {
             'time_slot': '${radioList[idd1]}',
             'ui_type': ui_type
           }).then((value) {
-            print(value.body);
+            print("create cart::::"+ value.body);
             if (value != null && value.statusCode == 200) {
               var jsonData = jsonDecode(value.body);
               if (jsonData['status'] == "1") {
@@ -819,7 +819,8 @@ class _ViewCartState extends State<ViewCart> {
                 showDialogBox = false;
               });
             }
-          }).catchError((_) {
+          }).catchError((e) {
+            print("create cart error :==: ");
             setState(() {
               showDialogBox = false;
             });
@@ -862,7 +863,8 @@ class _ViewCartState extends State<ViewCart> {
     var url = paymentvia;
     var client = http.Client();
     client.get(url).then((value) {
-      print('${value.statusCode} - ${value.body}');
+      var jsonData = jsonDecode(value.body);
+      print("vendor payment ::::"+"===="+'${value.statusCode} - ${value.body}');
       if (value.statusCode == 200) {
         setState(() {
           showDialogBox = false;
@@ -885,7 +887,8 @@ class _ViewCartState extends State<ViewCart> {
         }
       }
     }).catchError((e) {
-      print(e);
+      var a="";
+      print("vendor error :==: "+e.toString());
     });
   }
 

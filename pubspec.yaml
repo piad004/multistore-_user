@@ -69,6 +69,8 @@ dependencies:
   printing: ^5.0.4
   mapbox_search: ^2.1.0+1
   http_auth: ^1.0.0
+  smooth_star_rating: 1.1.1
+  flutter_rating_bar: ^4.0.0
 
 #dependency_overrides:
 #  intl: any

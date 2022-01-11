@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer_animation/shimmer_animation.dart';
 import 'package:toast/toast.dart';
 import 'package:user/Components/custom_appbar.dart';
 import 'package:user/HomeOrderAccount/Home/UI/appcategory/appcategory.dart';
@@ -19,18 +21,20 @@ import 'package:user/databasehelper/dbhelper.dart';
 class StoresPage extends StatefulWidget {
   final String pageTitle;
   final dynamic vendor_category_id;
+   String ui_type="";
 
-  StoresPage(this.pageTitle, this.vendor_category_id);
+  StoresPage(this.pageTitle, this.vendor_category_id, this.ui_type);
 
   @override
   State<StatefulWidget> createState() {
-    return StoresPageState(pageTitle, vendor_category_id);
+    return StoresPageState(pageTitle, vendor_category_id,ui_type);
   }
 }
 
 class StoresPageState extends State<StoresPage> {
   var http = Client();
   final String pageTitle;
+  String ui_type="";
   final dynamic vendor_category_id;
   List<VendorBanner> listImage = [];
   List<NearStores> nearStores = [];
@@ -45,7 +49,7 @@ class StoresPageState extends State<StoresPage> {
   bool isFetch = true;
   bool isFetchStore = true;
 
-  StoresPageState(this.pageTitle, this.vendor_category_id);
+  StoresPageState(this.pageTitle, this.vendor_category_id,this.ui_type);
 
   TextEditingController searchController = TextEditingController();
   bool isCartCount = false;
@@ -65,6 +69,7 @@ class StoresPageState extends State<StoresPage> {
     setState(() {
       userLat = double.parse('${prefs.getString('lat')}');
       userLng = double.parse('${prefs.getString('lng')}');
+      hitBannerUrl();
     });
   }
 
@@ -181,7 +186,7 @@ class StoresPageState extends State<StoresPage> {
               ),
             ],
             bottom: PreferredSize(
-                child: Container(
+              child:Container(
                   width: MediaQuery.of(context).size.width * 0.85,
                   height: 52,
                   padding: EdgeInsets.only(left: 5),
@@ -221,6 +226,109 @@ class StoresPageState extends State<StoresPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+
+                Visibility(
+                  visible:
+                  (!isFetch && listImage.length == 0) ? false : true,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 10, bottom: 5),
+                    child: CarouselSlider(
+                        options: CarouselOptions(
+                          height: 170.0,
+                          autoPlay: true,
+                          initialPage: 0,
+                          viewportFraction: 0.9,
+                          enableInfiniteScroll: true,
+                          reverse: false,
+                          autoPlayInterval: Duration(seconds: 3),
+                          autoPlayAnimationDuration:
+                          Duration(milliseconds: 800),
+                          autoPlayCurve: Curves.fastOutSlowIn,
+                          scrollDirection: Axis.horizontal,
+                        ),
+                        items: (listImage != null && listImage.length > 0)
+                            ? listImage.map((e) {
+                          return Builder(
+                            builder: (context) {
+                              return InkWell(
+                                onTap: () {
+                                 /* Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              AppCategory(e.vendor_id, e.vendor_id, e.vendor_id))).then((value) {
+                                    getCartCount();
+                                  });*/
+                                },
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 5, vertical: 10),
+                                  child: Material(
+                                    elevation: 5,
+                                    borderRadius:
+                                    BorderRadius.circular(20.0),
+                                    clipBehavior: Clip.hardEdge,
+                                    child: Container(
+                                      width: MediaQuery.of(context)
+                                          .size
+                                          .width *
+                                          0.90,
+//                                            padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0),
+                                      decoration: BoxDecoration(
+                                        color: white_color,
+                                        borderRadius:
+                                        BorderRadius.circular(
+                                            20.0),
+                                      ),
+                                      child: Image.network(
+                                        //imageBaseUrl + e.banner_image,
+                                        e.banner_image,
+                                        fit: BoxFit.fill,
+                                        errorBuilder: (context,
+                                            exception,
+                                            stackTrack) =>
+                                            Image.asset(
+                                                'images/delvmart.png',
+                                                fit: BoxFit.fill),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        }).toList()
+                            : listImages.map((e) {
+                          return Builder(builder: (context) {
+                            return Container(
+                              width:
+                              MediaQuery.of(context).size.width *
+                                  0.90,
+                              margin: EdgeInsets.symmetric(
+                                  horizontal: 5.0),
+                              decoration: BoxDecoration(
+                                borderRadius:
+                                BorderRadius.circular(20.0),
+                              ),
+                              child: Shimmer(
+                                duration: Duration(seconds: 3),
+                                //Default value
+                                color: Colors.white,
+                                //Default value
+                                enabled: true,
+                                //Default value
+                                direction:
+                                ShimmerDirection.fromLTRB(),
+                                //Default Value
+                                child: Container(
+                                  color: kTransparentColor,
+                                ),
+                              ),
+                            );
+                          });
+                        }).toList()),
+                  ),
+                ),
                 Padding(
                   padding: EdgeInsets.only(left: 20.0, top: 20.0),
                   child: Text(
@@ -498,8 +606,8 @@ class StoresPageState extends State<StoresPage> {
   }
 
   void hitBannerUrl() async {
-    var url = vendorBanner;
-    http.post(url, body: {'vendor_id': '$vendor_category_id'}).then((value) {
+    var url = categoryBanner+'?lat='+userLat.toString()+'&lng='+userLng.toString()+'&ui_type='+ui_type.toString();
+    http.get(Uri.parse(url)).then((value) {
       if (value.statusCode == 200) {
         var jsonData = jsonDecode(value.body);
         if (jsonData['status'] == "1") {
@@ -524,6 +632,7 @@ class StoresPageState extends State<StoresPage> {
         }
       }
     }).catchError((e) {
+      print("error store"+e);
       setState(() {
         isFetch = false;
       });

@@ -598,7 +598,7 @@ class _HomeState extends State<Home> {
       isFetch = true;
     });
     var url = bannerUrl;
-    http.get(url).then((response) {
+    http.get(Uri.parse(url)).then((response) {
       if (response.statusCode == 200) {
         var jsonData = jsonDecode(response.body);
         if (jsonData['status'] == "1") {
@@ -643,7 +643,7 @@ class _HomeState extends State<Home> {
           context,
           MaterialPageRoute(
               builder: (context) =>
-                  StoresPage(category_name, vendor_category_id)));
+                  StoresPage(category_name, vendor_category_id,ui_type)));
     } else if (ui_type == "resturant" ||
         ui_type == "Resturant" ||
         ui_type == "2") {

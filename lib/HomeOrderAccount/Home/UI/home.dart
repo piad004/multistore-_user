@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
@@ -13,10 +14,13 @@ import 'package:toast/toast.dart';
 import 'package:user/Components/custom_appbar.dart';
 import 'package:user/Components/reusable_card.dart';
 import 'package:user/HomeOrderAccount/Home/UI/Stores/stores.dart';
+import 'package:user/HomeOrderAccount/Home/UI/appcategory/appcategory.dart';
 import 'package:user/Locale/locales.dart';
 import 'package:user/Maps/UI/location_page.dart';
 import 'package:user/Themes/colors.dart';
 import 'package:user/baseurlp/baseurl.dart';
+import 'package:user/bean/BestDeal.dart';
+import 'package:user/bean/BestRated.dart';
 import 'package:user/bean/bannerbean.dart';
 import 'package:user/bean/latlng.dart';
 import 'package:user/bean/venderbean.dart';
@@ -43,6 +47,8 @@ class _HomeState extends State<Home> {
   double lng = 0.0;
   List<BannerDetails> listImage = [];
   List<VendorList> nearStores = [];
+  List<BestDeal> bestDealList = [];
+  List<BestRated> bestRatingList = [];
   List<VendorList> nearStoresShimmer = [
     VendorList("", "", "", ""),
     VendorList("", "", "", ""),
@@ -72,9 +78,11 @@ class _HomeState extends State<Home> {
     lightPink
   ];
   var pos = 0;
-  var isDelvmartBanner;
-  var delvmartBanner;
+  var isDelvmartBanner = "off";
+  var delvmartBanner = "";
   var delvmartBannerId;
+  var delvmartVendorName = "";
+  var delvmartDistance;
 
   TextEditingController searchController = TextEditingController();
   bool enteredFirst = false;
@@ -91,12 +99,13 @@ class _HomeState extends State<Home> {
       if (permission == LocationPermission.whileInUse ||
           permission == LocationPermission.always) {
         bool isLocationServiceEnableds =
-            await Geolocator.isLocationServiceEnabled();
+        await Geolocator.isLocationServiceEnabled();
         if (isLocationServiceEnableds) {
           Position position = await Geolocator.getCurrentPosition(
               desiredAccuracy: LocationAccuracy.best);
           double lat = position.latitude;
           double lng = position.longitude;
+          //get
           setState(() {
             locGrant = true;
             this.lat = lat;
@@ -180,11 +189,13 @@ class _HomeState extends State<Home> {
       });
     });
     hitService();
-    hitBannerUrl();
+    hitBannerUrl(lat, lng);
+    hitServiceBestDeal();
+    hitServiceBestRated();
   }
 
-  void performAction(
-      BuildContext context, AppLocalizations locale, String type) async {
+  void performAction(BuildContext context, AppLocalizations locale,
+      String type) async {
     if (type == 'opens') {
       Geolocator.openLocationSettings().then((value) {
         if (value) {
@@ -373,7 +384,10 @@ class _HomeState extends State<Home> {
                 ),
                 actions: []),
             Container(
-              width: MediaQuery.of(context).size.width * 0.9,
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.9,
               height: 48,
               padding: EdgeInsets.only(left: 5),
               decoration: BoxDecoration(
@@ -407,14 +421,20 @@ class _HomeState extends State<Home> {
       ),
       body: locGrant
           ? Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    /*Padding(
+        width: MediaQuery
+            .of(context)
+            .size
+            .width,
+        height: MediaQuery
+            .of(context)
+            .size
+            .height,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              /*Padding(
                 padding: EdgeInsets.only(top: 16.0, left: 24.0),
                 child: Row(
                   children: <Widget>[
@@ -451,168 +471,184 @@ class _HomeState extends State<Home> {
                   ],
                 ),
               ),*/
-                    Visibility(
-                      visible:
-                          (!isFetch && listImage.length == 0) ? false : true,
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 10, bottom: 5),
-                        child: CarouselSlider(
-                            options: CarouselOptions(
-                              height: 170.0,
-                              autoPlay: true,
-                              initialPage: 0,
-                              viewportFraction: 0.9,
-                              enableInfiniteScroll: true,
-                              reverse: false,
-                              autoPlayInterval: Duration(seconds: 3),
-                              autoPlayAnimationDuration:
-                                  Duration(milliseconds: 800),
-                              autoPlayCurve: Curves.fastOutSlowIn,
-                              scrollDirection: Axis.horizontal,
-                            ),
-                            items: (listImage != null && listImage.length > 0)
-                                ? listImage.map((e) {
-                                    return Builder(
-                                      builder: (context) {
-                                        return InkWell(
-                                          onTap: () {},
-                                          child: Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 5, vertical: 10),
-                                            child: Material(
-                                              elevation: 5,
-                                              borderRadius:
-                                                  BorderRadius.circular(20.0),
-                                              clipBehavior: Clip.hardEdge,
-                                              child: Container(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.90,
-//                                            padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0),
-                                                decoration: BoxDecoration(
-                                                  color: white_color,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          20.0),
-                                                ),
-                                                child: Image.network(
-                                                  imageBaseUrl + e.banner_image,
-                                                  fit: BoxFit.fill,
-                                                  errorBuilder: (context,
-                                                          exception,
-                                                          stackTrack) =>
-                                                      Image.asset(
-                                                          'images/delvmart.png',
-                                                          fit: BoxFit.fill),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  }).toList()
-                                : listImages.map((e) {
-                                    return Builder(builder: (context) {
-                                      return Container(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.90,
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 5.0),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(20.0),
-                                        ),
-                                        child: Shimmer(
-                                          duration: Duration(seconds: 3),
-                                          //Default value
-                                          color: Colors.white,
-                                          //Default value
-                                          enabled: true,
-                                          //Default value
-                                          direction:
-                                              ShimmerDirection.fromLTRB(),
-                                          //Default Value
-                                          child: Container(
-                                            color: kTransparentColor,
-                                          ),
-                                        ),
-                                      );
-                                    });
-                                  }).toList()),
+              Visibility(
+                visible:
+                (!isFetch && listImage.length == 0) ? false : true,
+                child: Padding(
+                  padding: EdgeInsets.only(top: 10, bottom: 5),
+                  child: CarouselSlider(
+                      options: CarouselOptions(
+                        height: 170.0,
+                        autoPlay: true,
+                        initialPage: 0,
+                        viewportFraction: 0.9,
+                        enableInfiniteScroll: true,
+                        reverse: false,
+                        autoPlayInterval: Duration(seconds: 3),
+                        autoPlayAnimationDuration:
+                        Duration(milliseconds: 800),
+                        autoPlayCurve: Curves.fastOutSlowIn,
+                        scrollDirection: Axis.horizontal,
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 16.0, left: 10.0),
-                      child: Row(
-                        children: <Widget>[
-                          RichText(
-                              textAlign: TextAlign.center,
-                              text: TextSpan(
-                                  text: "Instant Delivery",
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black),
-                                  //style: Theme.of(context).textTheme.bodyText1,
-                                  children: <TextSpan>[
-                                    /*TextSpan(
+                      items: (listImage != null && listImage.length > 0)
+                          ? listImage.map((e) {
+                        return Builder(
+                          builder: (context) {
+                            return InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            AppCategory(
+                                                e.vendor_name, e.vendor_id,
+                                                e.distance))).then((value) {
+                                  getCartCount();
+                                });
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 5, vertical: 10),
+                                child: Material(
+                                  elevation: 5,
+                                  borderRadius:
+                                  BorderRadius.circular(20.0),
+                                  clipBehavior: Clip.hardEdge,
+                                  child: Container(
+                                    width: MediaQuery
+                                        .of(context)
+                                        .size
+                                        .width *
+                                        0.90,
+//                                            padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0),
+                                    decoration: BoxDecoration(
+                                      color: white_color,
+                                      borderRadius:
+                                      BorderRadius.circular(
+                                          20.0),
+                                    ),
+                                    child: Image.network(
+                                      //imageBaseUrl + e.banner_image,
+                                      e.banner_image,
+                                      fit: BoxFit.fill,
+                                      errorBuilder: (context,
+                                          exception,
+                                          stackTrack) =>
+                                          Image.asset(
+                                              'images/delvmart.png',
+                                              fit: BoxFit.fill),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      }).toList()
+                          : listImages.map((e) {
+                        return Builder(builder: (context) {
+                          return Container(
+                            width:
+                            MediaQuery
+                                .of(context)
+                                .size
+                                .width *
+                                0.90,
+                            margin: EdgeInsets.symmetric(
+                                horizontal: 5.0),
+                            decoration: BoxDecoration(
+                              borderRadius:
+                              BorderRadius.circular(20.0),
+                            ),
+                            child: Shimmer(
+                              duration: Duration(seconds: 3),
+                              //Default value
+                              color: Colors.white,
+                              //Default value
+                              enabled: true,
+                              //Default value
+                              direction:
+                              ShimmerDirection.fromLTRB(),
+                              //Default Value
+                              child: Container(
+                                color: kTransparentColor,
+                              ),
+                            ),
+                          );
+                        });
+                      }).toList()),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 16.0, left: 10.0),
+                child: Row(
+                  children: <Widget>[
+                    RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                            text: "Instant Delivery",
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black),
+                            //style: Theme.of(context).textTheme.bodyText1,
+                            children: <TextSpan>[
+                              /*TextSpan(
                                   text:
                                   ' ${locale.everythingYouNeedText}',
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyText1
                                       .copyWith(fontWeight: FontWeight.normal))*/
-                                  ])),
-                          // Expanded(
-                          //   child: Text(
-                          //     locale.gotDeliveredText,
-                          //     style: Theme.of(context).textTheme.bodyText1,
-                          //   ),
-                          // ),
-                          // SizedBox(
-                          //   width: 5.0,
-                          // ),
-                          // Text(
-                          //   locale.everythingYouNeedText,
-                          //   style: Theme.of(context)
-                          //       .textTheme
-                          //       .bodyText1
-                          //       .copyWith(fontWeight: FontWeight.normal),
-                          // ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 5),
-                      child: GridView.count(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 0.0,
-                        mainAxisSpacing: 0.0,
-                        // childAspectRatio: itemWidth/(itemHeight),
-                        controller: ScrollController(keepScrollOffset: false),
-                        shrinkWrap: true,
-                        scrollDirection: Axis.vertical,
-                        children: (nearStores != null && nearStores.length > 0)
-                            ? nearStores.map((e) {
-                                pos = nearStores.indexOf(e) % 3;
-                                return Container(
-                                  child: InkWell(
-                                    onTap: () => hitNavigator(
-                                        context,
-                                        e.category_name,
-                                        e.ui_type,
-                                        e.vendor_category_id),
-                                  child: Container(
-                                    height: 170,
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                        /* gradient: LinearGradient(
+                            ])),
+                    // Expanded(
+                    //   child: Text(
+                    //     locale.gotDeliveredText,
+                    //     style: Theme.of(context).textTheme.bodyText1,
+                    //   ),
+                    // ),
+                    // SizedBox(
+                    //   width: 5.0,
+                    // ),
+                    // Text(
+                    //   locale.everythingYouNeedText,
+                    //   style: Theme.of(context)
+                    //       .textTheme
+                    //       .bodyText1
+                    //       .copyWith(fontWeight: FontWeight.normal),
+                    // ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 5),
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 0.0,
+                  mainAxisSpacing: 0.0,
+                  // childAspectRatio: itemWidth/(itemHeight),
+                  controller: ScrollController(keepScrollOffset: false),
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  children: (nearStores != null && nearStores.length > 0)
+                      ? nearStores.map((e) {
+                    pos = nearStores.indexOf(e) % 3;
+                    return Container(
+                      child: InkWell(
+                        onTap: () =>
+                            hitNavigator(
+                                context,
+                                e.category_name,
+                                e.ui_type,
+                                e.vendor_category_id),
+                        child: Container(
+                          height: 170,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            /* gradient: LinearGradient(
                                   colors: [
                                     lightColors[pos],
                                     Colors.white,
@@ -623,30 +659,30 @@ class _HomeState extends State<Home> {
                                   end: Alignment.bottomCenter,
                                   stops: [0.2, 1,1,1],
                                   tileMode: TileMode.decal),*/
-                                        borderRadius:
-                                            BorderRadius.circular(5.0),
-                                        image: DecorationImage(
-                                            fit: BoxFit.fill,
-                                            image: NetworkImage(
-                                              '${e.category_image}',
-                                              //'${imageBaseUrl}${e.category_image}',
-                                              ),
-                                            ),
-                                        ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(10.0),
-                                      child: Text('',
-                                     // child: Text('${e.category_name}',
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: colors[pos])),
-                                    ),
-                                  margin: EdgeInsets.all(5.0),
-                                  ),
-                                  ),
-                                );
-                                /*return ReusableCard(
+                            borderRadius:
+                            BorderRadius.circular(5.0),
+                            image: DecorationImage(
+                              fit: BoxFit.fill,
+                              image: NetworkImage(
+                                '${e.category_image}',
+                                //'${imageBaseUrl}${e.category_image}',
+                              ),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text('',
+                                // child: Text('${e.category_name}',
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: colors[pos])),
+                          ),
+                          margin: EdgeInsets.all(5.0),
+                        ),
+                      ),
+                    );
+                    /*return ReusableCard(
                       cardChild: CardContent(
                         text: '${e.category_name}',
                         image: '${imageBaseUrl}${e.category_image}',
@@ -657,47 +693,53 @@ class _HomeState extends State<Home> {
                           e.ui_type,
                           e.vendor_category_id),
                     );*/
-                              }).toList()
-                            : nearStoresShimmer.map((e) {
-                                return ReusableCard(
-                                    cardChild: Shimmer(
-                                      duration: Duration(seconds: 3),
-                                      //Default value
-                                      color: Colors.white,
-                                      //Default value
-                                      enabled: true,
-                                      //Default value
-                                      direction: ShimmerDirection.fromLTRB(),
-                                      //Default Value
-                                      child: Container(
-                                        color: kTransparentColor,
-                                      ),
-                                    ),
-                                    onPress: () {});
-                              }).toList(),
+                  }).toList()
+                      : nearStoresShimmer.map((e) {
+                    return ReusableCard(
+                        cardChild: Shimmer(
+                          duration: Duration(seconds: 3),
+                          //Default value
+                          color: Colors.white,
+                          //Default value
+                          enabled: true,
+                          //Default value
+                          direction: ShimmerDirection.fromLTRB(),
+                          //Default Value
+                          child: Container(
+                            color: kTransparentColor,
+                          ),
+                        ),
+                        onPress: () {});
+                  }).toList(),
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Container(
+                margin: EdgeInsets.only(left: 5, right: 5),
+                color: Colors.black12,
+                height: 2,
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text(
+                        '',
+                        style: TextStyle(color: Colors.white),
                       ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(left: 5,right: 5),
-                      color: Colors.black12,
-                      height: 2,
-                      child: Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: Text(
-                              '',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
+                    )
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+
+              Visibility(
+                visible: isDelvmartBanner == "on" || isDelvmartBanner == "On" ||
+                    isDelvmartBanner == "ON" ? true : false,
+                child: Column(
+                  children: [
                     Container(
                       alignment: Alignment.centerLeft,
                       padding: EdgeInsets.only(left: 10),
@@ -709,32 +751,49 @@ class _HomeState extends State<Home> {
                             color: Colors.black),
                         //style: Theme.of(context).textTheme.bodyText1,
                       ),
-                    ),SizedBox(
+                    ),
+                    SizedBox(
                       height: 10,
                     ),
 
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    AppCategory(
+                                        delvmartVendorName, delvmartBannerId,
+                                        delvmartDistance))).then((value) {
+                          getCartCount();
+                        });
+                      },
                       child:
-                       // if(isDelvmartBanner=="on"){
-                          Padding(
+                      // if(isDelvmartBanner=="on"){
+                      Padding(
                         padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                        EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                         child: Material(
                           elevation: 5,
                           borderRadius: BorderRadius.circular(10.0),
                           clipBehavior: Clip.hardEdge,
                           child: Container(
-                            width: MediaQuery.of(context).size.width * 0.94,
-                            height: MediaQuery.of(context).size.width * 0.40,
+                            width: MediaQuery
+                                .of(context)
+                                .size
+                                .width * 0.94,
+                            height: MediaQuery
+                                .of(context)
+                                .size
+                                .width * 0.40,
 //                                            padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0),
                             decoration: BoxDecoration(
                               color: white_color,
                               borderRadius: BorderRadius.circular(10.0),
                             ),
                             child: Image.network(
-                              'images/delvmart.png',
-                             // delvmartBanner,
+                              //'images/delvmart.png',
+                              delvmartBanner,
                               fit: BoxFit.fill,
                               errorBuilder: (context, exception, stackTrack) =>
                                   Image.asset(
@@ -743,14 +802,14 @@ class _HomeState extends State<Home> {
                             ),
                           ),
                         ),
-                      )/*}else {Text(
+                      ) /*}else {Text(
                     '',)}*/,
                     ),
                     SizedBox(
                       height: 10,
                     ),
                     Container(
-                      margin: EdgeInsets.only(left: 5,right: 5),
+                      margin: EdgeInsets.only(left: 5, right: 5),
                       color: Colors.black12,
                       height: 2,
                       child: Row(
@@ -767,507 +826,559 @@ class _HomeState extends State<Home> {
                     SizedBox(
                       height: 10,
                     ),
-                    Container(
-                      alignment: Alignment.centerLeft,
-                      padding: EdgeInsets.only(left: 10),
-                      child:  Row(
-                        children: <Widget>[
-                          Text(
-                        "Best deals for you  ", textAlign: TextAlign.left,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black),
-                        //style: Theme.of(context).textTheme.bodyText1,
-                      ),
-                          Image.asset(
-                            'images/best_deals.png',
-                            width: 20,
-                            height: 20,
-                            fit: BoxFit.fitWidth,
-                          ),
-                          //Image(image: NetworkImage('https://www.gstatic.com/webp/gallery/4.jpg'),height: 20,width: 20,)
-                      ],
+                  ],
+                ),
+              ),
+              Container(
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.only(left: 10),
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      "Best deals for you  ", textAlign: TextAlign.left,
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black),
+                      //style: Theme.of(context).textTheme.bodyText1,
                     ),
+                    Image.asset(
+                      'images/best_deals.png',
+                      width: 20,
+                      height: 20,
+                      fit: BoxFit.fitWidth,
                     ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 5),
-                      child: GridView.count(
-                        crossAxisCount: 4,
-                        crossAxisSpacing: 0.0,
-                        mainAxisSpacing: 0.0,
-                        //childAspectRatio: 200,
-                        controller: ScrollController(keepScrollOffset: false),
-                        shrinkWrap: true,
-                        scrollDirection: Axis.vertical,
-                        children: (nearStores != null && nearStores.length > 0)
-                            ? nearStores.map((e) {
-                          pos = nearStores.indexOf(e)%3;
-                          return Card(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(5)),
-                                side: BorderSide(width: 1, color: Colors.yellow)),
-                           // child: ListTile(),
-                            child: Container(
-                              height: 300,
-                              width: 100,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(2.0),
-                              ),
-                              child:  Column(
-                                children: <Widget>[
-                                  SizedBox(
-                                    height: 2,
-                                  ),
-                                  Image(image: NetworkImage('https://www.gstatic.com/webp/gallery/4.jpg'),height: 50,width: 40,),
-                                  Container(
-                                    margin: EdgeInsets.only(left: 5,top:2,bottom:2,right: 5),
-                                    color: Colors.yellow,
-                                    height: 1,
-                                    child: Row(
-                                      children: <Widget>[
-                                        Expanded(
-                                          child: Text(
-                                            '',
-                                            style: TextStyle(color: Colors.white),
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                  Text(
-                                    "50% Off", textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.red),
-                                    //style: Theme.of(context).textTheme.bodyText1,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            margin: EdgeInsets.all(5.0),
-                          );
-                          /*return ReusableCard(
-                      cardChild: CardContent(
-                        text: '${e.category_name}',
-                        image: '${imageBaseUrl}${e.category_image}',
-                      ),
-                      onPress: () => hitNavigator(
-                          context,
-                          e.category_name,
-                          e.ui_type,
-                          e.vendor_category_id),
-                    );*/
-
-                        }).toList()
-                            : nearStoresShimmer.map((e) {
-                          return ReusableCard(
-                              cardChild: Shimmer(
-                                duration: Duration(seconds: 3),
-                                //Default value
-                                color: Colors.white,
-                                //Default value
-                                enabled: true,
-                                //Default value
-                                direction: ShimmerDirection.fromLTRB(),
-                                //Default Value
-                                child: Container(
-                                  color: kTransparentColor,
-                                ),
-                              ),
-                              onPress: () {});
-                        }).toList(),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(left: 5,right: 5),
-                      color: Colors.black12,
-                      height: 2,
-                      child: Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: Text(
-                              '',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      alignment: Alignment.centerLeft,
-                      padding: EdgeInsets.only(left: 10),
-                      child:  Row(
-                        children: <Widget>[
-                          Text(
-                            "Best rated shop  ", textAlign: TextAlign.left,
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black),
-                            //style: Theme.of(context).textTheme.bodyText1,
-                          ),
-                          Image.asset(
-                            'images/star.png',
-                            width: 20,
-                            height: 20,
-                            fit: BoxFit.fitWidth,
-                          ),
-                         // Image(image: NetworkImage('https://www.gstatic.com/webp/gallery/4.jpg'),height: 20,width: 20,)
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 5),
-                      child: GridView.count(
-                        crossAxisCount: 4,
-                        crossAxisSpacing: 0.0,
-                        mainAxisSpacing: 0.0,
-                        //childAspectRatio: 200,
-                        controller: ScrollController(keepScrollOffset: false),
-                        shrinkWrap: true,
-                        scrollDirection: Axis.vertical,
-                        children: (nearStores != null && nearStores.length > 0)
-                            ? nearStores.map((e) {
-                          pos = nearStores.indexOf(e)%3;
-                          return Card(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(5)),
-                                side: BorderSide(width: 1, color: Colors.yellow)),
-                            // child: ListTile(),
-                            child: Container(
-                              height: 300,
-                              width: 100,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(2.0),
-                              ),
-                              child:  Column(
-                                children: <Widget>[
-                                  SizedBox(
-                                    height: 2,
-                                  ),
-                                  Image(image: NetworkImage('https://www.gstatic.com/webp/gallery/4.jpg'),height: 50,width: 40,),
-                                  Container(
-                                    margin: EdgeInsets.only(left: 5,top:2,bottom:2,right: 5),
-                                    color: Colors.yellow,
-                                    height: 1,
-                                    child: Row(
-                                      children: <Widget>[
-                                        Expanded(
-                                          child: Text(
-                                            '',
-                                            style: TextStyle(color: Colors.white),
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.star,
-                                        color: Colors.red,
-                                        size: 10,
-                                      ),
-                                      Icon(
-                                        Icons.star,
-                                        color: Colors.red,
-                                        size: 10,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            margin: EdgeInsets.all(5.0),
-                          );
-                          /*return ReusableCard(
-                      cardChild: CardContent(
-                        text: '${e.category_name}',
-                        image: '${imageBaseUrl}${e.category_image}',
-                      ),
-                      onPress: () => hitNavigator(
-                          context,
-                          e.category_name,
-                          e.ui_type,
-                          e.vendor_category_id),
-                    );*/
-
-                        }).toList()
-                            : nearStoresShimmer.map((e) {
-                          return ReusableCard(
-                              cardChild: Shimmer(
-                                duration: Duration(seconds: 3),
-                                //Default value
-                                color: Colors.white,
-                                //Default value
-                                enabled: true,
-                                //Default value
-                                direction: ShimmerDirection.fromLTRB(),
-                                //Default Value
-                                child: Container(
-                                  color: kTransparentColor,
-                                ),
-                              ),
-                              onPress: () {});
-                        }).toList(),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                   Row(
-                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                     children: [
-                       Column(
-                         children: [
-                           Container(
-                             //child:Text("List item ")
-                             child:Row(
-                               children: [
-                                 Container(
-                                   width: 50,
-                                   height: 50,
-                                   padding: EdgeInsets.all(10),
-                                   child:  Image.asset(
-                                     'images/instantdelivery.png',
-                                     width: 30,
-                                     height: 30,
-                                     fit: BoxFit.fitWidth,),
-                                   decoration: BoxDecoration(
-                                       shape: BoxShape.circle,
-                                       color: Color(0xffe8442e)),
-                                 ),
-                                 Text("  Instant delivery\n  at door step",
-                                   style: TextStyle(
-                                       color: Colors.black,fontSize: 15),),
-                               ],
-
-                             ),
-                           ),
-                           SizedBox(
-                             height: 5,
-                           ),
-                           Container(
-                             //child:Text("List item ")
-                             child:Row(
-                               children: [SizedBox(
-                                 width: 10,
-                               ),
-                                 Container(
-                                   width: 50,
-                                   height: 50,
-                                   padding: EdgeInsets.all(10),
-                                   child:  Image.asset(
-                                     'images/orderwide.png',
-                                     width: 30,
-                                     height: 30,
-                                     fit: BoxFit.fitWidth,),
-                                   decoration: BoxDecoration(
-                                       shape: BoxShape.circle,
-                                       color: Color(0xffe8442e)),
-                                 ),
-                                 Text("  Order wide range\n  of variety",
-                                   style: TextStyle(
-                                       color: Colors.black,fontSize: 15),),
-                               ],
-
-                             ),
-                           ),
-                           SizedBox(
-                             height: 5,
-                           ),
-                           Container(
-                             //child:Text("List item ")
-                             child:Row(
-                               children: [
-                                 Container(
-                                   width: 50,
-                                   height: 50,
-                                   padding: EdgeInsets.all(10),
-                                   child:  Image.asset(
-                                     'images/localtest.png',
-                                     width: 30,
-                                     height: 30,
-                                     fit: BoxFit.fitWidth,),
-                                   decoration: BoxDecoration(
-                                       shape: BoxShape.circle,
-                                       color: Color(0xffe8442e)),
-                                 ),
-                                 Text("  No minimum     \n  order value",
-                                   style: TextStyle(
-                                       color: Colors.black,fontSize: 15),),
-                               ],
-
-                             ),
-                           ),
-                           SizedBox(
-                             height: 5,
-                           ),
-                           Container(
-                             //child:Text("List item ")
-                             child:Row(
-                               children: [
-                                 Container(
-                                   width: 50,
-                                   height: 50,
-                                   padding: EdgeInsets.all(10),
-                                   child:  Image.asset(
-                                     'images/allinone.png',
-                                     width: 10,
-                                     height: 10,
-                                     fit: BoxFit.fitWidth,),
-                                   decoration: BoxDecoration(
-                                       shape: BoxShape.circle,
-                                       color: Color(0xffe8442e)),
-                                 ),
-                                 Text("  All in one          ",
-                                   style: TextStyle(
-                                       color: Colors.black,fontSize: 15),),
-                               ],
-
-                             ),
-                           ),
-                           SizedBox(
-                             height: 5,
-                           ),
-                           Container(
-                             //child:Text("List item ")
-                             child:Row(
-                               children: [
-                                 Container(
-                                   width: 50,
-                                   height: 50,
-                                   padding: EdgeInsets.all(10),
-                                   child:  Image.asset(
-                                     'images/localtest.png',
-                                     width: 30,
-                                     height: 30,
-                                     fit: BoxFit.fitWidth,),
-                                   decoration: BoxDecoration(
-                                       shape: BoxShape.circle,
-                                       color: Color(0xffe8442e)),
-                                 ),
-                                 Text("  Local test         ",
-                                   style: TextStyle(
-                                       color: Colors.black,fontSize: 15),),
-                               ],
-
-                             ),
-                           ),
-                         ],
-                       ),
-                       Image.asset(
-                         'images/delivery_boy.png',
-                         width: 145,
-                         height: 160,
-                         fit: BoxFit.fitWidth,
-                       ),
-                     ],
-                   ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Card(
+                    //Image(image: NetworkImage('https://www.gstatic.com/webp/gallery/4.jpg'),height: 20,width: 20,)
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 5),
+                child: GridView.count(
+                  crossAxisCount: 4,
+                  crossAxisSpacing: 0.0,
+                  mainAxisSpacing: 0.0,
+                  //childAspectRatio: 200,
+                  controller: ScrollController(keepScrollOffset: false),
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  children: (bestDealList != null && bestDealList.length > 0)
+                      ? bestDealList.map((e) {
+                    pos = bestDealList.indexOf(e) % 3;
+                    return Card(
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                          /*side: BorderSide(width: 0, )*/),
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                          side: BorderSide(width: 1, color: darkYellowColor1)),
                       // child: ListTile(),
                       child: Container(
-                        alignment: Alignment.center,
-                        padding: EdgeInsets.only(top:12,bottom: 12),
-                        //height: 50,
-                        width: MediaQuery.of(context).size.width-20,
+                        height: 300,
+                        width: 100,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(2.0),
-                          gradient: LinearGradient(
-                            begin: Alignment.topRight,
-                            end: Alignment.bottomLeft,
-                            colors: [
-                              darkYellowColor,
-                              darkRedColor,
-                            ],
-                          )
                         ),
-                        child:  Column(
+                        child: Column(
                           children: <Widget>[
-                            Text(
-                              'Partner with us and earn',
-                              style: TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),
+                            SizedBox(
+                              height: 2,
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(top:5),
+                              child:
+                            Image.network(
+                              e.logo,
+                              fit: BoxFit.fill, height: 48, width: 40,
+                              errorBuilder: (context, exception, stackTrack) =>
+                                  Image.asset(
+                                      'images/delvmart.png',
+                                      fit: BoxFit.fill, height: 48, width: 40),
+                            ),
+                              //NetworkImage('https://www.gstatic.com/webp/gallery/4.jpg'),height: 50,width: 40,
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(
+                                  left: 5, top: 2, bottom: 2, right: 5),
+                              color: darkYellowColor1,
+                              height: 1,
+                              child: Row(
+                                children: <Widget>[
+                                  Expanded(
+                                    child: Text(
+                                      '',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            Text(e.percentage.toString() +
+                                "% Off", textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: darkRedColor),
+                              //style: Theme.of(context).textTheme.bodyText1,
                             ),
                           ],
                         ),
                       ),
                       margin: EdgeInsets.all(5.0),
-                    )
-                  ],
-                ),
-              ),
-            )
-          : Center(
-              child: Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      locale.alertloc11,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w300,
-                        fontSize: 25,
-                        color: kMainTextColor,
+                    );
+                    /*return ReusableCard(
+                      cardChild: CardContent(
+                        text: '${e.category_name}',
+                        image: '${imageBaseUrl}${e.category_image}',
                       ),
-                    ),
-                    Padding(
-                        padding: EdgeInsets.only(
-                            left: 20.0, top: 10.0, bottom: 50, right: 20.0),
-                        child: Text(
-                          locale.locationheadingSub,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w300,
-                            fontSize: 18,
-                            color: kHintColor,
+                      onPress: () => hitNavigator(
+                          context,
+                          e.category_name,
+                          e.ui_type,
+                          e.vendor_category_id),
+                    );*/
+
+                  }).toList()
+                      : nearStoresShimmer.map((e) {
+                    return ReusableCard(
+                        cardChild: Shimmer(
+                          duration: Duration(seconds: 3),
+                          //Default value
+                          color: Colors.white,
+                          //Default value
+                          enabled: true,
+                          //Default value
+                          direction: ShimmerDirection.fromLTRB(),
+                          //Default Value
+                          child: Container(
+                            color: kTransparentColor,
                           ),
-                        )),
-                    RaisedButton(
-                      onPressed: () {
-                        _getLocation(context, locale);
-                      },
+                        ),
+                        onPress: () {});
+                  }).toList(),
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Container(
+                margin: EdgeInsets.only(left: 5, right: 5),
+                color: Colors.black12,
+                height: 2,
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
                       child: Text(
-                        locale.presstoallow,
-                        style: TextStyle(
-                            color: kWhiteColor, fontWeight: FontWeight.w400),
-                      ),
-                      color: kMainColor,
-                      highlightColor: kMainColor,
-                      focusColor: kMainColor,
-                      splashColor: kMainColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
+                        '',
+                        style: TextStyle(color: Colors.white),
                       ),
                     )
                   ],
                 ),
               ),
-            ),
+              SizedBox(
+                height: 10,
+              ),
+              Container(
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.only(left: 10),
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      "Best rated shop  ", textAlign: TextAlign.left,
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black),
+                      //style: Theme.of(context).textTheme.bodyText1,
+                    ),
+                    Image.asset(
+                      'images/star.png',
+                      width: 20,
+                      height: 20,
+                      fit: BoxFit.fitWidth,
+                    ),
+                    // Image(image: NetworkImage('https://www.gstatic.com/webp/gallery/4.jpg'),height: 20,width: 20,)
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 5),
+                child: GridView.count(
+                  crossAxisCount: 4,
+                  crossAxisSpacing: 0.0,
+                  mainAxisSpacing: 0.0,
+                  //childAspectRatio: 200,
+                  controller: ScrollController(keepScrollOffset: false),
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  children: (bestRatingList != null &&
+                      bestRatingList.length > 0)
+                      ? bestRatingList.map((e) {
+                    pos = bestRatingList.indexOf(e) % 3;
+                    return Card(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                          side: BorderSide(width: 1, color: darkYellowColor1)),
+                      // child: ListTile(),
+                      child: Container(
+                        height: 300,
+                        width: 100,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(2.0),
+                        ),
+                        child: Column(
+                          children: <Widget>[
+                            SizedBox(
+                              height: 2,
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(top:5),
+                              child:
+                            Image.network(
+                              e.logo,
+                              fit: BoxFit.fill, height: 45, width: 40,
+                              errorBuilder: (context, exception, stackTrack) =>
+                                  Image.asset(
+                                      'images/delvmart.png',
+                                      fit: BoxFit.fill, height: 45, width: 40),
+                            ),
+                              //NetworkImage('https://www.gstatic.com/webp/gallery/4.jpg'),height: 50,width: 40,
+                            ),
+                            //Image(image: NetworkImage('https://www.gstatic.com/webp/gallery/4.jpg'),height: 50,width: 40,),
+                            Container(
+                              margin: EdgeInsets.only(
+                                  left: 5, top: 2, bottom: 2, right: 5),
+                              color: darkYellowColor1,
+                              height: 1,
+                              child: Row(
+                                children: <Widget>[
+                                  Expanded(
+                                    child: Text(
+                                      '',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                    width: MediaQuery
+                                        .of(context)
+                                        .size
+                                        .width * 0.20,
+                                    child:
+                                    RatingBar.builder(
+                                      initialRating: double.parse(e.rating),
+                                      minRating: 1,
+                                      direction: Axis.horizontal,
+                                      allowHalfRating: true,
+                                      itemCount: 5,
+                                      itemSize: 13,
+                                      itemPadding: EdgeInsets.symmetric(
+                                          horizontal: 0),
+                                      itemBuilder: (context, _) =>
+                                          Icon(
+                                            Icons.star,
+                                            color: darkRedColor,
+                                          ),
+                                      onRatingUpdate: (rating) {
+                                        print(rating);
+                                      },
+                                    )
+                                ),
+                                //////////////////
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      margin: EdgeInsets.all(5.0),
+                    );
+                    /*return ReusableCard(
+                      cardChild: CardContent(
+                        text: '${e.category_name}',
+                        image: '${imageBaseUrl}${e.category_image}',
+                      ),
+                      onPress: () => hitNavigator(
+                          context,
+                          e.category_name,
+                          e.ui_type,
+                          e.vendor_category_id),
+                    );*/
+
+                  }).toList()
+                      : nearStoresShimmer.map((e) {
+                    return ReusableCard(
+                        cardChild: Shimmer(
+                          duration: Duration(seconds: 3),
+                          //Default value
+                          color: Colors.white,
+                          //Default value
+                          enabled: true,
+                          //Default value
+                          direction: ShimmerDirection.fromLTRB(),
+                          //Default Value
+                          child: Container(
+                            color: kTransparentColor,
+                          ),
+                        ),
+                        onPress: () {});
+                  }).toList(),
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    children: [
+                      Container(
+                        //child:Text("List item ")
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 50,
+                              height: 50,
+                              padding: EdgeInsets.all(10),
+                              child: Image.asset(
+                                'images/instantdelivery.png',
+                                width: 30,
+                                height: 30,
+                                fit: BoxFit.fitWidth,),
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Color(0xffe8442e)),
+                            ),
+                            Text("  Instant delivery\n  at door step",
+                              style: TextStyle(
+                                  color: Colors.black, fontSize: 15),),
+                          ],
+
+                        ),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Container(
+                        //child:Text("List item ")
+                        child: Row(
+                          children: [SizedBox(
+                            width: 10,
+                          ),
+                            Container(
+                              width: 50,
+                              height: 50,
+                              padding: EdgeInsets.all(10),
+                              child: Image.asset(
+                                'images/orderwide.png',
+                                width: 30,
+                                height: 30,
+                                fit: BoxFit.fitWidth,),
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Color(0xffe8442e)),
+                            ),
+                            Text("  Order wide range\n  of variety",
+                              style: TextStyle(
+                                  color: Colors.black, fontSize: 15),),
+                          ],
+
+                        ),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Container(
+                        //child:Text("List item ")
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 50,
+                              height: 50,
+                              padding: EdgeInsets.all(10),
+                              child: Image.asset(
+                                'images/localtest.png',
+                                width: 30,
+                                height: 30,
+                                fit: BoxFit.fitWidth,),
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Color(0xffe8442e)),
+                            ),
+                            Text("  No minimum     \n  order value",
+                              style: TextStyle(
+                                  color: Colors.black, fontSize: 15),),
+                          ],
+
+                        ),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Container(
+                        //child:Text("List item ")
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 50,
+                              height: 50,
+                              padding: EdgeInsets.all(10),
+                              child: Image.asset(
+                                'images/allinone.png',
+                                width: 10,
+                                height: 10,
+                                fit: BoxFit.fitWidth,),
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Color(0xffe8442e)),
+                            ),
+                            Text("  All in one          ",
+                              style: TextStyle(
+                                  color: Colors.black, fontSize: 15),),
+                          ],
+
+                        ),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Container(
+                        //child:Text("List item ")
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 50,
+                              height: 50,
+                              padding: EdgeInsets.all(10),
+                              child: Image.asset(
+                                'images/localtest.png',
+                                width: 30,
+                                height: 30,
+                                fit: BoxFit.fitWidth,),
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Color(0xffe8442e)),
+                            ),
+                            Text("  Local test         ",
+                              style: TextStyle(
+                                  color: Colors.black, fontSize: 15),),
+                          ],
+
+                        ),
+                      ),
+                    ],
+                  ),
+                  Image.asset(
+                    'images/delivery_boy.png',
+                    width: 145,
+                    height: 160,
+                    fit: BoxFit.fitWidth,
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                  /*side: BorderSide(width: 0, )*/),
+                // child: ListTile(),
+                child: Container(
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.only(top: 12, bottom: 12),
+                  //height: 50,
+                  width: MediaQuery
+                      .of(context)
+                      .size
+                      .width - 20,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(2.0),
+                      gradient: LinearGradient(
+                        begin: Alignment.topRight,
+                        end: Alignment.bottomLeft,
+                        colors: [
+                          darkYellowColor,
+                          darkRedColor,
+                        ],
+                      )
+                  ),
+                  child: Column(
+                    children: <Widget>[
+                      Text(
+                        'Partner with us and earn',
+                        style: TextStyle(color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                margin: EdgeInsets.all(5.0),
+              )
+            ],
+          ),
+        ),
+      )
+          : Center(
+        child: Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                locale.alertloc11,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.w300,
+                  fontSize: 25,
+                  color: kMainTextColor,
+                ),
+              ),
+              Padding(
+                  padding: EdgeInsets.only(
+                      left: 20.0, top: 10.0, bottom: 50, right: 20.0),
+                  child: Text(
+                    locale.locationheadingSub,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w300,
+                      fontSize: 18,
+                      color: kHintColor,
+                    ),
+                  )),
+              RaisedButton(
+                onPressed: () {
+                  _getLocation(context, locale);
+                },
+                child: Text(
+                  locale.presstoallow,
+                  style: TextStyle(
+                      color: kWhiteColor, fontWeight: FontWeight.w400),
+                ),
+                color: kMainColor,
+                highlightColor: kMainColor,
+                focusColor: kMainColor,
+                splashColor: kMainColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -1295,26 +1406,78 @@ class _HomeState extends State<Home> {
     }
   }
 
-  void hitBannerUrl() async {
+  void hitServiceBestDeal() async {
+    var url = bestDealUrl;
+    var response = await http.get(url);
+    try {
+      if (response.statusCode == 200) {
+        var jsonData = jsonDecode(response.body);
+        if (jsonData['status'] == "1") {
+          var tagObjsJson = jsonDecode(response.body)['data'] as List;
+          List<BestDeal> tagObjs = tagObjsJson
+              .map((tagJson) => BestDeal.fromJson(tagJson))
+              .toList();
+          setState(() {
+            bestDealList.clear();
+            bestDealList = tagObjs;
+          });
+        }
+      }
+    } on Exception catch (_) {
+      Timer(Duration(seconds: 5), () {
+        // hitServiceBestDeal();
+      });
+    }
+  }
+
+  void hitServiceBestRated() async {
+    var url = bestRatingUrl;
+    var response = await http.get(url);
+    try {
+      if (response.statusCode == 200) {
+        var jsonData = jsonDecode(response.body);
+        if (jsonData['status'] == "1") {
+          var tagObjsJson = jsonDecode(response.body)['data'] as List;
+          List<BestRated> tagObjs = tagObjsJson
+              .map((tagJson) => BestRated.fromJson(tagJson))
+              .toList();
+          setState(() {
+            bestRatingList.clear();
+            bestRatingList = tagObjs;
+          });
+        }
+      }
+    } on Exception catch (_) {
+      Timer(Duration(seconds: 5), () {
+        // hitServiceBestRated();
+      });
+    }
+  }
+
+  void hitBannerUrl(var lat, var lng) async {
     setState(() {
       isFetch = true;
     });
-    var url = bannerUrl;
-    http.get(url).then((response) {
+    //var url = bannerUrl;
+    var url = bannerUrl + '?lat=' + lat.toString() + '&lng=' + lng.toString();
+    http.get(Uri.parse(url)).then((response) {
       if (response.statusCode == 200) {
         var jsonData = jsonDecode(response.body);
+
         if (jsonData['status'] == "1") {
           var tagObjsJson = jsonDecode(response.body)['data'] as List;
           List<BannerDetails> tagObjs = tagObjsJson
               .map((tagJson) => BannerDetails.fromJson(tagJson))
               .toList();
           setState(() {
-            isDelvmartBanner=jsonData['delvmart_set'];
-            delvmartBanner=jsonData['dbanner_url'];
-            delvmartBannerId=jsonData['dbanner_store_id'];
+            isDelvmartBanner = jsonData['delvmart_set'];
+            delvmartBanner = jsonData['dbanner_url'];
+            delvmartBannerId = jsonData['dbanner_store_id'];
+            delvmartVendorName = jsonData['vendor_name'];
+            delvmartDistance = jsonData['distance'];
           });
 
-      if (tagObjs.isNotEmpty) {
+          if (tagObjs.isNotEmpty) {
             setState(() {
               listImage.clear();
               listImage = tagObjs;
@@ -1335,7 +1498,6 @@ class _HomeState extends State<Home> {
         });
       }
     }).catchError((e) {
-      print(e);
       setState(() {
         isFetch = false;
       });
@@ -1351,7 +1513,8 @@ class _HomeState extends State<Home> {
           context,
           MaterialPageRoute(
               builder: (context) =>
-                  StoresPage(category_name, vendor_category_id)));
+                  StoresPage(
+                      category_name, vendor_category_id, ui_type.toString())));
     } else if (ui_type == "resturant" ||
         ui_type == "Resturant" ||
         ui_type == "2") {
@@ -1434,7 +1597,7 @@ class _HomeState extends State<Home> {
         });
       }
       hitService();
-      hitBannerUrl();
+      hitBannerUrl(lat, lng);
     });
   }
 }

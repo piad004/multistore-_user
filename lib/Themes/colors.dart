@@ -14,6 +14,7 @@ Color darkPrimaryColor = Color(0xFFEB1344);
 Color scaffoldBgColor = Color(0xFFF4F4F4);
 Color kGreenColor = Color(0xFF044702);
 Color darkYellowColor = Color(0xFFEE934C);
+Color darkYellowColor1 = Color(0xFFE0AB42);
 Color darkRedColor = Color(0xFFCD0834);
 
 final appbar_color = Colors.blue;
