@@ -27,6 +27,7 @@ import 'package:user/Pages/restinvoicepage.dart';
 import 'package:user/Pages/parcelinvoicepdf.dart';
 import 'package:user/HomeOrderAccount/locasearchpage.dart';
 import 'package:user/langfile/select_language.dart';
+import 'package:user/HomeOrderAccount/Account/UI/EditProfile.dart';
 
 class PageRoutes {
   static const String loginRoot = 'login/';
@@ -62,6 +63,7 @@ class PageRoutes {
   static const String searchloc = 'searchloc';
   static const String selectlang = 'selectlang';
   static const String addressto = 'addressto';
+  static const String editProfile = 'editProfile';
 
   Map<String, WidgetBuilder> routes() {
     return {
@@ -92,6 +94,7 @@ class PageRoutes {
       searchloc: (context) => SearchLocation(),
       selectlang: (context) => ChooseLanguage(),
       addressto: (context) => AddressTo(),
+      //editProfile: (context) => EditProfile(),
     };
   }
 }

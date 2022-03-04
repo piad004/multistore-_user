@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:user/Components/custom_appbar.dart';
 import 'package:user/Components/search_bar.dart';
+import 'package:user/HomeOrderAccount/Home/UI/Search.dart';
 import 'package:user/Locale/locales.dart';
 import 'package:user/Routes/routes.dart';
 import 'package:user/Themes/colors.dart';
@@ -23,9 +24,10 @@ class DealProducts extends StatefulWidget {
   final dynamic category_id;
   final dynamic distance;
   final dynamic vendor_id;
+  final dynamic uiType;
 
   DealProducts(this.pageTitle, this.category_name, this.category_id,
-      this.distance, this.vendor_id);
+      this.distance, this.vendor_id, this.uiType);
 
   @override
   State<StatefulWidget> createState() {
@@ -244,7 +246,7 @@ class DealProductState extends State<DealProducts>
                             style: TextStyle(
                                 fontSize: 7,
                                 color: kWhiteColor,
-                                fontWeight: FontWeight.w200),
+                                fontWeight: FontWeight.w900),
                           ),
                         ),
                       ))
@@ -258,7 +260,17 @@ class DealProductState extends State<DealProducts>
               children: <Widget>[
                 CustomSearchBar(
                   hint: locale.searchItem,
-                  onChanged: (value) {
+                  onTap: (){
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            //builder: (context) => SearchPage('["grocery_product"]',widget.category_id)))
+                            builder: (context) => SearchPage('["all"]',widget.uiType,widget.category_id,'','')))
+                        .then((value) {
+                      getCartCount();
+                    });
+                  },
+                 /* onChanged: (value) {
                     setState(() {
                       productList = productVarientListSearch
                           .where((element) => element.product_name
@@ -267,7 +279,7 @@ class DealProductState extends State<DealProducts>
                           .contains(value.toLowerCase()))
                           .toList();
                     });
-                  },
+                  },*/
                 ),
               ],
             ),
@@ -320,8 +332,47 @@ class DealProductState extends State<DealProducts>
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('$currency ${productList[index].deal_price}',
-                                    style: Theme.of(context).textTheme.caption),
+                               /* Text('$currency ${productList[index].deal_price}',
+                                    style: Theme.of(context).textTheme.caption),*/
+                                Row(
+                                  children: [
+                                    Visibility(
+                                      visible: ((productList[
+                                      index]
+                                          .price) !=
+                productList[index].deal_price),
+                                      child: Text(
+                                          '$currency ${((productList[
+                                          index]
+                                              .price != null) ? productList[
+                index].price : 0)}',
+                                          style: TextStyle(
+                                              decorationColor: Colors
+                                                  .red,
+                                              decorationStyle: TextDecorationStyle
+                                                  .solid,
+                                              decoration: TextDecoration
+                                                  .lineThrough,
+                                              fontSize:
+                                              14) /*Theme
+                                                              .of(
+                                                              context)
+                                                              .textTheme
+                                                              .caption*/
+                                      ),
+                                    ),
+                                    SizedBox(
+                                        width: 10),
+                                    Text(
+                                        '$currency ${(productList[
+                                        index].deal_price != null) ? productList[
+                                        index].deal_price : 0}',
+                                        style: Theme.of(
+                                            context)
+                                            .textTheme
+                                            .caption),
+                                  ],
+                                ),
                                 Row(
                                   children: [
                                     AnimatedBuilder(
@@ -383,7 +434,7 @@ class DealProductState extends State<DealProducts>
                                         if (productList[index].stock >
                                             productList[index].add_qnty) {
                                           productList[index].add_qnty++;
-                                          addOrMinusProduct(
+                                          addOrMinusProduct(index,
                                               productList[index].product_name,
                                               productList[index].unit,
                                               double.parse(
@@ -392,7 +443,8 @@ class DealProductState extends State<DealProducts>
                                                   '${productList[index].quantity}'),
                                               productList[index].add_qnty,
                                               productList[index].varient_image,
-                                              productList[index].varient_id);
+                                              productList[index].varient_id,
+                                              widget.vendor_id);
                                         } else {
                                           Toast.show(locale.noMoreStockAvailable,
                                               context,
@@ -418,6 +470,7 @@ class DealProductState extends State<DealProducts>
                                             productList[index].add_qnty--;
                                           });
                                           addOrMinusProduct(
+                                            index,
                                               productList[index].product_name,
                                               productList[index].unit,
                                               double.parse(
@@ -426,7 +479,8 @@ class DealProductState extends State<DealProducts>
                                                   '${productList[index].quantity}'),
                                               productList[index].add_qnty,
                                               productList[index].varient_image,
-                                              productList[index].varient_id);
+                                              productList[index].varient_id,
+                                          widget.vendor_id);
                                         },
                                         child: Icon(
                                           Icons.remove,
@@ -451,6 +505,7 @@ class DealProductState extends State<DealProducts>
                                                 productList[index].add_qnty) {
                                               productList[index].add_qnty++;
                                               addOrMinusProduct(
+                                                index,
                                                   productList[index]
                                                       .product_name,
                                                   productList[index].unit,
@@ -462,7 +517,7 @@ class DealProductState extends State<DealProducts>
                                                   productList[index]
                                                       .varient_image,
                                                   productList[index]
-                                                      .varient_id);
+                                                      .varient_id,widget.vendor_id);
                                             } else {
                                               Toast.show(
                                                   locale.noMoreStockAvailable,
@@ -588,9 +643,19 @@ class DealProductState extends State<DealProducts>
     );
   }
 
-  void addOrMinusProduct(product_name, unit, price, quantity, itemCount,
-      varient_image, varient_id) async {
-    DatabaseHelper db = DatabaseHelper.instance;
+  void addOrMinusProduct(index, product_name, unit, price, quantity, itemCount,
+      varient_image, varient_id,vendor_id) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var a = prefs.getString("vendor_id");
+    if (/*isCartCount &&*/
+    prefs.getString("vendor_id") != null &&
+        prefs.getString("vendor_id") != "" &&
+        prefs.getString("vendor_id") != '${vendor_id.toString()}') {
+      showAlertDialog(context, index);
+    } else {
+      prefs.setString("vendor_id", vendor_id.toString());
+
+      DatabaseHelper db = DatabaseHelper.instance;
     db.getcount(int.parse('${varient_id}')).then((value) {
       var vae = {
         DatabaseHelper.productName: product_name,
@@ -614,6 +679,109 @@ class DealProductState extends State<DealProducts>
     }).catchError((e) {
       print(e);
     });
+  }
+  }
+
+
+  void clearCart(index) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.setString("vendor_id", '');
+      productList[index].add_qnty--;
+    });
+    DatabaseHelper db = DatabaseHelper.instance;
+    db.deleteAll().then((value) {
+      //getCartItem();
+      getCartCount();
+    });
+  }
+
+  showAlertDialog(BuildContext context, index) async {
+    AppLocalizations locale = AppLocalizations.of(context);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // set up the buttons
+    // Widget no = FlatButton(
+    //   padding: EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+    //   child: Text("OK"),
+    //   onPressed: () {
+    //     Navigator.of(context, rootNavigator: true).pop('dialog');
+    //   },
+    // );
+
+    Widget clear = GestureDetector(
+      onTap: () {
+        Navigator.of(context, rootNavigator: true).pop('dialog');
+        clearCart(index);
+      },
+      child: Card(
+        elevation: 2,
+        clipBehavior: Clip.hardEdge,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+        ),
+        child: Container(
+          padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+          decoration: BoxDecoration(
+              color: red_color,
+              borderRadius: BorderRadius.all(Radius.circular(20))),
+          child: Text(
+            locale.clearText,
+            style: TextStyle(fontSize: 13, color: kWhiteColor),
+          ),
+        ),
+      ),
+    );
+
+    Widget no = GestureDetector(
+      onTap: () {
+        Navigator.of(context, rootNavigator: true).pop('dialog');
+        setState(() {
+         // prefs.setString("vendor_id", '');
+          productList[index].add_qnty--;
+        });
+      },
+      child: Card(
+        elevation: 2,
+        clipBehavior: Clip.hardEdge,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+        ),
+        child: Container(
+          padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+          decoration: BoxDecoration(
+              color: kGreenColor,
+              borderRadius: BorderRadius.all(Radius.circular(20))),
+          child: Text(
+            locale.noText,
+            style: TextStyle(fontSize: 13, color: kWhiteColor),
+          ),
+        ),
+      ),
+    );
+
+    // Widget yes = FlatButton(
+    //   padding: EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+    //   child: Text("OK"),
+    //   onPressed: () {
+    //     Navigator.of(context, rootNavigator: true).pop('dialog');
+    //   },
+    // );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text(locale.inconvenienceNoticeText1),
+      content: Text(locale.inconvenienceNoticeText2),
+      actions: [clear, no],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 }
 
@@ -748,4 +916,5 @@ class _TimerViewState extends State<TimerView> {
           ),
         ]));
   }
+
 }

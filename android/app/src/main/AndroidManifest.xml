@@ -24,9 +24,12 @@
         android:networkSecurityConfig="@xml/netconfig"
         android:usesCleartextTraffic="true"
         android:hardwareAccelerated="true"
-        android:icon="@mipmap/launcher_icon"
-        android:roundIcon="@mipmap/launcher_icon"
+        android:icon="@drawable/icon"
+        android:roundIcon="@drawable/icon"
         tools:ignore="UnusedAttribute">
+       <!-- android:icon="@mipmap/launcher_icon"
+        android:roundIcon="@mipmap/launcher_icon"-->
+
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

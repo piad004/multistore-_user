@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:user/Locale/locales.dart';
 import 'package:user/Routes/routes.dart';
@@ -25,11 +26,10 @@ class SingleProductPage extends StatefulWidget {
 }
 
 class SingleProductState extends State<SingleProductPage> {
-  var currentIndex = 0;
-
+  var currentIndex = 1;
   bool isCartCount = false;
-
   var cartCount = 0;
+  dynamic currency = '';
 
   SingleProductState(List<VarientList> productVarintList) {
     setList(productVarintList);
@@ -58,6 +58,7 @@ class SingleProductState extends State<SingleProductPage> {
   void initState() {
     super.initState();
     getCartCount();
+    getCurrency();
   }
 
   void getCartCount() {
@@ -124,7 +125,7 @@ class SingleProductState extends State<SingleProductPage> {
                             style: TextStyle(
                                 fontSize: 7,
                                 color: kWhiteColor,
-                                fontWeight: FontWeight.w200),
+                                fontWeight: FontWeight.w900),
                           ),
                         ),
                       ))
@@ -140,8 +141,7 @@ class SingleProductState extends State<SingleProductPage> {
               flex: 4,
               child: Container(
                 alignment: Alignment.center,
-                child:
-                    Padding(
+                child: Padding(
                   padding: EdgeInsets.only(bottom: 10.0),
                   child: Image(
                     image: NetworkImage(imageBaseUrl +
@@ -157,6 +157,32 @@ class SingleProductState extends State<SingleProductPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        currentIndex = 1;
+                      });
+                    },
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(
+                      height: 52,
+                      decoration: BoxDecoration(
+                          color: (currentIndex == 1) ? kMainColor : kWhiteColor,
+                          borderRadius: BorderRadius.all(Radius.circular(30)),
+                          border: Border.all(color: kMainColor)),
+                      alignment: Alignment.center,
+                      width: MediaQuery.of(context).size.width * 0.5 - 20,
+                      child: Text(
+                        locale.variant,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 17,
+                            color:
+                            (currentIndex == 1) ? kWhiteColor : black_color,
+                            fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ),
                   GestureDetector(
                     onTap: () {
                       setState(() {
@@ -183,32 +209,6 @@ class SingleProductState extends State<SingleProductPage> {
                       ),
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        currentIndex = 1;
-                      });
-                    },
-                    behavior: HitTestBehavior.opaque,
-                    child: Container(
-                      height: 52,
-                      decoration: BoxDecoration(
-                          color: (currentIndex == 1) ? kMainColor : kWhiteColor,
-                          borderRadius: BorderRadius.all(Radius.circular(30)),
-                          border: Border.all(color: kMainColor)),
-                      alignment: Alignment.center,
-                      width: MediaQuery.of(context).size.width * 0.5 - 20,
-                      child: Text(
-                        locale.variant,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 17,
-                            color:
-                                (currentIndex == 1) ? kWhiteColor : black_color,
-                            fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  )
                 ],
               ),
             ),
@@ -238,28 +238,28 @@ class SingleProductState extends State<SingleProductPage> {
                                         child: Container(
                                           height: 93.3,
                                           width: 93.3,
-                                          child:
-                                          (widget.productVarintList != null &&
-                                              widget.productVarintList
-                                                  .length >
-                                                  0)
+                                          child: (widget.productVarintList !=
+                                                      null &&
+                                                  widget.productVarintList
+                                                          .length >
+                                                      0)
                                               ? Image.network(
-                                            imageBaseUrl +
-                                                widget
-                                                    .productVarintList[
-                                                index]
-                                                    .varient_image,
+                                                  imageBaseUrl +
+                                                      widget
+                                                          .productVarintList[
+                                                              index]
+                                                          .varient_image,
 //                                scale: 2.5
-                                            height: 93.3,
-                                            width: 93.3,
-                                            fit: BoxFit.fill,
-                                          )
+                                                  height: 93.3,
+                                                  width: 93.3,
+                                                  fit: BoxFit.fill,
+                                                )
                                               : Image(
-                                            image: AssetImage(
-                                                'images/logos/logo_user.png'),
-                                            height: 93.3,
-                                            width: 93.3,
-                                          ),
+                                                  image: AssetImage(
+                                                      'images/logos/logo_user.png'),
+                                                  height: 93.3,
+                                                  width: 93.3,
+                                                ),
                                         ),
                                       ),
                                       Expanded(
@@ -281,11 +281,49 @@ class SingleProductState extends State<SingleProductPage> {
                                             SizedBox(
                                               height: 8.0,
                                             ),
-                                            Text(
+                                            /*Text(
                                                 '${widget.currency} ${widget.productVarintList[index].price}',
                                                 style: Theme.of(context)
                                                     .textTheme
-                                                    .caption),
+                                                    .caption),*/
+                                            Row(
+                                              children: [
+                                                Visibility(
+                                                  visible: (widget
+                                                          .productVarintList[
+                                                              index]
+                                                          .price) !=
+                                                      (widget
+                                                          .productVarintList[
+                                                              index]
+                                                          .strick_price),
+                                                  child: Text(
+                                                      '$currency ${(widget.productVarintList[index].strick_price != null) ? widget.productVarintList[index].strick_price.toString() : 0}',
+                                                      style: TextStyle(
+                                                          decorationColor:
+                                                              Colors.red,
+                                                          decorationStyle:
+                                                              TextDecorationStyle
+                                                                  .solid,
+                                                          decoration:
+                                                              TextDecoration
+                                                                  .lineThrough,
+                                                          fontSize:
+                                                              14) /*Theme
+                                                              .of(
+                                                              context)
+                                                              .textTheme
+                                                              .caption*/
+                                                      ),
+                                                ),
+                                                SizedBox(width: 10),
+                                                Text(
+                                                    '$currency ${(widget.productVarintList[index].price != null) ? widget.productVarintList[index].price.toString() : 0}',
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .caption),
+                                              ],
+                                            ),
                                             SizedBox(
                                               height: 20.0,
                                             ),
@@ -357,6 +395,7 @@ class SingleProductState extends State<SingleProductPage> {
                                                               index]
                                                           .add_qnty++;
                                                       addOrMinusProduct(
+                                                          index,
                                                           widget
                                                               .productWithVarient
                                                               .product_name,
@@ -379,10 +418,15 @@ class SingleProductState extends State<SingleProductPage> {
                                                           widget
                                                               .productVarintList[
                                                                   index]
-                                                              .varient_id);
+                                                              .varient_id,
+                                                          widget
+                                                              .productVarintList[
+                                                                  index]
+                                                              .vendor_id);
                                                     } else {
                                                       Toast.show(
-                                                          locale.noMoreStockAvailable,
+                                                          locale
+                                                              .noMoreStockAvailable,
                                                           context,
                                                           gravity:
                                                               Toast.BOTTOM);
@@ -412,6 +456,7 @@ class SingleProductState extends State<SingleProductPage> {
                                                             .add_qnty--;
                                                       });
                                                       addOrMinusProduct(
+                                                          index,
                                                           widget
                                                               .productWithVarient
                                                               .product_name,
@@ -434,7 +479,11 @@ class SingleProductState extends State<SingleProductPage> {
                                                           widget
                                                               .productVarintList[
                                                                   index]
-                                                              .varient_id);
+                                                              .varient_id,
+                                                          widget
+                                                              .productVarintList[
+                                                                  index]
+                                                              .vendor_id);
                                                     },
                                                     child: Icon(
                                                       Icons.remove,
@@ -469,6 +518,7 @@ class SingleProductState extends State<SingleProductPage> {
                                                                   index]
                                                               .add_qnty++;
                                                           addOrMinusProduct(
+                                                              index,
                                                               widget
                                                                   .productWithVarient
                                                                   .product_name,
@@ -491,10 +541,15 @@ class SingleProductState extends State<SingleProductPage> {
                                                               widget
                                                                   .productVarintList[
                                                                       index]
-                                                                  .varient_id);
+                                                                  .varient_id,
+                                                              widget
+                                                                  .productVarintList[
+                                                                      index]
+                                                                  .vendor_id);
                                                         } else {
                                                           Toast.show(
-                                                              locale.noMoreStockAvailable,
+                                                              locale
+                                                                  .noMoreStockAvailable,
                                                               context,
                                                               gravity:
                                                                   Toast.BOTTOM);
@@ -525,37 +580,154 @@ class SingleProductState extends State<SingleProductPage> {
     );
   }
 
-  void addOrMinusProduct(product_name, unit, price, quantity, itemCount,
-      varient_image, varient_id) async {
+  void addOrMinusProduct(index, product_name, unit, price, quantity, itemCount,
+      varient_image, varient_id, vendor_id) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var a = prefs.getString("vendor_id");
+    if (/*isCartCount &&*/
+        prefs.getString("vendor_id") != null &&
+            prefs.getString("vendor_id") != "" &&
+            prefs.getString("vendor_id") != '${vendor_id.toString()}') {
+      showAlertDialog(context, index);
+    } else {
+      prefs.setString("vendor_id", vendor_id.toString());
 //    addMinus = true;
-    DatabaseHelper db = DatabaseHelper.instance;
-    Future<int> existing = db.getcount(int.parse('${varient_id}'));
-    existing.then((value) {
-      var vae = {
-        DatabaseHelper.productName: product_name,
-        DatabaseHelper.price: (price * itemCount),
-        DatabaseHelper.unit: unit,
-        DatabaseHelper.quantitiy: quantity,
-        DatabaseHelper.addQnty: itemCount,
-        DatabaseHelper.productImage: varient_image,
-        DatabaseHelper.varientId: int.parse('${varient_id}')
-      };
-      if (value == 0) {
-        db.insert(vae);
-      } else {
-        if (itemCount == 0) {
-          db.delete(int.parse('${varient_id}'));
+      DatabaseHelper db = DatabaseHelper.instance;
+      Future<int> existing = db.getcount(int.parse('${varient_id}'));
+      existing.then((value) {
+        var vae = {
+          DatabaseHelper.productName: product_name,
+          DatabaseHelper.price: (price * itemCount),
+          DatabaseHelper.unit: unit,
+          DatabaseHelper.quantitiy: quantity,
+          DatabaseHelper.addQnty: itemCount,
+          DatabaseHelper.productImage: varient_image,
+          DatabaseHelper.varientId: int.parse('${varient_id}')
+        };
+        if (value == 0) {
+          db.insert(vae);
         } else {
-          db.updateData(vae, int.parse('${varient_id}')).then((vay) {
-            print('vay - $vay');
-          });
+          if (itemCount == 0) {
+            db.delete(int.parse('${varient_id}'));
+          } else {
+            db.updateData(vae, int.parse('${varient_id}')).then((vay) {
+              print('vay - $vay');
+            });
+          }
         }
-      }
+        getCartCount();
+      });
+    }
+  }
+
+  void clearCart(index) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.setString("vendor_id", '');
+      widget.productVarintList[index].add_qnty--;
+    });
+    DatabaseHelper db = DatabaseHelper.instance;
+    db.deleteAll().then((value) {
+      //getCartItem();
       getCartCount();
     });
   }
-}
 
+  showAlertDialog(BuildContext context, index) async {
+    AppLocalizations locale = AppLocalizations.of(context);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // set up the buttons
+    // Widget no = FlatButton(
+    //   padding: EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+    //   child: Text("OK"),
+    //   onPressed: () {
+    //     Navigator.of(context, rootNavigator: true).pop('dialog');
+    //   },
+    // );
+
+    Widget clear = GestureDetector(
+      onTap: () {
+        Navigator.of(context, rootNavigator: true).pop('dialog');
+        clearCart(index);
+      },
+      child: Card(
+        elevation: 2,
+        clipBehavior: Clip.hardEdge,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+        ),
+        child: Container(
+          padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+          decoration: BoxDecoration(
+              color: red_color,
+              borderRadius: BorderRadius.all(Radius.circular(20))),
+          child: Text(
+            locale.clearText,
+            style: TextStyle(fontSize: 13, color: kWhiteColor),
+          ),
+        ),
+      ),
+    );
+
+    Widget no = GestureDetector(
+      onTap: () {
+        Navigator.of(context, rootNavigator: true).pop('dialog');
+        setState(() {
+          // prefs.setString("vendor_id", '');
+          widget.productVarintList[index].add_qnty--;
+        });
+      },
+      child: Card(
+        elevation: 2,
+        clipBehavior: Clip.hardEdge,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+        ),
+        child: Container(
+          padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+          decoration: BoxDecoration(
+              color: kGreenColor,
+              borderRadius: BorderRadius.all(Radius.circular(20))),
+          child: Text(
+            locale.noText,
+            style: TextStyle(fontSize: 13, color: kWhiteColor),
+          ),
+        ),
+      ),
+    );
+
+    // Widget yes = FlatButton(
+    //   padding: EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+    //   child: Text("OK"),
+    //   onPressed: () {
+    //     Navigator.of(context, rootNavigator: true).pop('dialog');
+    //   },
+    // );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text(locale.inconvenienceNoticeText1),
+      content: Text(locale.inconvenienceNoticeText2),
+      actions: [clear, no],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  void getCurrency() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      currency = preferences.getString('curency');
+    });
+  }
+}
 
 class ProductDescription extends StatelessWidget {
   final dynamic description;

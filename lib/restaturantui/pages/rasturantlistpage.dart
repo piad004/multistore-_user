@@ -4,9 +4,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:user/Components/custom_appbar.dart';
+import 'package:user/HomeOrderAccount/Home/UI/Search.dart';
 import 'package:user/Locale/locales.dart';
 import 'package:user/Routes/routes.dart';
 import 'package:user/Themes/colors.dart';
@@ -190,6 +192,19 @@ class ResturantPageState extends State<ResturantPageList> {
                   ),
                   cursorColor: kMainColor,
                   autofocus: false,
+                  onTap: (){
+                    Navigator.push(
+                        context,
+                        PageTransition(
+                            type: PageTransitionType.rightToLeft,
+                            //child: SearchRestaurantStore(currencySymbol)))
+                            //child: SearchPage('["resturant_product"]',nearStores[0].vendor_category_id)))
+                            child: SearchPage('["all"]','2',nearStores[0].vendor_category_id,'','')))
+                        .then((value) {
+                      getCartCount();
+                    });
+                  },
+                  /*
                   onChanged: (value) {
                     nearStores = nearStoresSearch
                         .where((element) =>
@@ -198,7 +213,7 @@ class ResturantPageState extends State<ResturantPageList> {
                             .toLowerCase()
                             .contains(value.toLowerCase()))
                         .toList();
-                  },
+                  },*/
                 ),
               ),
               preferredSize:
@@ -548,7 +563,7 @@ class ResturantPageState extends State<ResturantPageList> {
     double kms = calculateDistance(lat1, lon1, lat2, lon2);
     double kms_per_min = 0.5;
     double mins_taken = kms / kms_per_min;
-    double min = mins_taken;
+    double min = mins_taken + 45;//45 min add as per client request;
     if (min<60) {
       return ""+'${min.toInt()}'+" mins";
     }else {

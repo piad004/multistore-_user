@@ -1,66 +1,34 @@
 {
   "project_info": {
-    "project_number": "661506955660",
-    "firebase_url": "https://gomarketdemo.firebaseio.com",
-    "project_id": "gomarketdemo",
-    "storage_bucket": "gomarketdemo.appspot.com"
+    "project_number": "166450175647",
+    "project_id": "delv-bae56",
+    "storage_bucket": "delv-bae56.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:661506955660:android:e476e94925c0e6a8115ea9",
+        "mobilesdk_app_id": "1:166450175647:android:f901323ca05f7358404caa",
         "android_client_info": {
-          "package_name": "com.primacyinfotech.mstore"
+          "package_name": "delfastuser.primacyinfotech.com"
         }
       },
       "oauth_client": [
         {
-          "client_id": "661506955660-59lm87b0o958mlovjtmene3ephurr49d.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.primacyinfotech.mstore",
-            "certificate_hash": "2b83466f86826f3eb9eaa95f8722fc6a1b64bb6e"
-          }
-        },
-        {
-          "client_id": "661506955660-nv2h9k5nu9gu6vi6vf5u7no4fo13q7oe.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.primacyinfotech.mstore",
-            "certificate_hash": "2efacac33f09e1de86f4b10cbdaf50c9eb744255"
-          }
-        },
-        {
-          "client_id": "661506955660-rti12prtedtdgcl1ec7oa7b225qks3gm.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.primacyinfotech.mstore",
-            "certificate_hash": "3c3c392d688e7244d78fc664e1db8dfc43c6ade0"
-          }
-        },
-        {
-          "client_id": "661506955660-3pa589nc9rfa2v1jle82pgg04efdgq7l.apps.googleusercontent.com",
+          "client_id": "166450175647-iq8jubgbse5r96lvte1j729oo5nngpf4.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyB2kvOckQn8vJlqi8PPnbOzK5dCf-xg3eQ"
+          "current_key": "AIzaSyBjPo10KeBT51hj-dD-E2l2BxyGrSnOoY0"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "661506955660-3pa589nc9rfa2v1jle82pgg04efdgq7l.apps.googleusercontent.com",
+              "client_id": "166450175647-iq8jubgbse5r96lvte1j729oo5nngpf4.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "661506955660-69t07s785mkarb9252u5rl6a0edlefan.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.primacyinfotech.mstore"
-              }
             }
           ]
         }

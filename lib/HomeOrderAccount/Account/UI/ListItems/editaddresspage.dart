@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:user/Components/entry_field.dart';
 import 'package:user/Locale/locales.dart';
+import 'package:user/Maps/UI/location_page.dart';
 import 'package:user/Themes/colors.dart';
 import 'package:user/baseurlp/baseurl.dart';
 import 'package:user/bean/address.dart';
@@ -239,7 +240,7 @@ class EditAddresspageState extends State<EditAddresspage> {
           locale.othertext,
         ];
         selectCity = locale.selectcitytext;
-        addressType = locale.selectaddresstypetext;
+        //addressType = locale.selectaddresstypetext;
         selectArea = locale.selectNearByArea;
       });
       getCityList();
@@ -270,6 +271,71 @@ class EditAddresspageState extends State<EditAddresspage> {
                         children: [
                           SizedBox(
                             height: 30,
+                          ), Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: EntryField(
+                                textCapitalization: TextCapitalization.words,
+                                hint: locale.addressline1,
+                                controller: streetController,
+                                minLines: 2,
+                                readOnly: true,
+                                onTap: () {
+                                 /* Navigator.pushNamed(
+                                      context, PageRoutes.searchloc)
+                                      .then((value) {
+                                    if (value != null) {
+                                      BackLatLng back = value;
+                                      _getCameraMoveLocation(
+                                          LatLng(double.parse('${back.lat}'),
+                                              double.parse('${back.lng}')),
+                                          back.address);
+                                    }
+                                  });*/
+                                  Navigator.of(context)
+                                      .push(MaterialPageRoute(builder: (context) {
+                                    return LocationPage(lat, lng,true);
+                                  })).then((value) {
+                                    if (value != null) {
+                                      print('${value.toString()}');
+                                      BackLatLng back = value;
+                                      _getCameraMoveLocation(
+                                          LatLng(double.parse('${back.lat}'),
+                                              double.parse('${back.lng}')),
+                                          back.address);
+                                      //getBackResult(back.lat, back.lng, back.address);
+                                    }
+                                  }).catchError((e) {
+                                    print(e);
+                                  });
+                                },
+                                contentPadding: EdgeInsets.only(
+                                    left: 20, top: 20, bottom: 0),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide:
+                                  BorderSide(color: kHintColor, width: 1),
+                                )),
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: EntryField(
+                                textCapitalization: TextCapitalization.words,
+                                hint: locale.addressline2,
+                                controller: streetController1,
+                                minLines: 5,
+                                contentPadding: EdgeInsets.only(
+                                    left: 20, top: 20, bottom: 0),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide:
+                                  BorderSide(color: kHintColor, width: 1),
+                                )),
+                          ),
+                          SizedBox(
+                            height: 15,
                           ),
                           Container(
                             width: MediaQuery.of(context).size.width * 0.95,
@@ -302,7 +368,7 @@ class EditAddresspageState extends State<EditAddresspage> {
                           SizedBox(
                             height: 15,
                           ),
-                          Row(
+                         /* Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               Container(
@@ -384,7 +450,7 @@ class EditAddresspageState extends State<EditAddresspage> {
                           ),
                           SizedBox(
                             height: 15,
-                          ),
+                          ),*/
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
@@ -436,53 +502,7 @@ class EditAddresspageState extends State<EditAddresspage> {
                           SizedBox(
                             height: 15,
                           ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: EntryField(
-                                textCapitalization: TextCapitalization.words,
-                                hint: locale.addressline1,
-                                controller: streetController,
-                                minLines: 2,
-                                readOnly: true,
-                                onTap: () {
-                                  Navigator.pushNamed(
-                                          context, PageRoutes.searchloc)
-                                      .then((value) {
-                                    if (value != null) {
-                                      BackLatLng back = value;
-                                      _getCameraMoveLocation(
-                                          LatLng(double.parse('${back.lat}'),
-                                              double.parse('${back.lng}')),
-                                          back.address);
-                                    }
-                                  });
-                                },
-                                contentPadding: EdgeInsets.only(
-                                    left: 20, top: 20, bottom: 0),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide:
-                                      BorderSide(color: kHintColor, width: 1),
-                                )),
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: EntryField(
-                                textCapitalization: TextCapitalization.words,
-                                hint: locale.addressline2,
-                                controller: streetController1,
-                                minLines: 5,
-                                contentPadding: EdgeInsets.only(
-                                    left: 20, top: 20, bottom: 0),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide:
-                                      BorderSide(color: kHintColor, width: 1),
-                                )),
-                          ),
+
                         ],
                       ),
                     ),
@@ -539,10 +559,10 @@ class EditAddresspageState extends State<EditAddresspage> {
                   onTap: () {
                     if (addressType != null &&
                         addressType != locale.selectaddresstypetext &&
-                        selectAreaId != null &&
+                        /*selectAreaId != null &&
                         selectAreaId != '' &&
                         selectAreaId != null &&
-                        selectAreaId != '' &&
+                        selectAreaId != '' &&*/
                         houseController.text != null &&
                         houseController.text != '' &&
                         streetController.text != null &&
@@ -593,6 +613,22 @@ class EditAddresspageState extends State<EditAddresspage> {
     );
   }
 
+  void getBackResult(latss, lngss, address) async {
+    print('$latss - $lngss');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("lat", latss.toString());
+    prefs.setString("lng", lngss.toString());
+    setState(() {
+      lat = latss;
+      lng = lngss;
+    });
+    print('$lat - $lng');
+    print(address);
+
+    //hitAddressPlace();
+
+  }
+
   void addAddres(
       dynamic area_id,
       dynamic city_id,
@@ -625,8 +661,10 @@ class EditAddresspageState extends State<EditAddresspage> {
       'user_id': '${prefs.getInt('user_id')}',
       'user_name': '${prefs.getString('user_name')}',
       'user_number': '${prefs.getString('user_phone')}',
-      'area_id': '$area_id',
-      'city_id': '$city_id',
+      /*'area_id': '$area_id',
+      'city_id': '$city_id',*/
+      'area_id': '',
+      'city_id': '',
       'houseno': '$house_no',
       'street': '$addressdd',
       'state': '$state',
@@ -634,9 +672,10 @@ class EditAddresspageState extends State<EditAddresspage> {
       'lat': '${lat}',
       'lng': '${lng}',
       'address_type': '${addressType}',
+      'vendor_id': '${widget.vendorid}',
     }).then((value) {
+      print('Response Body: - ${value.body}'+widget.vendorid+'::'+pincode);
       if (value.statusCode == 200) {
-        print('Response Body: - ${value.body}');
         var jsonData = jsonDecode(value.body);
         if (jsonData['status'] == "1") {
           prefs.setString("area_id", "$area_id");
@@ -644,24 +683,32 @@ class EditAddresspageState extends State<EditAddresspage> {
           setState(() {
             showDialogBox = false;
           });
-          Toast.show(locale.addressUpdatedSuccessfully, context,
+          /*Toast.show(locale.addressUpdatedSuccessfully, context,
+              duration: Toast.LENGTH_SHORT);*/
+          Toast.show(jsonData['message'], context,
               duration: Toast.LENGTH_SHORT);
           Navigator.of(context).pop();
         } else {
           setState(() {
             showDialogBox = false;
           });
+          Toast.show(jsonData['message'], context,
+              duration: Toast.LENGTH_SHORT);
         }
       } else {
         setState(() {
           showDialogBox = false;
         });
+        Toast.show(locale.somethingWentwrong, context,
+            duration: Toast.LENGTH_SHORT);
       }
     }).catchError((e) {
       setState(() {
         showDialogBox = false;
       });
       print(e);
+      Toast.show(locale.somethingWentwrong, context,
+          duration: Toast.LENGTH_SHORT);
     });
   }
 

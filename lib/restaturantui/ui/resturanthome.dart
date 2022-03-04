@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoder/geocoder.dart';
@@ -10,6 +11,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
 import 'package:toast/toast.dart';
 import 'package:user/HomeOrderAccount/Account/UI/ListItems/addaddresspage.dart';
+import 'package:user/HomeOrderAccount/Home/UI/Search.dart';
+import 'package:user/HomeOrderAccount/Home/UI/appcategory/appcategory.dart';
 import 'package:user/Locale/locales.dart';
 import 'package:user/Routes/routes.dart';
 import 'package:user/Themes/colors.dart';
@@ -21,6 +24,8 @@ import 'package:user/bean/nearstorebean.dart';
 import 'package:user/bean/resturantbean/categoryresturantlist.dart';
 import 'package:user/bean/resturantbean/popular_item.dart';
 import 'package:user/databasehelper/dbhelper.dart';
+import 'package:user/parcel/fromtoaddress.dart';
+import 'package:user/pharmacy/pharmadetailpage.dart';
 import 'package:user/restaturantui/helper/categorylist.dart';
 import 'package:user/restaturantui/helper/hot_sale.dart';
 import 'package:user/restaturantui/helper/product_order.dart';
@@ -42,18 +47,16 @@ class Restaurant extends StatefulWidget {
 
 class RestaurantState extends State<Restaurant> {
   final String pageTitle;
-
+  var vendorCatId='';
   double lat;
   double lng;
-
   String cityName = '';
-
   List<PopularItem> popularItem = [];
   List<CategoryResturant> categoryList = [];
-
   List<BannerDetails> listImage = [];
   List<NearStores> nearStores = [];
   List<NearStores> nearStoresSearch = [];
+  List<String> listImages = ['', '', '', '', ''];
 
   RestaurantState(this.pageTitle);
 
@@ -70,8 +73,8 @@ class RestaurantState extends State<Restaurant> {
 
   @override
   void initState() {
-    _hitServices();
     super.initState();
+    _hitServices();
   }
 
   void _hitServices() {
@@ -81,7 +84,7 @@ class RestaurantState extends State<Restaurant> {
     getCartCount();
     hitProductUrl();
     hitCategoryUrl();
-    // hitSliderUrl();
+    hitSliderUrl();
     hitRestaurantService();
   }
 
@@ -100,8 +103,6 @@ class RestaurantState extends State<Restaurant> {
     });
   }
 
-
-
   getCurrentSymbol() async {
     SharedPreferences pre = await SharedPreferences.getInstance();
     setState(() {
@@ -111,12 +112,13 @@ class RestaurantState extends State<Restaurant> {
 
   void hitProductUrl() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
+    vendorCatId = preferences.getString('vendor_cat_id');
     setState(() {
       isProdcutOrderFetch = true;
     });
     var url = popular_item;
     http.post(url, body: {
-      'vendor_id': '${preferences.getString('vendor_cat_id')}'
+      'vendor_id': '$vendorCatId'
       // 'vendor_id': '24'
     }).then((response) {
       if (response.statusCode == 200) {
@@ -207,8 +209,14 @@ class RestaurantState extends State<Restaurant> {
     setState(() {
       isSlideFetch = true;
     });
-    var url = resturant_banner;
-    http.get(url).then((response) {
+    //var url = resturant_banner;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String lat = prefs.getString('lat');
+    String lng = prefs.getString('lng');
+    String vendor_category_id=prefs.getString('vendor_cat_id');
+    var url = categoryBanner+'?lat='+lat+'&lng='+lng+'&ui_type='+vendor_category_id.toString();
+
+    http.get(Uri.parse(url)).then((response) {
       if (response.statusCode == 200) {
         var jsonData = jsonDecode(response.body);
         print('Response Body: - ${response.body}');
@@ -369,8 +377,8 @@ class RestaurantState extends State<Restaurant> {
                                         fontSize: 7,
                                         color: innerBoxIsScrolled
                                             ? kWhiteColor
-                                            : kMainTextColor,
-                                        fontWeight: FontWeight.w200),
+                                            : kMainColor,
+                                        fontWeight: FontWeight.w600),
                                   ),
                                 ),
                               ))
@@ -465,12 +473,21 @@ class RestaurantState extends State<Restaurant> {
                       ),
                       child: InkWell(
                         onTap: () {
-                          Navigator.push(
+                         /* Navigator.push(
                                   context,
                                   PageTransition(
                                       type: PageTransitionType.rightToLeft,
-                                      child: SearchRestaurantStore(
-                                          currencySymbol)))
+                                      //child: SearchRestaurantStore(currencySymbol)))
+                                      child: SearchRestaurantStore(currencySymbol)))
+                              .then((value) {
+                            getCartCount();
+                          });*/
+                          Navigator.push(
+                              context,
+                              PageTransition(
+                                  type: PageTransitionType.rightToLeft,
+                                  //child: SearchRestaurantStore(currencySymbol)))
+                                  child: SearchPage('["all"]','2',vendorCatId,'','')))
                               .then((value) {
                             getCartCount();
                           });
@@ -552,7 +569,7 @@ class RestaurantState extends State<Restaurant> {
 //                         ],
 //                       ),
 //                     ),
-                    Visibility(
+                    /*Visibility(
                       visible: (!isSlideFetch && listImage.length > 0)
                           ? true
                           : false,
@@ -587,7 +604,7 @@ class RestaurantState extends State<Restaurant> {
                                               BorderRadius.circular(10.0),
                                         ),
                                         child: Image.network(
-                                          '${imageBaseUrl}${listImage[index].banner_image}',
+                                          '${listImage[index].banner_image}',
                                           fit: BoxFit.fill,
                                         ),
                                       ),
@@ -636,6 +653,103 @@ class RestaurantState extends State<Restaurant> {
                                   },
                                 ),
                         ),
+                      ),
+                    ),*/
+                    Visibility(
+                      visible:
+                      (!isSlideFetch && listImage.length == 0) ? false : true,
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 10, bottom: 5),
+                        child: CarouselSlider(
+                            options: CarouselOptions(
+                              height: 170.0,
+                              autoPlay: true,
+                              initialPage: 0,
+                              viewportFraction: 0.9,
+                              enableInfiniteScroll: true,
+                              reverse: false,
+                              autoPlayInterval: Duration(seconds: 3),
+                              autoPlayAnimationDuration:
+                              Duration(milliseconds: 800),
+                              autoPlayCurve: Curves.fastOutSlowIn,
+                              scrollDirection: Axis.horizontal,
+                            ),
+                            items: (listImage != null && listImage.length > 0)
+                                ? listImage.map((e) {
+                              return Builder(
+                                builder: (context) {
+                                  return InkWell(
+                                    onTap: () {
+                                      hitNavigatorStore(context, e.ui_type, e.vendor_name, e.vendor_id, e.delivery_range, e.distance, e.about,
+                                          e.online_status,e.vendor_category_id, e.vendor_loc, e.vendor_logo, e.vendor_phone);
+                                    },
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 5, vertical: 10),
+                                      child: Material(
+                                        elevation: 5,
+                                        borderRadius:
+                                        BorderRadius.circular(20.0),
+                                        clipBehavior: Clip.hardEdge,
+                                        child: Container(
+                                          width: MediaQuery.of(context)
+                                              .size
+                                              .width *
+                                              0.90,
+//                                            padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0),
+                                          decoration: BoxDecoration(
+                                            color: white_color,
+                                            borderRadius:
+                                            BorderRadius.circular(
+                                                20.0),
+                                          ),
+                                          child: Image.network(
+                                            //imageBaseUrl + e.banner_image,
+                                            e.banner_image,
+                                            fit: BoxFit.fill,
+                                            errorBuilder: (context,
+                                                exception,
+                                                stackTrack) =>
+                                                Image.asset(
+                                                    'images/delvmart.png',
+                                                    fit: BoxFit.fill),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            }).toList()
+                                : listImages.map((e) {
+                              return Builder(builder: (context) {
+                                return Container(
+                                  width:
+                                  MediaQuery.of(context).size.width *
+                                      0.90,
+                                  margin: EdgeInsets.symmetric(
+                                      horizontal: 5.0),
+                                  decoration: BoxDecoration(
+                                    borderRadius:
+                                    BorderRadius.circular(20.0),
+                                  ),
+                                  child: Shimmer(
+                                    duration: Duration(seconds: 3),
+                                    //Default value
+                                    color: Colors.white,
+                                    //Default value
+                                    enabled: true,
+                                    //Default value
+                                    direction:
+                                    ShimmerDirection.fromLTRB(),
+                                    //Default Value
+                                    child: Container(
+                                      color: kTransparentColor,
+                                    ),
+                                  ),
+                                );
+                              });
+                            }).toList()),
                       ),
                     ),
                     // Categories Start
@@ -1324,4 +1438,68 @@ class RestaurantState extends State<Restaurant> {
     });
   }
 // Bottom Sheet for Address Ends Here
+
+
+  void hitNavigatorStore(context, ui_type, vendor_name, vendorId,deliveryrange, distance,about,onlineStatus,
+      vendor_category_id, vendorLoc,vendorLogo,vendorPhone) async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var lat = prefs.getString("lat");
+    var lng = prefs.getString("lng");
+    NearStores item=NearStores(vendor_name, vendorPhone, vendorId, vendorLogo, vendor_category_id, distance, lat, lng,
+        deliveryrange, onlineStatus, vendorLoc, about);
+
+    if (ui_type == "grocery" || ui_type == "Grocery" || ui_type == "1"|| ui_type == 1) {
+      prefs.setString("vendor_cat_id", '${vendor_category_id}');
+      prefs.setString("ui_type", '${ui_type}');
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  AppCategory(
+                      vendor_name, vendorId,
+                      distance,ui_type))).then((value) {
+        getCartCount();
+      });
+    } else if (ui_type == "resturant" ||
+        ui_type == "Resturant" ||
+        ui_type == "2"|| ui_type == 2) {
+      prefs.setString("vendor_cat_id", '${vendor_category_id}');
+      prefs.setString("ui_type", '${ui_type}');
+      var currency = prefs.getString('curency');
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => Restaurant_Sub(item, currency)))
+          .then((value) {
+        getCartCount();
+      });
+    }
+    else if (ui_type == "pharmacy" ||
+        ui_type == "Pharmacy" ||
+        ui_type == "3" || ui_type == 3) {
+      prefs.setString("vendor_cat_id", '${vendor_category_id}');
+      prefs.setString("ui_type", '${ui_type}');
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => PharmaItemPage(
+                  vendor_name, vendor_category_id, deliveryrange, distance)))
+          .then((value) {
+        getCartCount();
+      });
+    } else if (ui_type == "parcal" || ui_type == "Parcal" || ui_type == "4"|| ui_type == 4) {
+      prefs.setString("vendor_cat_id", '${vendor_category_id}');
+      prefs.setString("ui_type", '${ui_type}');
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  AddressFrom(vendor_name, vendor_category_id, distance)));
+      /* Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ParcalStoresPage('${vendor_category_id}')));*/
+    }
+  }
 }

@@ -268,7 +268,7 @@ class SettingState extends State<Settings> {
                     )
                   ],
                 )),
-            SizedBox(
+           /* SizedBox(
               height: 10,
             ),
             Padding(
@@ -345,7 +345,7 @@ class SettingState extends State<Settings> {
                   );
                 },
               ),
-            )
+            )*/
           ],
         ),
       ),

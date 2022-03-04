@@ -10,6 +10,7 @@ import 'package:user/Components/entry_field.dart';
 import 'package:user/Locale/locales.dart';
 import 'package:user/Themes/colors.dart';
 import 'package:user/baseurlp/baseurl.dart';
+import 'package:flutter/material.dart';
 
 class SupportPage extends StatefulWidget {
   @override
@@ -93,6 +94,24 @@ class SupportPageState extends State<SupportPage> {
                     SizedBox(
                       height: 15,
                     ),
+
+                    /*Tawk(
+                      directChatLink: 'YOUR_DIRECT_CHAT_LINK',
+                      visitor: TawkVisitor(
+                        name: 'Ayoub AMINE',
+                        email: 'ayoubamine2a@gmail.com',
+                      ),
+                      onLoad: () {
+                        print('Hello Tawk!');
+                      },
+                      onLinkTap: (String url) {
+                        print(url);
+                      },
+                      placeholder: Center(
+                        child: Text('Loading...'),
+                      ),
+                    ),*/
+
                     Align(
                       alignment: Alignment.center,
                       child: _inProgress

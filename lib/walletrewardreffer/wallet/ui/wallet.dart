@@ -32,6 +32,7 @@ class WalletState extends State<Wallet> {
   List<WalletHistory> history = [];
   bool isFetchStore = false;
   bool isFetchingList = false;
+  bool isShowRechargePlan = false;
   List<NormalPlanWallet> rechargeList = [];
   List<OfferPlanWallet> offerPlan = [];
 
@@ -83,6 +84,7 @@ class WalletState extends State<Wallet> {
       }
       setState(() {
         isFetchStore = false;
+        isShowRechargePlan = jsonDecode(value.body)['wallet_recharge']=='on'?true:false;
       });
     }).catchError((e){
       setState(() {
@@ -159,7 +161,7 @@ class WalletState extends State<Wallet> {
                                         fontSize: 28,
                                         letterSpacing: 0.67)),
                             Text('$currency ${walletAmount}/-'),
-                            Text(
+                           /* Text(
                                 'Minimum wallet balance $currency ${walletAmount}/-',
                                 style: Theme.of(context)
                                     .textTheme
@@ -168,130 +170,139 @@ class WalletState extends State<Wallet> {
                                         color: kDisabledColor,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 15,
-                                        letterSpacing: 0.67)),
+                                        letterSpacing: 0.67)),*/
                           ],
                         )),
                   ),
                   SizedBox(
                     height: 30,
                   ),
-                  Container(
-                    height: 150,
-                    width: MediaQuery.of(context).size.width,
-                    margin: EdgeInsets.only(left: 10,right: 10),
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                        itemCount: offerPlan.length,
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (context,index){
-                      return InkWell(
-                        onTap: () {
-                          getVendorPayment('${offerPlan[index].offer_amount}','offer');
-                        },
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 5, vertical: 10),
-                          child: Material(
-                            elevation: 2,
-                            borderRadius:
-                            BorderRadius.circular(20.0),
-                            clipBehavior: Clip.hardEdge,
-                            child: Container(
-                              width: MediaQuery.of(context)
-                                  .size
-                                  .width *
-                                  0.75,
+                  Visibility(
+                    visible: isShowRechargePlan,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Container(
+                          height: 150,
+                          width: MediaQuery.of(context).size.width,
+                          margin: EdgeInsets.only(left: 10,right: 10),
+                          child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: offerPlan.length,
+                              scrollDirection: Axis.horizontal,
+                              itemBuilder: (context,index){
+                                return InkWell(
+                                  onTap: () {
+                                    getVendorPayment('${offerPlan[index].offer_amount}','offer');
+                                  },
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 5, vertical: 10),
+                                    child: Material(
+                                      elevation: 2,
+                                      borderRadius:
+                                      BorderRadius.circular(20.0),
+                                      clipBehavior: Clip.hardEdge,
+                                      child: Container(
+                                        width: MediaQuery.of(context)
+                                            .size
+                                            .width *
+                                            0.75,
 //                                            padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0),
-                              decoration: BoxDecoration(
-                                color: white_color,
-                                borderRadius:
-                                BorderRadius.circular(20.0),
+                                        decoration: BoxDecoration(
+                                          color: white_color,
+                                          borderRadius:
+                                          BorderRadius.circular(20.0),
+                                        ),
+                                        child: Image.network(
+                                          imageBaseUrl+offerPlan[index].offer_image,
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }),
+                        ),
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          margin: EdgeInsets.all(20),
+                          child: Text(
+                            'Recharge Plans',
+                            style: TextStyle(
+                                color: kMainColor,
+                                fontSize: 18),
+                          ),
+                        ),
+                        Visibility(
+                          visible: (rechargeList!=null && rechargeList.length > 0)?true:false,
+                          child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            padding: EdgeInsets.only(right: 5, left: 5),
+                            child: GridView.builder(
+                              itemCount: rechargeList.length,
+                              gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                crossAxisSpacing: 4.0,
+                                mainAxisSpacing: 4.0,
+                                childAspectRatio:
+                                (itemWidth / itemHeight),
                               ),
-                              child: Image.network(
-                                imageBaseUrl + offerPlan[index].offer_image,
-                                fit: BoxFit.fill,
-                              ),
+                              controller: ScrollController(
+                                  keepScrollOffset: false),
+                              shrinkWrap: true,
+                              scrollDirection: Axis.vertical,
+                              itemBuilder: (context, index) {
+                                return GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      idd1 = index;
+                                      print('${rechargeList[idd1].plans}');
+                                    });
+                                    getVendorPayment('${rechargeList[idd1].plans}','non_offer');
+                                  },
+                                  child: SizedBox(
+                                    height: 100,
+                                    child: Container(
+                                      margin: EdgeInsets.only(
+                                          right: 5,
+                                          left: 5,
+                                          top: 5,
+                                          bottom: 5),
+                                      height: 30,
+                                      width: 100,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                          color: (idd1 == index)
+                                              ? kMainColor
+                                              : kWhiteColor,
+                                          shape: BoxShape.rectangle,
+                                          borderRadius:
+                                          BorderRadius.circular(20),
+                                          border: Border.all(
+                                              color: (idd1 == index)
+                                                  ? kMainColor
+                                                  : kMainColor)),
+                                      child: Text(
+                                        '${rechargeList[index].plans}',
+                                        style: TextStyle(
+                                            color: (idd1 == index)
+                                                ? kWhiteColor
+                                                : kMainTextColor,
+                                            fontSize: 15),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
-                      );
-                    }),
+                      ]),
                   ),
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    margin: EdgeInsets.all(20),
-                    child: Text(
-                      'Recharge Plans',
-                      style: TextStyle(
-                          color: kMainColor,
-                          fontSize: 18),
-                    ),
-                  ),
-                  Visibility(
-                    visible: (rechargeList!=null && rechargeList.length > 0)?true:false,
-                      child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        padding: EdgeInsets.only(right: 5, left: 5),
-                        child: GridView.builder(
-                          itemCount: rechargeList.length,
-                          gridDelegate:
-                          SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 4.0,
-                            mainAxisSpacing: 4.0,
-                            childAspectRatio:
-                            (itemWidth / itemHeight),
-                          ),
-                          controller: ScrollController(
-                              keepScrollOffset: false),
-                          shrinkWrap: true,
-                          scrollDirection: Axis.vertical,
-                          itemBuilder: (context, index) {
-                            return GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  idd1 = index;
-                                  print('${rechargeList[idd1].plans}');
-                                });
-                                getVendorPayment('${rechargeList[idd1].plans}','non_offer');
-                              },
-                              child: SizedBox(
-                                height: 100,
-                                child: Container(
-                                  margin: EdgeInsets.only(
-                                      right: 5,
-                                      left: 5,
-                                      top: 5,
-                                      bottom: 5),
-                                  height: 30,
-                                  width: 100,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                      color: (idd1 == index)
-                                          ? kMainColor
-                                          : kWhiteColor,
-                                      shape: BoxShape.rectangle,
-                                      borderRadius:
-                                      BorderRadius.circular(20),
-                                      border: Border.all(
-                                          color: (idd1 == index)
-                                              ? kMainColor
-                                              : kMainColor)),
-                                  child: Text(
-                                    '${rechargeList[index].plans}',
-                                    style: TextStyle(
-                                        color: (idd1 == index)
-                                            ? kWhiteColor
-                                            : kMainTextColor,
-                                        fontSize: 15),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                  ),
+
+
                 ],
               ),
             )

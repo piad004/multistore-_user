@@ -1,12 +1,13 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_webservice/places.dart';
+import 'package:http/http.dart';
 import 'package:mapbox_search/mapbox_search.dart';
 import 'package:user/Locale/locales.dart';
 import 'package:user/Themes/colors.dart';
-import 'package:user/bean/latlng.dart';
-import 'package:http/http.dart';
 import 'package:user/baseurlp/baseurl.dart';
+import 'package:user/bean/latlng.dart';
 import 'package:user/bean/mapbean/mapbyapi.dart';
 
 class SearchLocation extends StatefulWidget {
@@ -32,12 +33,13 @@ class SearchLocationState extends State<SearchLocation> {
   void initState() {
     super.initState();
     searchController.addListener(() async {
-      if(!isDispose){
+      if (!isDispose) {
         if (searchController.text != null && searchController.text.length > 0) {
           if (places != null) {
             await places.searchByText(searchController.text).then((value) {
               if (searchController.text != null &&
-                  searchController.text.length > 0 && this.mounted) {
+                  searchController.text.length > 0 &&
+                  this.mounted) {
                 setState(() {
                   searchPredictions.clear();
                   searchPredictions = List.from(value.results);
@@ -46,14 +48,14 @@ class SearchLocationState extends State<SearchLocation> {
                       '${value.results[0].geometry.location.lat} ${value.results[0].geometry.location.lng}');
                 });
               } else {
-                if(this.mounted){
+                if (this.mounted) {
                   setState(() {
                     searchPredictions.clear();
                   });
                 }
               }
             }).catchError((e) {
-              if(this.mounted){
+              if (this.mounted) {
                 setState(() {
                   searchPredictions.clear();
                 });
@@ -62,7 +64,8 @@ class SearchLocationState extends State<SearchLocation> {
           } else if (placesSearch != null) {
             placesSearch.getPlaces(searchController.text).then((value) {
               if (searchController.text != null &&
-                  searchController.text.length > 0 && this.mounted) {
+                  searchController.text.length > 0 &&
+                  this.mounted) {
                 setState(() {
                   placePred.clear();
                   placePred = List.from(value);
@@ -71,22 +74,21 @@ class SearchLocationState extends State<SearchLocation> {
                       '${value[0].geometry.coordinates[0]} ${value[0].geometry.coordinates[1]}');
                 });
               } else {
-                if(this.mounted){
+                if (this.mounted) {
                   setState(() {
                     placePred.clear();
                   });
                 }
               }
             }).catchError((e) {
-              if(this.mounted){
+              if (this.mounted) {
                 setState(() {
                   placePred.clear();
                 });
               }
             });
           }
-        }
-        else {
+        } else {
           if (places != null && this.mounted) {
             setState(() {
               searchPredictions.clear();
@@ -101,43 +103,47 @@ class SearchLocationState extends State<SearchLocation> {
     });
     hitMapby();
   }
-  
-  void hitMapby(){
+
+  void hitMapby() {
     setState(() {
       isLoading = true;
     });
-    http.get(mapByApi).then((value){
+    http.get(mapByApi).then((value) {
+      var body = value.body;
       print(value.body);
-if(value.statusCode ==200){
-  MapByApi mapby = MapByApi.fromJson(jsonDecode(value.body));
-  if('${mapby.mapstatus}'=='1'){
-    print('gmap - ${mapby.key}');
-    setState(() {
-      places = new GoogleMapsPlaces(apiKey:'${mapby.key}');
-    });
-  }else if('${mapby.mapstatus}'=='2'){
-    print('mmap - ${mapby.key}');
-    setState(() {
-      placesSearch = PlacesSearch(apiKey: '${mapby.key}', limit: 10,);
-    });
-  }else{
-    print('demomap');
-  }
-}
-      if(!isDispose){
+      if (value.statusCode == 200) {
+        MapByApi mapby = MapByApi.fromJson(jsonDecode(value.body));
+        if ('${mapby.mapstatus}' == '1') {
+          print('gmap - ${mapby.key}');
+          setState(() {
+            places = new GoogleMapsPlaces(apiKey: '${mapby.key}');
+          });
+        } else if ('${mapby.mapstatus}' == '2') {
+          print('mmap - ${mapby.key}');
+          setState(() {
+            placesSearch = PlacesSearch(
+              apiKey: '${mapby.key}',
+              limit: 10,
+            );
+          });
+        } else {
+          print('demomap');
+        }
+      }
+      if (!isDispose) {
         setState(() {
           isLoading = false;
         });
       }
-    }).catchError((e){
-      if(!isDispose){
+    }).catchError((e) {
+      if (!isDispose) {
         setState(() {
           isLoading = false;
         });
       }
     });
   }
-  
+
   @override
   void dispose() {
     http.close();
@@ -170,7 +176,7 @@ if(value.statusCode ==200){
           Container(
             width: MediaQuery.of(context).size.width,
             height: 52,
-            margin: EdgeInsets.only(left: 20,right: 20),
+            margin: EdgeInsets.only(left: 20, right: 20),
             decoration: BoxDecoration(
                 color: kWhiteColor, borderRadius: BorderRadius.circular(10)),
             child: TextFormField(
@@ -191,7 +197,7 @@ if(value.statusCode ==200){
                   borderSide: BorderSide(color: kHintColor, width: 1),
                 ),
               ),
-              
+
               controller: searchController,
               // onEditingComplete: (){
               //   if(searchController.text!=null && searchController.text.length<=0){
@@ -227,8 +233,11 @@ if(value.statusCode ==200){
                               });
                               Navigator.pop(
                                   context,
-                                  BackLatLng(pPredictions.geometry.location.lat,
-                                      pPredictions.geometry.location.lng,searchPredictions[index].formattedAddress));
+                                  BackLatLng(
+                                      pPredictions.geometry.location.lat,
+                                      pPredictions.geometry.location.lng,
+                                      searchPredictions[index]
+                                          .formattedAddress));
                             },
                             behavior: HitTestBehavior.opaque,
                             child: Row(
@@ -284,7 +293,8 @@ if(value.statusCode ==200){
                                   context,
                                   BackLatLng(
                                       mapboxPredictions.geometry.coordinates[1],
-                                      mapboxPredictions.geometry.coordinates[0],placePred[index].placeName));
+                                      mapboxPredictions.geometry.coordinates[0],
+                                      placePred[index].placeName));
                             },
                             behavior: HitTestBehavior.opaque,
                             child: Row(

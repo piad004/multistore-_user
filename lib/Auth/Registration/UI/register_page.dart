@@ -179,7 +179,7 @@ class _RegisterFormState extends State<RegisterForm> {
                       setState(() {
                         showDialogBox = false;
                       });
-                    } else if (_emailController.text.isEmpty ||
+                    } /*else if (_emailController.text.isEmpty ||
                         !_emailController.text.contains('@') ||
                         !_emailController.text.contains('.')) {
                       setState(() {
@@ -187,7 +187,7 @@ class _RegisterFormState extends State<RegisterForm> {
                       });
                       Toast.show(locale.valiedEmailText, context,
                           gravity: Toast.BOTTOM);
-                    } else {
+                    } */else {
                       hitService(_nameController.text, _emailController.text,
                           _referalController.text, context);
                     }
@@ -228,7 +228,8 @@ class _RegisterFormState extends State<RegisterForm> {
         'user_phone': phoneNumber,
         'user_password': 'no',
         'device_id': '${token}',
-        'user_image': 'usre.png'
+        'user_image': 'usre.png',
+        'referral_code': '${referal}',
       }).then((value) {
         print('Response Body: - ${value.body.toString()}');
         if (value.statusCode == 200) {

@@ -425,7 +425,7 @@ class _SavedAddressesState extends State<SavedAddresses> {
                                               children: [
                                                 Padding(
                                                   padding: EdgeInsets.only(
-                                                      left: 8.0, bottom: 8.0),
+                                                      left: 8.0, bottom: 40.0),
                                                   child: Text(
                                                     '${showAddressList[index].address}',
                                                     style: listTitleTextStyle,
@@ -714,6 +714,7 @@ class _SavedAddressesState extends State<SavedAddresses> {
         if (jsonData['status'] == "1") {
           Toast.show(jsonData['message'], context,
               duration: Toast.LENGTH_SHORT);
+              getVendorAddress(context,AppLocalizations.of(context));
         } else {
           Toast.show(jsonData['message'], context,
               duration: Toast.LENGTH_SHORT);

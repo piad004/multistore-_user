@@ -47,14 +47,20 @@ class _ViewCartState extends State<ViewCart> {
   bool isEnteredFirst = false;
   ShowAddressNew addressDelivery;
   bool isFetchingTime = false;
+  bool isDelvmart = false;
   int idd = 0;
   int idd1 = 0;
 
   void getStoreName() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String storename = prefs.getString('store_name');
+    String delvmartVendorId = prefs.getString('delvmart_vendor_id');
+    String vendorId = prefs.getString('vendor_id');
+    getDelvmartVendorId(vendorId);
     setState(() {
       storeName = storename;
+     /* if(delvmartVendorId==vendorId)
+        isDelvmart=true;*/
     });
   }
 
@@ -122,6 +128,26 @@ class _ViewCartState extends State<ViewCart> {
     });
   }
 
+  void getDelvmartVendorId(vendorId) async{
+
+    var url = checkDelvmartVendor+"?vendor_id="+vendorId;
+    print(url);
+    http.get(Uri.parse(url)).then((value) {
+      var body=value.body;
+      var a='';
+      if (value.statusCode == 200) {
+        var jsonData = json.decode(value.body);
+        if (jsonData['status'] == 1 ) {
+          setState(() {
+            isDelvmart=true;
+          });
+        }
+      }
+    }).catchError((e) {
+      print(e.toString());
+    });
+  }
+
   void getAddress(BuildContext context, AppLocalizations locale) async {
     // var locale = AppLocalizations.of(context);
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -129,7 +155,7 @@ class _ViewCartState extends State<ViewCart> {
       isCartFetch = true;
       currency = prefs.getString('curency');
     });
-    var productsJson="";
+   /* var productsJson="";
     if(cartListI!=null && cartListI.length>0) {
       List<String> productList=[];
       for (int i = 0; i < cartListI.length; i++) {
@@ -138,16 +164,26 @@ class _ViewCartState extends State<ViewCart> {
 
        productsJson = jsonEncode(
           productList.map((product) => product.toString()).toList());
+    }*/
+    List<OrderArrayGrocery> orderArray = [];
+    for (CartItem item in cartListI) {
+      orderArray.add(OrderArrayGrocery(int.parse('${item.add_qnty}'),
+          int.parse('${item.varient_id}')));
     }
 
     int userId = prefs.getInt('user_id');
     String vendorId = prefs.getString('vendor_id');
     var url = address_selection;
+    var ad=orderArray.toString();
+    print('product : '+ad);
     http.post(url, body: {
       'user_id': '${userId}',
       'vendor_id': '${vendorId}',
-      'product_name_list': '${productsJson}'
+      'product_name_list': '${orderArray.toString()}'
     }).then((value) {
+      var body=value.body;
+      print('free del : '+body);
+      var a='';
       if (value.statusCode == 200) {
         var jsonData = json.decode(value.body);
         if (jsonData['status'] == "1" &&
@@ -232,7 +268,7 @@ class _ViewCartState extends State<ViewCart> {
         title:
             Text(locale.confirmOrderText, style: Theme.of(context).textTheme.bodyText1),
         actions: [
-          Padding(
+          /*Padding(
             padding: EdgeInsets.only(right: 10, top: 10, bottom: 10),
             child: RaisedButton(
               onPressed: () {
@@ -253,7 +289,7 @@ class _ViewCartState extends State<ViewCart> {
                 borderRadius: BorderRadius.circular(30.0),
               ),
             ),
-          )
+          )*/
         ],
       ),
       body: (!isCartFetch && cartListI != null && cartListI.length > 0)
@@ -270,7 +306,7 @@ class _ViewCartState extends State<ViewCart> {
                           Container(
                             padding: EdgeInsets.all(20.0),
                             color: kCardBackgroundColor,
-                            child: Text(storeName,
+                            child: Text(storeName!=null?storeName:'',
                                 style: Theme.of(context)
                                     .textTheme
                                     .headline6
@@ -340,7 +376,12 @@ class _ViewCartState extends State<ViewCart> {
                             color: kCardBackgroundColor,
                             thickness: 6.7,
                           ),
-                          Container(
+                         Visibility(
+                           visible: isDelvmart,
+                           child: Column(
+                           children: [
+
+                             Container(
                             padding: EdgeInsets.all(10.0),
                             color: kCardBackgroundColor,
                             child: Text(locale.dateSlotText,
@@ -535,7 +576,10 @@ class _ViewCartState extends State<ViewCart> {
                           Divider(
                             color: kCardBackgroundColor,
                             thickness: 6.7,
-                          ),
+                          )
+                          ],
+                         ),
+                         ),
                           Container(
                             width: double.infinity,
                             padding: EdgeInsets.symmetric(
@@ -704,6 +748,7 @@ class _ViewCartState extends State<ViewCart> {
                                 setState(() {
                                   showDialogBox = true;
                                 });
+                                deleteCart();
                                 createCart(context,locale);
                               }),
                         ],
@@ -775,9 +820,26 @@ class _ViewCartState extends State<ViewCart> {
     );
   }
 
+  void deleteCart() async {
+    var url= deleteCartUrl;
+          http.get(url).then((value) {
+            print("delete cart::::"+ value.body);
+          }).catchError((e) {
+            print("delete cart error :==: ");
+            setState(() {
+              showDialogBox = false;
+            });
+          });
+  }
   void createCart(BuildContext context, AppLocalizations locale) async {
     if (cartListI != null && cartListI.length > 0) {
-      if (radioList != null && radioList.length > 0) {
+      if (isDelvmart==true && radioList != null && radioList.length < 1) {
+          setState(() {
+            showDialogBox = false;
+          });
+          Toast.show(locale.plsSelectDeliveryTimeText, context,
+              duration: Toast.LENGTH_SHORT);
+        }else{
         if (totalAmount != null &&
             totalAmount > 0.0 &&
             addressDelivery != null) {
@@ -795,9 +857,10 @@ class _ViewCartState extends State<ViewCart> {
             'user_id': userId.toString(),
             'vendor_id': vendorId,
             'order_array': orderArray.toString(),
-            'delivery_date': dateTimeSt,
-            'time_slot': '${radioList[idd1]}',
-            'ui_type': ui_type
+            'delivery_date': isDelvmart?dateTimeSt:'',
+            'time_slot': isDelvmart?'${radioList[idd1]}':'',
+            'ui_type': ui_type,
+            'delivery_charge': deliveryCharge.toString()
           }).then((value) {
             print("create cart::::"+ value.body);
             if (value != null && value.statusCode == 200) {
@@ -834,17 +897,12 @@ class _ViewCartState extends State<ViewCart> {
                 duration: Toast.LENGTH_SHORT);
           } else {
             Toast.show(
-                locale.noAddressFound,
+                //locale.noAddressFound,
+                'Address not found, please add/change address!!',
                 context,
-                duration: Toast.LENGTH_SHORT);
+                duration: Toast.LENGTH_LONG);
           }
         }
-      } else {
-        setState(() {
-          showDialogBox = false;
-        });
-        Toast.show(locale.plsSelectDeliveryTimeText, context,
-            duration: Toast.LENGTH_SHORT);
       }
     } else {
       setState(() {
@@ -896,7 +954,7 @@ class _ViewCartState extends State<ViewCart> {
       varient_image, varient_id, index, price_d) async {
     DatabaseHelper db = DatabaseHelper.instance;
     Future<int> existing = db.getcount(int.parse(varient_id));
-    existing.then((value) {
+    existing.then((value) async {
       var vae = {
         DatabaseHelper.productName: product_name,
         DatabaseHelper.price: (price_d * itemCount),
@@ -911,6 +969,8 @@ class _ViewCartState extends State<ViewCart> {
       } else {
         if (itemCount == 0) {
           db.delete(int.parse(varient_id));
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+            prefs.setString("vendor_id", '');
         } else {
           db.updateData(vae, int.parse(varient_id));
         }
@@ -922,6 +982,8 @@ class _ViewCartState extends State<ViewCart> {
         }
       });
     });
+
+    getAddress(context,AppLocalizations.of(context));
   }
 
   Widget cartOrderItemListTile(
@@ -1072,8 +1134,10 @@ class _ViewCartState extends State<ViewCart> {
   }
 
   void clearCart() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       isCartFetch = true;
+      prefs.setString("vendor_id", '');
     });
     DatabaseHelper db = DatabaseHelper.instance;
     db.deleteAll().then((value) {

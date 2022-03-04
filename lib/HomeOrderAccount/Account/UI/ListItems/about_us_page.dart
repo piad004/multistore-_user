@@ -62,7 +62,7 @@ class AboutUsPageState extends State<AboutUsPage>{
                 child: Image(
                   image: AssetImage("images/logos/logo_user.png"),
                   centerSlice: Rect.largest,
-                  fit: BoxFit.contain,
+                  fit: BoxFit.fill,
                   height: 220,
                 ),
               ),

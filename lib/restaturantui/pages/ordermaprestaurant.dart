@@ -69,7 +69,7 @@ class _OrderMapRestState extends State<OrderMapRest> {
                         .push(MaterialPageRoute(builder: (context) {
                       return CancelRestProduct(widget.ongoingOrders.cart_id);
                     })).then((value){
-                      if(value){
+                      if(value !=null){
                         setState(() {
                           widget.ongoingOrders.order_status = "Cancelled";
                         });

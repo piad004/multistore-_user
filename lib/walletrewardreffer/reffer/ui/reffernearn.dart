@@ -133,39 +133,46 @@ class RefferScreenState extends State<RefferScreen> {
                 //     top: 40,
                 //     child: ),
                 Container(
-                  width: 200,
-                  height: 150,
+                  //width: 200,
+                  height: 180,
                   decoration: BoxDecoration(
                       image: DecorationImage(
                           image: AssetImage(
-                              'images/refernearn/refernearn.jpg'),
+                              //'images/refernearn/refernearn.jpg'),
+                              'images/refernearn/refer.jpeg'),
                           fit: BoxFit.fill)),
                 ),
                 Expanded(
                   child: Column(
                     children: [
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 30),
+                        padding: EdgeInsets.symmetric(horizontal: 10),
                         child: Text(
-                          '${refferText}',
-                          textAlign: TextAlign.center,
+                         // '${refferText}',
+                          '\nRefer your friends and get Rs.50 delvfast cash for each refer.\n\n'+
+                          'How it works\n'
+                        '1.Share your referral link with your friends\n'
+                        '2. When your friends click on your referral link or sign up through your referral code, your friends will get Rs.50 Delvfast cash on sign up and you will get Rs.50 when they complete their first order of Rs.200 or above..\n',
+                          textAlign: TextAlign.left,
                           style: TextStyle(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 25,
+                              /*fontWeight: FontWeight.w800,
+                              fontSize: 25,*/
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
                               color: kMainTextColor),
                         ),
                       ),
-                      Container(
+                     /* Container(
                         padding: EdgeInsets.symmetric(horizontal: 30),
                         child: Text(
                           locale.sahreYourCode,
-                          textAlign: TextAlign.center,
+                          textAlign: TextAlign.left,
                           style: TextStyle(
                               fontWeight: FontWeight.w800,
                               fontSize: 16,
                               color: kHintColor),
                         ),
-                      ),
+                      ),*/
                     ],
                   ),
                 ),

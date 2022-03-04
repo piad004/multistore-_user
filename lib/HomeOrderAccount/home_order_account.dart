@@ -2,41 +2,43 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:circular_bottom_navigation/circular_bottom_navigation.dart';
 import 'package:circular_bottom_navigation/tab_item.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:user/HomeOrderAccount/Account/UI/account_page.dart';
 import 'package:user/HomeOrderAccount/Home/UI/home.dart';
 import 'package:user/HomeOrderAccount/Order/UI/order_page.dart';
-import 'package:user/HomeOrderAccount/offer/ui/offerui.dart';
 import 'package:user/Locale/locales.dart';
 import 'package:user/Themes/colors.dart';
 import 'package:user/baseurlp/baseurl.dart';
 import 'package:user/providerlist/offerlistprovider.dart';
+import 'package:user/walletrewardreffer/reffer/ui/reffernearn.dart';
 
+import 'Home/UI/Stores/stores.dart';
 
 FirebaseMessaging messaging = FirebaseMessaging.instance;
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
   'high_importance_channel', // id
   'High Importance Notifications', // title
   'This channel is used for important notifications.', // description
   importance: Importance.high,
+  playSound: true,
+  sound: RawResourceAndroidNotificationSound('airtel'),
 );
-Future<void> myBackgroundMessageHandler(RemoteMessage message) async {
-  _showNotification(
-      flutterLocalNotificationsPlugin,
-      '${message.notification.title}',
-      '${message.notification.body}');
-}
 
+Future<void> myBackgroundMessageHandler(RemoteMessage message) async {
+  _showNotification(flutterLocalNotificationsPlugin,
+      '${message.notification.title}', '${message.notification.body}');
+}
 
 class HomeStateless extends StatelessWidget {
   @override
@@ -66,19 +68,18 @@ class _HomeOrderAccountState extends State<HomeOrderAccount> {
     setFirebase();
     _navigationController =
     new CircularBottomNavigationController(_currentIndex);
+    setMenuIndex();
     getCurrency();
   }
 
   void setFirebase() async {
-    try{
+    try {
       await Firebase.initializeApp();
-    }catch(e){
-
-    }
+    } catch (e) {}
     messaging = FirebaseMessaging.instance;
     iosPermission(messaging);
     var initializationSettingsAndroid =
-    AndroidInitializationSettings('logo_user');
+        AndroidInitializationSettings('logo_user');
     var initializationSettingsIOS = IOSInitializationSettings(
         onDidReceiveLocalNotification: onDidReceiveLocalNotification);
     var initializationSettings = InitializationSettings(
@@ -92,17 +93,17 @@ class _HomeOrderAccountState extends State<HomeOrderAccount> {
         .getInitialMessage()
         .then((RemoteMessage message) {
       if (message != null) {
-        _showNotification(
-            flutterLocalNotificationsPlugin,
-            '${message.notification.title}',
-            '${message.notification.body}');
+        _showNotification(flutterLocalNotificationsPlugin,
+            '${message.notification.title}', '${message.notification.body}');
       }
     });
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification notification = message.notification;
       AndroidNotification android = message.notification?.android;
-      if (notification != null && android != null && notification.body!=null) {
+      if (notification != null &&
+          android != null &&
+          notification.body != null) {
         notificationInit.hitNotification();
         print('notificatioin d d ');
         flutterLocalNotificationsPlugin.show(
@@ -115,6 +116,8 @@ class _HomeOrderAccountState extends State<HomeOrderAccount> {
                 channel.name,
                 channel.description,
                 icon: 'logo_user',
+                playSound: true,
+                sound: RawResourceAndroidNotificationSound('airtel'),
               ),
             ));
       }
@@ -132,7 +135,7 @@ class _HomeOrderAccountState extends State<HomeOrderAccount> {
   }
 
   void getCurrency() async {
-    if(!isRunning){
+    if (!isRunning) {
       setState(() {
         isRunning = true;
       });
@@ -170,9 +173,10 @@ class _HomeOrderAccountState extends State<HomeOrderAccount> {
 
   final List<Widget> _children = [
     HomePage(),
-    OfferScreen(),
+    //OfferScreen(),
+    RefferScreen(),
     OrderPage(),
-    OrderPage(),
+    StoresPage("Meat & Fish", 1, "1"),
     AccountPage(),
   ];
 
@@ -189,18 +193,23 @@ class _HomeOrderAccountState extends State<HomeOrderAccount> {
     setState(() {
       tabItems = List.of([
         new TabItem(Icons.home, locale.homeText, Colors.red,
-            labelStyle: TextStyle(color: Colors.red,fontSize:12,fontWeight: FontWeight.bold)),
-        new TabItem(Icons.supervisor_account_rounded, "Refer & Earn", Colors.red,
-            labelStyle: TextStyle(color: Colors.red,fontSize:12, fontWeight: FontWeight.bold)),
+            labelStyle: TextStyle(
+                color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold)),
+        new TabItem(
+            Icons.supervisor_account_rounded, "Refer & Earn", Colors.red,
+            labelStyle: TextStyle(
+                color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold)),
         new TabItem(Icons.shopping_bag_outlined, "Order", Colors.red,
-            labelStyle: TextStyle(color: Colors.red,fontSize:12, fontWeight: FontWeight.bold)),
+            labelStyle: TextStyle(
+                color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold)),
         new TabItem(Icons.set_meal_outlined, "Meat & Fish", Colors.red,
-            labelStyle: TextStyle(color: Colors.red,fontSize:12, fontWeight: FontWeight.bold)),
+            labelStyle: TextStyle(
+                color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold)),
         new TabItem(Icons.account_circle_outlined, "Account", Colors.red,
-            labelStyle: TextStyle(color: Colors.red,fontSize:12, fontWeight: FontWeight.bold)),
+            labelStyle: TextStyle(
+                color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold)),
       ]);
     });
-
 
     return Scaffold(
       body: IndexedStack(
@@ -235,7 +244,6 @@ class _HomeOrderAccountState extends State<HomeOrderAccount> {
     );
   }
 
-
   Future onDidReceiveLocalNotification(
       int id, String title, String body, String payload) async {
     // var message = jsonDecode('${payload}');
@@ -244,10 +252,8 @@ class _HomeOrderAccountState extends State<HomeOrderAccount> {
 
   Future selectNotification(String payload) async {}
 
-
-
   void iosPermission(FirebaseMessaging firebaseMessaging) {
-    if(Platform.isIOS){
+    if (Platform.isIOS) {
       firebaseMessaging.setForegroundNotificationPresentationOptions(
         alert: true,
         badge: true,
@@ -259,6 +265,19 @@ class _HomeOrderAccountState extends State<HomeOrderAccount> {
     // firebaseMessaging.onIosSettingsRegistered.listen((event) {
     //   print('${event.provisional}');
     // });
+  }
+
+  Future<void> setMenuIndex() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isOrder = prefs.getBool("isOrder");
+    setState(() {
+      if (isOrder != null && isOrder == true)
+        _currentIndex=2;
+      else
+        _currentIndex=0;
+    });
+
+    prefs.setBool("isOrder", false);
   }
 }
 
@@ -273,16 +292,17 @@ Future<void> _showNotification(
   vibrationPattern[3] = 2000;
   vibrationPattern[4] = 2000;
   final AndroidNotificationDetails androidPlatformChannelSpecifics =
-  AndroidNotificationDetails('7458', 'Notify', 'Notify On Shopping',
-      vibrationPattern: vibrationPattern,
-      importance: Importance.max,
-      priority: Priority.high,
-      enableLights: true,
-      enableVibration: true,
-      playSound: true,
-      ticker: 'ticker');
+      AndroidNotificationDetails('7458', 'Notify', 'Notify On Shopping',
+          vibrationPattern: vibrationPattern,
+          importance: Importance.max,
+          priority: Priority.high,
+          enableLights: true,
+          enableVibration: true,
+          playSound: true,
+          sound: RawResourceAndroidNotificationSound('airtel'),
+          ticker: 'ticker');
   final IOSNotificationDetails iOSPlatformChannelSpecifics =
-  IOSNotificationDetails(presentSound: true);
+      IOSNotificationDetails(presentSound: true);
   final NotificationDetails platformChannelSpecifics = NotificationDetails(
     android: androidPlatformChannelSpecifics,
     iOS: iOSPlatformChannelSpecifics,

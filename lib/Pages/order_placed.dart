@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:user/Components/bottom_bar.dart';
 import 'package:user/HomeOrderAccount/home_order_account.dart';
 import 'package:user/Locale/locales.dart';
@@ -62,7 +63,8 @@ class OrderPlaced extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                '${locale.orderPlacedText11} - $order_id ${locale.orderPlacedText12} \n ${locale.orderPlacedText13} $currency ${double.parse('$rem_price').toStringAsFixed(2)}!!',
+                //'${locale.orderPlacedText11} - $order_id ${locale.orderPlacedText12} \n ${locale.orderPlacedText13} $currency ${double.parse('$rem_price').toStringAsFixed(2)}!!',
+                'Thank You For Choosing Delvfast \n Your Order Has been Placed \n Order ID - $order_id',
                 textAlign: TextAlign.center,
                 style: Theme.of(context)
                     .textTheme
@@ -82,9 +84,12 @@ class OrderPlaced extends StatelessWidget {
               ),
             ),
             BottomBar(
-              text: locale.goToHomeText,
+              text: 'Track Your Order',
+              //text: locale.goToHomeText,
               onTap: () {
                 Navigator.of(context).pushNamedAndRemoveUntil(PageRoutes.homeOrderAccountPage, (Route<dynamic> route) => false);
+                //Navigator.pushNamed(context, PageRoutes.orderPage);
+          changeMenuIndex();
               },
             )
           ],
@@ -92,4 +97,10 @@ class OrderPlaced extends StatelessWidget {
       ),
     );
   }
+
+  Future<void> changeMenuIndex() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setBool("isOrder", true);
+  }
 }
+

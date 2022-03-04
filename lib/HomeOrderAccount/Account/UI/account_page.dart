@@ -6,6 +6,7 @@ import 'package:user/HomeOrderAccount/Account/UI/ListItems/saved_addresses_page.
 import 'package:user/Locale/locales.dart';
 import 'package:user/Routes/routes.dart';
 import 'package:user/Themes/colors.dart';
+import 'package:user/HomeOrderAccount/Account/UI/EditProfile.dart';
 
 class AccountPage extends StatelessWidget {
   @override
@@ -13,7 +14,8 @@ class AccountPage extends StatelessWidget {
     var locale = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(locale.myAccount, style: Theme.of(context).textTheme.bodyText1),
+        title: Text(locale.myAccount,
+            style: Theme.of(context).textTheme.bodyText1),
         centerTitle: true,
       ),
       body: Account(),
@@ -26,7 +28,7 @@ class Account extends StatefulWidget {
   _AccountState createState() => _AccountState();
 }
 
-class _AccountState extends State<Account> {
+class _AccountState extends State<Account> with WidgetsBindingObserver{
   String number;
   var userName = '';
   var phoneNumber = '';
@@ -35,7 +37,21 @@ class _AccountState extends State<Account> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     getName();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(final AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      getName();
+    }
   }
 
   Future<void> getName() async {
@@ -75,35 +91,46 @@ class _AccountState extends State<Account> {
           color: kCardBackgroundColor,
           thickness: 8.0,
         ),
+        BuildListTile(
+            image: 'images/account/edit_profile.png',
+            text: locale.editProfileText,
+            onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            EditProfile(userName, emailId, phoneNumber)))
+                .then((value) {
+                  new UserDetailsState(userName, phoneNumber, emailId).getName();
+            })),
         AddressTile(),
         BuildListTile(
-            image: 'images/account/ic_menu_wallet.png',
+            image: 'images/account/delvfast_cash.png',
             text: locale.walletText,
             onTap: () => Navigator.pushNamed(context, PageRoutes.wallet)),
-        BuildListTile(
+        /* BuildListTile(
             image: 'images/account/reward.png',
             text: locale.rewardsText,
-            onTap: () => Navigator.pushNamed(context, PageRoutes.reward)),
+            onTap: () => Navigator.pushNamed(context, PageRoutes.reward)),*/
         BuildListTile(
-            image: 'images/account/reffernearn.png',
+            image: 'images/account/refer_earn.png',
             text: locale.referEarnText,
             onTap: () => Navigator.pushNamed(context, PageRoutes.reffernearn)),
         BuildListTile(
-            image: 'images/account/ic_menu_tncact.png',
+            image: 'images/account/terms_condition.png',
             text: locale.tnc,
             onTap: () => Navigator.pushNamed(context, PageRoutes.tncPage)),
         BuildListTile(
-            image: 'images/account/ic_menu_supportact.png',
+            image: 'images/account/support.png',
             text: locale.support,
             onTap: () => Navigator.pushNamed(context, PageRoutes.supportPage,
                 arguments: number)),
         BuildListTile(
-          image: 'images/account/ic_menu_aboutact.png',
+          image: 'images/account/about_us.png',
           text: locale.aboutUs,
           onTap: () => Navigator.pushNamed(context, PageRoutes.aboutUsPage),
         ),
         BuildListTile(
-          image: 'images/account/ic_menu_aboutact.png',
+          image: 'images/account/settings.png',
           text: locale.settingheding,
           onTap: () => Navigator.pushNamed(context, PageRoutes.settings),
         ),
@@ -118,7 +145,7 @@ class AddressTile extends StatelessWidget {
   Widget build(BuildContext context) {
     var locale = AppLocalizations.of(context);
     return BuildListTile(
-        image: 'images/account/ic_menu_addressact.png',
+        image: 'images/account/saved_address.png',
         text: locale.savedAddresses,
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(builder: (context) {
@@ -133,7 +160,7 @@ class LogoutTile extends StatelessWidget {
   Widget build(BuildContext context) {
     var locale = AppLocalizations.of(context);
     return BuildListTile(
-      image: 'images/account/ic_menu_logoutact.png',
+      image: 'images/account/log_out.png',
       text: locale.logout,
       onTap: () {
         showDialog(
@@ -164,7 +191,10 @@ class LogoutTile extends StatelessWidget {
                         //     MaterialPageRoute(builder: (context) {
                         //   return LoginNavigator();
                         // }), (Route<dynamic> route) => false);
-                        Navigator.pushNamedAndRemoveUntil(context,PageRoutes.loginRoot, (Route<dynamic> route) => false);
+                        Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            PageRoutes.loginRoot,
+                            (Route<dynamic> route) => false);
                       })
                 ],
               );
@@ -174,7 +204,7 @@ class LogoutTile extends StatelessWidget {
   }
 }
 
-class UserDetailsState extends State<UserDetails> {
+class UserDetailsState extends State<UserDetails> with WidgetsBindingObserver{
   var userName = '';
   var phoneNumber = '';
   var emailId = '';
@@ -208,7 +238,21 @@ class UserDetailsState extends State<UserDetails> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     getName();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(final AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      getName();
+    }
   }
 
   @override

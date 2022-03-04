@@ -26,6 +26,8 @@ class OrderPage extends StatefulWidget {
 
 class OrderPageState extends State<OrderPage> {
   List<OngoingOrders> onGoingOrders = [];
+  //List<CompletedOrders> onGoingOrders = [];
+
   List<OrderHistoryRestaurant> onRestGoingOrders = [];
   List<OrderHistoryRestaurant> onPharmaGoingOrders = [];
   List<TodayOrderParcel> onParcelGoingOrders = [];
@@ -63,6 +65,9 @@ class OrderPageState extends State<OrderPage> {
           List<OngoingOrders> tagObjs = tagObjsJson
               .map((tagJson) => OngoingOrders.fromJson(tagJson))
               .toList();
+         /* List<CompletedOrders> tagObjs = tagObjsJson
+              .map((tagJson) => CompletedOrders.fromJson(tagJson))
+              .toList();*/
           if (tagObjs.length > 0) {
             setState(() {
               onGoingOrders.clear();
@@ -102,6 +107,9 @@ class OrderPageState extends State<OrderPage> {
           List<OngoingOrders> tagObjs = tagObjsJson
               .map((tagJson) => OngoingOrders.fromJson(tagJson))
               .toList();
+         /* List<CompletedOrders> tagObjs = tagObjsJson
+              .map((tagJson) => CompletedOrders.fromJson(tagJson))
+              .toList();*/
           if (tagObjs.length > 0) {
             setState(() {
               onGoingOrders.clear();
@@ -131,6 +139,7 @@ class OrderPageState extends State<OrderPage> {
     var userId = preferences.getInt('user_id');
     var url = completeOrders;
     http.post(url, body: {'user_id': '$userId'}).then((value) {
+      var body=value.body;
       if (value.statusCode == 200 && value.body != null) {
         print('${value.body}');
         if (value.body.contains("[{\"order_details\":\"no orders found\"}]") ||
@@ -141,6 +150,9 @@ class OrderPageState extends State<OrderPage> {
           List<OngoingOrders> tagObjs = tagObjsJson
               .map((tagJson) => OngoingOrders.fromJson(tagJson))
               .toList();
+         /* List<CompletedOrders> tagObjs = tagObjsJson
+              .map((tagJson) => CompletedOrders.fromJson(tagJson))
+              .toList();*/
           if (tagObjs.length > 0) {
             setState(() {
               onGoingOrders.clear();

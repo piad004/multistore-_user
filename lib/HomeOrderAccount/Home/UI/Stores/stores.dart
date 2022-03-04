@@ -9,14 +9,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
 import 'package:toast/toast.dart';
 import 'package:user/Components/custom_appbar.dart';
+import 'package:user/HomeOrderAccount/Home/UI/Search.dart';
 import 'package:user/HomeOrderAccount/Home/UI/appcategory/appcategory.dart';
 import 'package:user/Locale/locales.dart';
 import 'package:user/Routes/routes.dart';
 import 'package:user/Themes/colors.dart';
 import 'package:user/baseurlp/baseurl.dart';
+import 'package:user/bean/bannerbean.dart';
 import 'package:user/bean/nearstorebean.dart';
 import 'package:user/bean/vendorbanner.dart';
 import 'package:user/databasehelper/dbhelper.dart';
+import 'package:user/parcel/fromtoaddress.dart';
+import 'package:user/pharmacy/pharmadetailpage.dart';
+import 'package:user/restaturantui/pages/restaurant.dart';
 
 class StoresPage extends StatefulWidget {
   final String pageTitle;
@@ -31,12 +36,13 @@ class StoresPage extends StatefulWidget {
   }
 }
 
-class StoresPageState extends State<StoresPage> {
+class StoresPageState extends State<StoresPage> with WidgetsBindingObserver{
   var http = Client();
   final String pageTitle;
   String ui_type="";
   final dynamic vendor_category_id;
-  List<VendorBanner> listImage = [];
+  //List<VendorBanner> listImage = [];
+  List<BannerDetails> listImage = [];
   List<NearStores> nearStores = [];
   List<NearStores> nearStoresSearch = [];
   List<NearStores> nearStoresShimmer = [
@@ -56,19 +62,35 @@ class StoresPageState extends State<StoresPage> {
   int cartCount = 0;
   double userLat = 0.0;
   double userLng = 0.0;
+
   @override
   void initState() {
-    getShareValue();
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    getShareValue();
     hitService();
     getCartCount();
   }
 
+
+  @override
+  void didChangeAppLifecycleState(final AppLifecycleState state) {
+   // if (state == AppLifecycleState.resumed) {
+      getShareValue();
+      hitService();
+   // }
+  }
+
+
   getShareValue() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      userLat = double.parse('${prefs.getString('lat')}');
-      userLng = double.parse('${prefs.getString('lng')}');
+      var lat=prefs.getString('userLat');
+      var lng = prefs.getString('userLng');
+      if(lat != null && lng != null) {
+        userLat = double.parse('${lat}');
+        userLng = double.parse('${lng}');
+      }
       hitBannerUrl();
     });
   }
@@ -86,7 +108,7 @@ class StoresPageState extends State<StoresPage> {
     double kms = calculateDistance(lat1, lon1, lat2, lon2);
     double kms_per_min = 0.5;
     double mins_taken = kms / kms_per_min;
-    double min = mins_taken;
+    double min = mins_taken + 45;//45 min add as per client request
     if (min<60) {
       return ""+'${min.toInt()}'+" mins";
     }else {
@@ -114,8 +136,9 @@ class StoresPageState extends State<StoresPage> {
 
   @override
   void dispose() {
-    http.close();
     super.dispose();
+    http.close();
+    WidgetsBinding.instance.removeObserver(this);
   }
 
   @override
@@ -177,7 +200,7 @@ class StoresPageState extends State<StoresPage> {
                               style: TextStyle(
                                   fontSize: 7,
                                   color: kWhiteColor,
-                                  fontWeight: FontWeight.w200),
+                                  fontWeight: FontWeight.w900),
                             ),
                           ),
                         ))
@@ -204,7 +227,18 @@ class StoresPageState extends State<StoresPage> {
                     ),
                     controller: searchController,
                     cursorColor: kMainColor,
+                    readOnly: true,
                     autofocus: false,
+                    onTap: (){
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                             // builder: (context) => SearchPage('["shop"]',nearStores[0].vendor_category_id)))
+                              builder: (context) => SearchPage('["all"]',ui_type,nearStores[0].vendor_category_id,'','')))
+                          .then((value) {
+                        getCartCount();
+                      });
+                    },
                     onChanged: (value) {
                       nearStores = nearStoresSearch
                           .where((element) => element.vendor_name
@@ -226,7 +260,6 @@ class StoresPageState extends State<StoresPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-
                 Visibility(
                   visible:
                   (!isFetch && listImage.length == 0) ? false : true,
@@ -259,6 +292,8 @@ class StoresPageState extends State<StoresPage> {
                                               AppCategory(e.vendor_id, e.vendor_id, e.vendor_id))).then((value) {
                                     getCartCount();
                                   });*/
+                                  hitNavigatorStore(context, e.ui_type, e.vendor_name, e.vendor_id, e.delivery_range, e.distance, e.about,
+                                      e.online_status,e.vendor_category_id, e.vendor_loc, e.vendor_logo, e.vendor_phone);
                                 },
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(
@@ -421,7 +456,9 @@ class StoresPageState extends State<StoresPage> {
                                                       ),
                                                       SizedBox(width: 10.0),
                                                       Text(
-                                                          '${double.parse('${nearStores[index].distance}').toStringAsFixed(2)} km ',
+
+                                                          (nearStores[index].distance)!=null?
+                                                          '${double.parse('${nearStores[index].distance}').toStringAsFixed(2)} km ':'0 km',
                                                           style: Theme.of(
                                                                   context)
                                                               .textTheme
@@ -571,11 +608,12 @@ class StoresPageState extends State<StoresPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var url = nearByStore;
     http.post(url, body: {
-      'lat': '${prefs.getString('lat')}',
-      'lng': '${prefs.getString('lng')}',
+      'lat': '${prefs.getString('userLat')}',
+      'lng': '${prefs.getString('userLng')}',
       'vendor_category_id': '${vendor_category_id}',
       'ui_type': '${prefs.getString('ui_type')}'
     }).then((value) {
+      var body = value.body;
       if (value.statusCode == 200) {
         var jsonData = jsonDecode(value.body);
         print('${jsonData.toString()}');
@@ -606,15 +644,20 @@ class StoresPageState extends State<StoresPage> {
   }
 
   void hitBannerUrl() async {
-    var url = categoryBanner+'?lat='+userLat.toString()+'&lng='+userLng.toString()+'&ui_type='+ui_type.toString();
+    var url = categoryBanner+'?lat='+userLat.toString()+'&lng='+userLng.toString()+'&ui_type='+vendor_category_id.toString();
+    print(url.toString());
     http.get(Uri.parse(url)).then((value) {
       if (value.statusCode == 200) {
         var jsonData = jsonDecode(value.body);
         if (jsonData['status'] == "1") {
           var tagObjsJson = jsonDecode(value.body)['data'] as List;
-          List<VendorBanner> tagObjs = tagObjsJson
+        /*  List<VendorBanner> tagObjs = tagObjsJson
               .map((tagJson) => VendorBanner.fromJson(tagJson))
+              .toList();*/
+             List<BannerDetails> tagObjs = tagObjsJson
+              .map((tagJson) => BannerDetails.fromJson(tagJson))
               .toList();
+
           if (tagObjs.isNotEmpty) {
             setState(() {
               listImage.clear();
@@ -632,10 +675,10 @@ class StoresPageState extends State<StoresPage> {
         }
       }
     }).catchError((e) {
-      print("error store"+e);
       setState(() {
         isFetch = false;
       });
+      print("error store"+e.toString());
     });
   }
 
@@ -701,23 +744,87 @@ class StoresPageState extends State<StoresPage> {
 
   hitNavigator(BuildContext context, vendor_name, vendor_id, distance, AppLocalizations locale) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (isCartCount &&
+   /* if (isCartCount &&
         prefs.getString("vendor_id") != null &&
         prefs.getString("vendor_id") != "" &&
         prefs.getString("vendor_id") != '${vendor_id}') {
       showAlertDialog(context, vendor_name, vendor_id, distance,locale);
-    } else {
-      prefs.setString("vendor_id", '${vendor_id}');
+    } else*/ {
+     // prefs.setString("vendor_id", '${vendor_id}');
       prefs.setString("store_name", '${vendor_name}');
       Navigator.push(
           context,
           MaterialPageRoute(
               builder: (context) =>
-                  AppCategory(vendor_name, vendor_id, distance))).then((value) {
+                  AppCategory(vendor_name, vendor_id, distance,ui_type))).then((value) {
         getCartCount();
       });
     }
   }
+
+  void hitNavigatorStore(context, ui_type, vendor_name, vendorId,deliveryrange, distance,about,onlineStatus,
+      vendor_category_id, vendorLoc,vendorLogo,vendorPhone) async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var lat = prefs.getString("lat");
+    var lng = prefs.getString("lng");
+    NearStores item=NearStores(vendor_name, vendorPhone, vendorId, vendorLogo, vendor_category_id, distance, lat, lng,
+        deliveryrange, onlineStatus, vendorLoc, about);
+
+    if (ui_type == "grocery" || ui_type == "Grocery" || ui_type == "1"|| ui_type == 1) {
+      prefs.setString("vendor_cat_id", '${vendor_category_id}');
+      prefs.setString("ui_type", '${ui_type}');
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  AppCategory(
+                      vendor_name, vendorId,
+                      distance,ui_type))).then((value) {
+        getCartCount();
+      });
+    } else if (ui_type == "resturant" ||
+        ui_type == "Resturant" ||
+        ui_type == "2"|| ui_type == 2) {
+      prefs.setString("vendor_cat_id", '${vendor_category_id}');
+      prefs.setString("ui_type", '${ui_type}');
+      var currency = prefs.getString('curency');
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => Restaurant_Sub(item, currency)))
+          .then((value) {
+        getCartCount();
+      });
+    }
+    else if (ui_type == "pharmacy" ||
+        ui_type == "Pharmacy" ||
+        ui_type == "3" || ui_type == 3) {
+      prefs.setString("vendor_cat_id", '${vendor_category_id}');
+      prefs.setString("ui_type", '${ui_type}');
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => PharmaItemPage(
+                  vendor_name, vendor_category_id, deliveryrange, distance)))
+          .then((value) {
+        getCartCount();
+      });
+    } else if (ui_type == "parcal" || ui_type == "Parcal" || ui_type == "4"|| ui_type == 4) {
+      prefs.setString("vendor_cat_id", '${vendor_category_id}');
+      prefs.setString("ui_type", '${ui_type}');
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  AddressFrom(vendor_name, vendor_category_id, distance)));
+      /* Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ParcalStoresPage('${vendor_category_id}')));*/
+    }
+  }
+
 
   void deleteAllRestProduct(
       BuildContext context, vendor_name, vendor_id, distance) async {
@@ -730,7 +837,7 @@ class StoresPageState extends State<StoresPage> {
           context,
           MaterialPageRoute(
               builder: (context) =>
-                  AppCategory(vendor_name, vendor_id, distance))).then((value) {
+                  AppCategory(vendor_name, vendor_id, distance,ui_type))).then((value) {
         getCartCount();
       });
     });

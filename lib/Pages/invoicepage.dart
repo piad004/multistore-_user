@@ -92,7 +92,7 @@ class MyInvoicePdfState extends State<MyInvoicePdf> {
   void createPdf(OngoingOrders invoiceBean) async {
     SharedPreferences prefse = await SharedPreferences.getInstance();
     rootBundle
-        .load('images/logos/logo_user.png')
+        .load('images/logos/icon.JPEG')
         .then((data) => setState(() => this.imageData = data));
     PDF.Document pdf = PDF.Document();
     pdf.addPage(PDF.MultiPage(
@@ -116,7 +116,8 @@ class MyInvoicePdfState extends State<MyInvoicePdf> {
                 alignment: PDF.Alignment.center,
                 padding: PDF.EdgeInsets.only(bottom: 10),
                 child:
-                    PDF.Text('$appname', style: PDF.TextStyle(fontSize: 20)),
+                   // PDF.Text('$appname', style: PDF.TextStyle(fontSize: 20)),
+                    PDF.Text('', style: PDF.TextStyle(fontSize: 20)),
               ),
               PDF.Padding(padding: const PDF.EdgeInsets.all(20)),
               PDF.Row(
@@ -153,8 +154,8 @@ class MyInvoicePdfState extends State<MyInvoicePdf> {
                         // )
                         child: PDF.Image(
                             PDF.MemoryImage(imageData.buffer.asUint8List()),
-                            height: 100,
-                            width: 100)),
+                            height: 0,
+                            width: 0)),
                   ]),
               PDF.Padding(padding: const PDF.EdgeInsets.all(10)),
               PDF.Row(

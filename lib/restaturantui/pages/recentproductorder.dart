@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
 import 'package:toast/toast.dart';
 import 'package:user/Components/custom_appbar.dart';
+import 'package:user/HomeOrderAccount/Home/UI/Search.dart';
 import 'package:user/Locale/locales.dart';
 import 'package:user/Routes/routes.dart';
 import 'package:user/Themes/colors.dart';
@@ -221,7 +223,18 @@ class _ProductsOrderedStateNew extends State<ProductsOrderedNew> {
                   ),
                   cursorColor: kMainColor,
                   autofocus: false,
-                  onChanged: (value) {
+                  onTap: (){
+                    Navigator.push(
+                        context,
+                        PageTransition(
+                            type: PageTransitionType.rightToLeft,
+                            //child: SearchRestaurantStore(currencySymbol)))
+                            child: SearchPage('["all"]','2',nearStoresSearch[0].variant_id,'','')))
+                        .then((value) {
+                      getCartCount();
+                    });
+                  },
+                  /*onChanged: (value) {
                     popularItem = nearStoresSearch
                         .where((element) =>
                         element.product_name
@@ -229,7 +242,7 @@ class _ProductsOrderedStateNew extends State<ProductsOrderedNew> {
                             .toLowerCase()
                             .contains(value.toLowerCase()))
                         .toList();
-                  },
+                  },*/
                 ),
               ),
               preferredSize:

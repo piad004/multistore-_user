@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:pin_code_text_field/pin_code_text_field.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toast/toast.dart';
 import 'package:user/Locale/locales.dart';
 import 'package:user/Routes/routes.dart';
 import 'package:user/Themes/colors.dart';
@@ -377,11 +378,15 @@ class _OtpVerifyState extends State<OtpVerify> {
             setState(() {
               showDialogBox = false;
             });
+            Toast.show(jsonData['message'], context,
+                gravity: Toast.BOTTOM);
           }
         } else {
           setState(() {
             showDialogBox = false;
           });
+          Toast.show("Server error!", context,
+              gravity: Toast.BOTTOM);
         }
       }).catchError((e) {
         print(e);

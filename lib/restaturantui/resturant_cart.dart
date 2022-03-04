@@ -14,6 +14,7 @@ import 'package:user/Themes/colors.dart';
 import 'package:user/baseurlp/baseurl.dart';
 import 'package:user/bean/address.dart';
 import 'package:user/bean/cartdetails.dart';
+import 'package:user/bean/cartitem.dart';
 import 'package:user/bean/orderarray.dart';
 import 'package:user/bean/paymentstatus.dart';
 import 'package:user/bean/resturantbean/restaurantcartitem.dart';
@@ -111,6 +112,7 @@ class _RestuarantViewCartState extends State<RestuarantViewCart> {
       setState(() {
         isCartFetch = false;
       });
+      getAddress(context,AppLocalizations.of(context));
     });
   }
 
@@ -162,11 +164,29 @@ class _RestuarantViewCartState extends State<RestuarantViewCart> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int userId = prefs.getInt('user_id');
     String vendorId = prefs.getString('res_vendor_id');
+   /* var productsJson="";
+    if(cartListI!=null && cartListI.length>0) {
+      List<String> productList=[];
+      for (int i = 0; i < cartListI.length; i++) {
+        productList.add(cartListI[i].product_name);
+      }
+
+      productsJson = jsonEncode(
+          productList.map((product) => product.toString()).toList());
+    }*/
+    List<OrderArrayGrocery> orderArray = [];
+    for (RestaurantCartItem item in cartListI) {
+      orderArray.add(OrderArrayGrocery(int.parse('${item.add_qnty}'),
+          int.parse('${item.varient_id}')));
+    }
+
     var url = address_selection;
     http.post(url, body: {
       'user_id': '${userId}',
-      'vendor_id': '${vendorId}'
+      'vendor_id': '${vendorId}',
+      'product_name_list': '${orderArray.toString()}'
     }).then((value) {
+      var body = value.body;
       print('${value.statusCode} ${value.body}');
       if (value.statusCode == 200) {
         var jsonData = jsonDecode(value.body);
@@ -230,7 +250,6 @@ class _RestuarantViewCartState extends State<RestuarantViewCart> {
       setState(() {
         isEnteredFirst = true;
       });
-      getAddress(context,locale);
       getStoreName();
       getCartItem();
       getCatC();
@@ -239,7 +258,7 @@ class _RestuarantViewCartState extends State<RestuarantViewCart> {
       appBar: AppBar(
         title: Text(locale.checkOutText, style: Theme.of(context).textTheme.bodyText1),
         actions: [
-          Padding(
+        /*  Padding(
             padding: EdgeInsets.only(right: 10, top: 10, bottom: 10),
             child: RaisedButton(
               onPressed: () {
@@ -260,7 +279,7 @@ class _RestuarantViewCartState extends State<RestuarantViewCart> {
                 borderRadius: BorderRadius.circular(30.0),
               ),
             ),
-          )
+          )*/
         ],
       ),
       body: (!isCartFetch && cartListI != null && cartListI.length > 0)
@@ -523,7 +542,8 @@ class _RestuarantViewCartState extends State<RestuarantViewCart> {
                                   ),
                                   Text(
                                       addressDelivery != null
-                                          ? '${addressDelivery.address != null ? '${addressDelivery.address})' : ''} \n ${(addressDelivery.delivery_charge != null) ? addressDelivery.delivery_charge : ''}'
+                                          //? '${addressDelivery.address != null ? '${addressDelivery.address})' : ''} \n ${(addressDelivery.delivery_charge != null) ? addressDelivery.delivery_charge : ''}'
+                                          ? '${addressDelivery.address != null ? '${addressDelivery.address}' : ''}'
                                           : '',
                                       style: Theme.of(context)
                                           .textTheme
@@ -613,6 +633,18 @@ class _RestuarantViewCartState extends State<RestuarantViewCart> {
     );
   }
 
+  void deleteCart() async {
+    var url= deleteCartUrl;
+    http.get(url).then((value) {
+      print("delete cart::::"+ value.body);
+    }).catchError((e) {
+      print("delete cart error :==: $e");
+      setState(() {
+        showDialogBox = false;
+      });
+    });
+  }
+
   void createCart(BuildContext context, AppLocalizations locale) async {
     if (cartListI != null && cartListI.length > 0) {
       if (totalAmount != null && totalAmount > 0.0 && addressDelivery != null) {
@@ -642,8 +674,10 @@ class _RestuarantViewCartState extends State<RestuarantViewCart> {
           'order_array': orderArray.toString(),
           'order_array1':
               (orderAddonArray.length > 0) ? orderAddonArray.toString() : '',
-          'ui_type': ui_type
+          'ui_type': ui_type,
+          'delivery_charge': deliveryCharge.toString()
         }).then((value) {
+          var body = value.body;
           print('${value.statusCode} ${value.body}');
           if (value != null && value.statusCode == 200) {
             var jsonData = jsonDecode(value.body);
@@ -679,9 +713,11 @@ class _RestuarantViewCartState extends State<RestuarantViewCart> {
           Toast.show(locale.noValueCartText, context,
               duration: Toast.LENGTH_SHORT);
         } else {
-          Toast.show(locale.noAddressFound,
+          Toast.show(
+              //locale.noAddressFound,
+              'Address not found, please add/change address!!',
               context,
-              duration: Toast.LENGTH_SHORT);
+              duration: Toast.LENGTH_LONG);
         }
       }
     } else {

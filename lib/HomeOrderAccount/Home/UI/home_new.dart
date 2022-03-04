@@ -317,7 +317,7 @@ class _HomeState extends State<Home> {
               }
               print('dd $latt - $lngt');
               Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                return LocationPage(latt, lngt);
+                return LocationPage(latt, lngt,false);
               })).then((value) {
                 if (value != null) {
                   print('${value.toString()}');

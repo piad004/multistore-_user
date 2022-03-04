@@ -131,10 +131,26 @@ class _JuiceListState extends State<JuiceList> {
                               crossAxisAlignment:
                               CrossAxisAlignment.center,
                               children: <Widget>[
-                                Text(
-                                  '${widget.currencySymbol} ${widget.categoryListNew[index].variant[index1].price}',
-                                  // '',
-                                  style: priceStyle,
+                                Row(
+                                  children: [
+                                    Visibility(
+                                        visible: (widget.categoryListNew[index].variant[index1].strick_price)!=
+                                            (widget.categoryListNew[index].variant[index1].price),child: Text(
+                                        '${widget.currencySymbol} ${widget.categoryListNew[index].variant[index1].strick_price}',
+                                        style: TextStyle(
+                                            decorationColor: Colors.red,
+                                            decorationStyle: TextDecorationStyle.solid,
+                                            decoration:
+                                            TextDecoration.lineThrough,
+                                            fontSize: 14
+                                        ))),
+                                    SizedBox(width: 10),
+                                    Text(
+                                      '${widget.currencySymbol} ${widget.categoryListNew[index].variant[index1].price}',
+                                      // '',
+                                      style: priceStyle,
+                                    ),
+                                  ],
                                 ),
                                 InkWell(
                                   onTap: () async {

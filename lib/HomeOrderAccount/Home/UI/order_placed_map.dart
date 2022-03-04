@@ -1,12 +1,20 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smooth_star_rating/smooth_star_rating.dart';
+import 'package:toast/toast.dart';
 import 'package:user/HomeOrderAccount/Home/UI/slide_up_panel.dart';
 import 'package:user/Locale/locales.dart';
+import 'package:user/Routes/routes.dart';
 import 'package:user/Themes/colors.dart';
 import 'package:user/Themes/style.dart';
+import 'package:user/baseurlp/baseurl.dart';
 import 'package:user/bean/orderbean.dart';
 import 'package:user/cancelproduct/cancelproduct.dart';
-import 'package:user/Routes/routes.dart';
+import 'package:http/http.dart' as http;
 
 class OrderMapPage extends StatelessWidget {
   final String instruction;
@@ -36,6 +44,7 @@ class OrderMap extends StatefulWidget {
 
 class _OrderMapState extends State<OrderMap> {
   bool showAction = false;
+  bool isFetch = true;
 
   @override
   void initState() {
@@ -69,7 +78,7 @@ class _OrderMapState extends State<OrderMap> {
                         .push(MaterialPageRoute(builder: (context) {
                       return CancelProduct(widget.ongoingOrders.cart_id);
                     })).then((value) {
-                      if (value) {
+                      if (value != null) {
                         setState(() {
                           widget.ongoingOrders.order_status = "Cancelled";
                         });
@@ -92,7 +101,8 @@ class _OrderMapState extends State<OrderMap> {
               ),
             ),
             Visibility(
-              visible: ('${widget.ongoingOrders.order_status}'.toUpperCase() == 'COMPLETED')
+              visible: ('${widget.ongoingOrders.order_status}'.toUpperCase() ==
+                      'COMPLETED')
                   ? true
                   : false,
               child: Padding(
@@ -100,13 +110,11 @@ class _OrderMapState extends State<OrderMap> {
                 child: RaisedButton(
                   onPressed: () {
                     Navigator.of(context)
-                    .pushNamed(
-                    PageRoutes.invoice,
-                    arguments: {
-                      'inv_details': widget.ongoingOrders,
-                    })
-                    .then((value) {})
-                    .catchError((e) {});
+                        .pushNamed(PageRoutes.invoice, arguments: {
+                          'inv_details': widget.ongoingOrders,
+                        })
+                        .then((value) {})
+                        .catchError((e) {});
                   },
                   child: Text(
                     locale.invoiceprint,
@@ -289,11 +297,224 @@ class _OrderMapState extends State<OrderMap> {
                       .caption
                       .copyWith(fontWeight: FontWeight.w500, fontSize: 15),
                 ),
+                Visibility(
+                  visible:
+                      ('${widget.ongoingOrders.order_status}'.toUpperCase() ==
+                              'COMPLETED')
+                          ? true
+                          : false,
+                  child: Padding(
+                    padding: EdgeInsets.only( top: 10, bottom: 10),
+                    child: RaisedButton(
+                      onPressed: () {
+                        _showRatingDialog(widget.ongoingOrders.cart_id,widget.ongoingOrders.vendor_id,widget.ongoingOrders.delivery_boy_id,
+                        widget.ongoingOrders.reviewRatingVendor,widget.ongoingOrders.reviewRatingDelvboy);
+                       /* Navigator.of(context)
+                            .pushNamed(PageRoutes.invoice, arguments: {
+                              'inv_details': widget.ongoingOrders,
+                            })
+                            .then((value) {})
+                            .catchError((e) {});*/
+                      },
+                      child: Text(
+                        'Rating',
+                        style: TextStyle(
+                            color: kWhiteColor, fontWeight: FontWeight.w400),
+                      ),
+                      color: kMainColor,
+                      highlightColor: kMainColor,
+                      focusColor: kMainColor,
+                      splashColor: kMainColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           )
         ],
       ),
     );
+  }
+
+  Future<void> _showRatingDialog(var cartId, var vendorId, var deliveryBoyId,
+      ReviewRatingVendor reviewRatingVendor, ReviewRatingDelvboy reviewRatingDelvboy) async {
+    var rating=0.0;
+    var review="";
+    var dBoyRating=0.0;
+    var dBoyReview="";
+    var isVisible=true;
+    if(reviewRatingVendor.review != null) {
+      review = reviewRatingVendor.review;
+      isVisible=false;
+    }
+    if(reviewRatingVendor.rating != null){
+      rating = (reviewRatingVendor.rating).toDouble();
+    isVisible=false;
+  }
+    if(reviewRatingDelvboy.review != null){
+      dBoyReview = reviewRatingDelvboy.review;
+    isVisible=false;
+  }
+    if(reviewRatingDelvboy.rating != null){
+      dBoyRating = (reviewRatingDelvboy.rating).toDouble();
+    isVisible=false;
+  }
+
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0)), //this right here
+            child: Container(
+              height: 500,
+              child: Padding(
+                padding: const EdgeInsets.only(left:12.0,right: 12,bottom: 12),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Vendor Rating',style: TextStyle(color: Colors.green,fontSize: 16,
+                      fontWeight: FontWeight.bold, ),),
+                /*SizedBox(
+                  height: 10,
+                ),*/
+                TextFormField(
+                  minLines: 4,
+                      maxLines: 4,
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                              borderSide: BorderSide(color: Colors.blue)),
+                         // hintText: 'Review',
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                          borderSide: BorderSide(color: Colors.blue)),
+                        filled: true,
+                        contentPadding:
+                        EdgeInsets.only(bottom: 10.0, left: 10.0, right: 10.0),
+                        labelText: 'Review',
+                      ),
+                      initialValue: review,
+                      //validator: widget.ongoingOrders,
+                      onChanged: (String newValue) {
+                        review=newValue;
+                      },
+                ),
+                   /* SizedBox(
+                      height: 10,
+                    ),*/
+                    Container(
+                      child:  SmoothStarRating(
+                        rating: rating,
+                        size: 45,
+                        starCount: 5,
+                        onRated:(value) {
+                          setState(() {
+                            rating = value;
+                          });
+                        },
+                      )),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Container(color: kMainColor,
+                    width: MediaQuery.of(context).size.width-80,
+                    height: 1,),
+                    SizedBox(
+                  height: 5,
+                ),
+                    Text('Delivery Boy Rating',style: TextStyle(color: Colors.green,fontSize: 16,
+                      fontWeight: FontWeight.bold, ),),
+                TextFormField(
+                  minLines: 4,
+                      maxLines: 4,
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                              borderSide: BorderSide(color: Colors.blue)),
+                         // hintText: 'Review',
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                          borderSide: BorderSide(color: Colors.blue)),
+                        filled: true,
+                        contentPadding:
+                        EdgeInsets.only(bottom: 10.0, left: 10.0, right: 10.0),
+                        labelText: 'Review',
+                      ),
+                      //validator: widget.ongoingOrders,
+                  initialValue: dBoyReview,
+                      onChanged: (String newValue) {
+                        dBoyReview=newValue;
+                      },
+                ),
+                   /* SizedBox(
+                      height: 10,
+                    ),*/
+                    Container(
+                      child:  SmoothStarRating(
+                        rating: rating,
+                        size: 45,
+                        starCount: 5,
+                        onRated:(value) {
+                          setState(() {
+                            dBoyRating = value;
+                          });
+                        },
+                      )),
+                    Visibility(
+                      visible: isVisible,
+                        child: SizedBox(
+                      width: 320.0,
+                      height: 40,
+                      child: RaisedButton(
+                        onPressed: () {
+                          getReviewOrders(cartId,vendorId,review,dBoyReview,rating,dBoyRating,deliveryBoyId);
+                        },
+                        child: Text(
+                          "Save",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        color: const Color(0xFF1BC0C5),
+                      ),
+                    )
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
+  getReviewOrders(var cartId,var vendorId,var review,var dBoyReview,var rating,var dBoyRating,var dboyId) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    var userId = preferences.getInt('user_id');
+    var url = ratingOrders;
+    http.post(url, body: {'user_id': '$userId','cart_id': '$cartId',
+      'vendor_id': '$vendorId','vreview': '$review','vrating': '$rating','dreview': '$dBoyReview','drating': '$dBoyRating',
+      'dboy_id': '$dboyId'}).then((value) {
+      print('${value.body}');
+        //{"status":"1","message":"Thanks you for feedback."}
+      var body = value.body;
+        var jsonData = jsonDecode(value.body);
+        if (value.statusCode == 200 && value.body != null && jsonData['status'] == "1") {
+          Toast.show(jsonData['message'], context,
+              duration: Toast.LENGTH_LONG);
+        setState(() {
+          isFetch = false;
+        });
+      }
+      Navigator.pop(context);
+    }).catchError((e) {
+      Navigator.pop(context);
+        setState(() {
+          isFetch = false;
+        });
+      print(e);
+    });
   }
 }

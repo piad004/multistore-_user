@@ -11,8 +11,6 @@ import 'package:user/Routes/routes.dart';
 import 'package:user/Themes/colors.dart';
 import 'package:user/baseurlp/baseurl.dart';
 
-import 'package:user/Themes/colors.dart';
-
 class PhoneNumber_New extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -132,21 +130,21 @@ class PhoneNumberState extends State<PhoneNumber> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: GestureDetector(
-                      onTap: (){
-Navigator.pushNamed(context, PageRoutes.selectlang);
+                      onTap: () {
+                       // Navigator.pushNamed(context, PageRoutes.selectlang);
                       },
                       behavior: HitTestBehavior.opaque,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(locale.selectlanguage,style: TextStyle(
-                            color: kMainColor
-                      )),
+                         /* Text(locale.selectlanguage,
+                              style: TextStyle(color: kMainColor)),
                           Padding(
-                            padding: const EdgeInsets.only(left:5,right: 8),
-                            child: Icon(Icons.arrow_forward_ios,color: kMainColor),
-                          )
+                            padding: const EdgeInsets.only(left: 5, right: 8),
+                            child: Icon(Icons.arrow_forward_ios,
+                                color: kMainColor),
+                          )*/
                         ],
                       ),
                     ),
@@ -160,7 +158,7 @@ Navigator.pushNamed(context, PageRoutes.selectlang);
                       Container(
                         width: widthRender,
                         child: Image.asset(
-                          "images/logos/logo_user.png",
+                          "images/logos/icon.JPEG",
                           height: 130.0,
                           width: 99.7,
                         ),
@@ -184,7 +182,7 @@ Navigator.pushNamed(context, PageRoutes.selectlang);
                               ),
                             ),
                             //text on page
-                            Text(locale.bodyText1,
+                           /* Text(locale.bodyText1,
                                 textAlign: TextAlign.center,
                                 style: Theme.of(context).textTheme.bodyText1),
                             Text(
@@ -194,7 +192,7 @@ Navigator.pushNamed(context, PageRoutes.selectlang);
                                   .textTheme
                                   .bodyText1
                                   .copyWith(fontWeight: FontWeight.normal),
-                            ),
+                            ),*/
                           ],
                         ),
                       ),
@@ -253,7 +251,7 @@ Navigator.pushNamed(context, PageRoutes.selectlang);
                       alignment: Alignment.bottomCenter,
                       child: Image.asset(
                         "images/logos/Delivery.gif",
-                        fit: BoxFit.fill,//footer image
+                        fit: BoxFit.fill, //footer image
                       ),
                     ),
                   ),

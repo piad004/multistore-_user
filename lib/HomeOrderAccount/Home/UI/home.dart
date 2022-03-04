@@ -13,6 +13,7 @@ import 'package:shimmer_animation/shimmer_animation.dart';
 import 'package:toast/toast.dart';
 import 'package:user/Components/custom_appbar.dart';
 import 'package:user/Components/reusable_card.dart';
+import 'package:user/HomeOrderAccount/Home/UI/Search.dart';
 import 'package:user/HomeOrderAccount/Home/UI/Stores/stores.dart';
 import 'package:user/HomeOrderAccount/Home/UI/appcategory/appcategory.dart';
 import 'package:user/Locale/locales.dart';
@@ -23,11 +24,17 @@ import 'package:user/bean/BestDeal.dart';
 import 'package:user/bean/BestRated.dart';
 import 'package:user/bean/bannerbean.dart';
 import 'package:user/bean/latlng.dart';
+import 'package:user/bean/nearstorebean.dart';
 import 'package:user/bean/venderbean.dart';
+import 'package:user/HomeOrderAccount/Home/UI/SearchModel.dart';
 import 'package:user/databasehelper/dbhelper.dart';
+import 'package:user/parcel/fromtoaddress.dart';
 import 'package:user/parcel/parcalstorepage.dart';
+import 'package:user/pharmacy/pharmadetailpage.dart';
 import 'package:user/pharmacy/pharmastore.dart';
+import 'package:user/restaturantui/pages/restaurant.dart';
 import 'package:user/restaturantui/ui/resturanthome.dart';
+import 'package:user/restaturantui/ui/search.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -46,6 +53,7 @@ class _HomeState extends State<Home> {
   double lat = 0.0;
   double lng = 0.0;
   List<BannerDetails> listImage = [];
+  List<Data> searchList = [];
   List<VendorList> nearStores = [];
   List<BestDeal> bestDealList = [];
   List<BestRated> bestRatingList = [];
@@ -80,12 +88,22 @@ class _HomeState extends State<Home> {
   var pos = 0;
   var isDelvmartBanner = "off";
   var delvmartBanner = "";
-  var delvmartBannerId;
+  var delvmartVendorId;
   var delvmartVendorName = "";
   var delvmartDistance;
+  var delvmartVendorLogo;
+  var delvmartVendorCategoryId;
+  var delvmartVendorPhone;
+  var delvmartDeliveryRange;
+  var delvmartOnlineStatus;
+  var delvmartVendorLoc;
+  var delvmartAbout;
+  var delvmartUiType;
+  var currency;
 
   TextEditingController searchController = TextEditingController();
   bool enteredFirst = false;
+  var refreshKey = GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
@@ -94,7 +112,7 @@ class _HomeState extends State<Home> {
 
   void _getLocation(context, AppLocalizations locale) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (!prefs.containsKey('lat') && !prefs.containsKey('lng')) {
+    if (!prefs.containsKey('lat') && !prefs.containsKey('lng')&&!prefs.containsKey('lnga')) {
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.whileInUse ||
           permission == LocationPermission.always) {
@@ -113,6 +131,8 @@ class _HomeState extends State<Home> {
           });
           prefs.setString("lat", lat.toString());
           prefs.setString("lng", lng.toString());
+          prefs.setString("userLat", lat.toString());
+          prefs.setString("userLng", lng.toString());
           hitAddressPlace(lat, lng);
         } else {
           showAlertDialog(context, locale, 'opens');
@@ -123,8 +143,10 @@ class _HomeState extends State<Home> {
         showAlertDialog(context, locale, 'openas');
       }
     } else {
-      double latw = double.parse('${prefs.getString('lat')}');
-      double lngw = double.parse('${prefs.getString('lng')}');
+      /*double latw = double.parse('${prefs.getString('lat')}');
+      double lngw = double.parse('${prefs.getString('lng')}');*/
+      double latw = double.parse('0.0');
+      double lngw = double.parse('0.0');
       print('$latw - $lngw');
       if (latw != null && lngw != null && latw > 0.0 && lngw > 0.0) {
         hitAddressPlace(latw, lngw);
@@ -188,10 +210,11 @@ class _HomeState extends State<Home> {
         cityName = 'Change your location';
       });
     });
+    getCurrency();
     hitService();
     hitBannerUrl(lat, lng);
-    hitServiceBestDeal();
-    hitServiceBestRated();
+    hitServiceBestDeal(lat, lng);
+    hitServiceBestRated(lat, lng);
   }
 
   void performAction(BuildContext context, AppLocalizations locale,
@@ -314,6 +337,7 @@ class _HomeState extends State<Home> {
       if (value.statusCode == 200 && jsonData['status'] == "1") {
         preferences.setString(
             'curency', '${jsonData['data'][0]['currency_sign']}');
+        currency=jsonData['data'][0]['currency_sign'];
       }
     }).catchError((e) {});
   }
@@ -353,7 +377,7 @@ class _HomeState extends State<Home> {
                     print('dd $latt - $lngt');
                     Navigator.of(context)
                         .push(MaterialPageRoute(builder: (context) {
-                      return LocationPage(latt, lngt);
+                      return LocationPage(latt, lngt,false);
                     })).then((value) {
                       if (value != null) {
                         print('${value.toString()}');
@@ -406,7 +430,18 @@ class _HomeState extends State<Home> {
                 controller: searchController,
                 cursorColor: kMainColor,
                 autofocus: false,
+                readOnly: true,
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              SearchPage('["all"]','1','','',''))).then((value) {
+
+                  });
+                },
                 onChanged: (value) {
+                  /*hitSearchUrl(value, lat, lng);*/
                   /* nearStores = nearStoresSearch
                         .where((element) => element.vendor_name
                         .toString()
@@ -420,7 +455,9 @@ class _HomeState extends State<Home> {
         ),
       ),
       body: locGrant
-          ? Container(
+          ?  RefreshIndicator(
+          key: refreshKey,
+          child: Container(
         width: MediaQuery
             .of(context)
             .size
@@ -496,7 +533,9 @@ class _HomeState extends State<Home> {
                           builder: (context) {
                             return InkWell(
                               onTap: () {
-                                Navigator.push(
+                                hitNavigatorStore(context, e.ui_type, e.vendor_name, e.vendor_id, e.delivery_range, e.distance, e.about,
+                                    e.online_status,e.vendor_category_id, e.vendor_loc, e.vendor_logo, e.vendor_phone);
+                               /* Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
@@ -504,7 +543,7 @@ class _HomeState extends State<Home> {
                                                 e.vendor_name, e.vendor_id,
                                                 e.distance))).then((value) {
                                   getCartCount();
-                                });
+                                });*/
                               },
                               child: Padding(
                                 padding: EdgeInsets.symmetric(
@@ -629,7 +668,7 @@ class _HomeState extends State<Home> {
                   crossAxisCount: 2,
                   crossAxisSpacing: 0.0,
                   mainAxisSpacing: 0.0,
-                  // childAspectRatio: itemWidth/(itemHeight),
+                  childAspectRatio: 100/80,
                   controller: ScrollController(keepScrollOffset: false),
                   shrinkWrap: true,
                   scrollDirection: Axis.vertical,
@@ -645,7 +684,7 @@ class _HomeState extends State<Home> {
                                 e.ui_type,
                                 e.vendor_category_id),
                         child: Container(
-                          height: 170,
+                          height: 100,
                           width: double.infinity,
                           decoration: BoxDecoration(
                             /* gradient: LinearGradient(
@@ -758,15 +797,9 @@ class _HomeState extends State<Home> {
 
                     InkWell(
                       onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    AppCategory(
-                                        delvmartVendorName, delvmartBannerId,
-                                        delvmartDistance))).then((value) {
-                          getCartCount();
-                        });
+                        hitNavigatorStore(context,delvmartUiType,delvmartVendorName, delvmartVendorId,
+                           delvmartDeliveryRange, delvmartDistance,delvmartAbout,delvmartOnlineStatus,delvmartVendorCategoryId,
+                        delvmartVendorLoc,delvmartVendorLogo,delvmartVendorPhone);
                       },
                       child:
                       // if(isDelvmartBanner=="on"){
@@ -879,7 +912,22 @@ class _HomeState extends State<Home> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(2.0),
                         ),
-                        child: Column(
+                        child: InkWell(
+                          onTap: () {
+                            hitNavigatorStore(context, e.ui_type, e.vendor_name, e.vendor_id, e.delivery_range, e.distance, e.about,
+                                e.online_status,e.vendor_category_id, e.vendor_loc, e.logo, e.vendor_phone);
+                           /* Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        AppCategory(
+                                            e.vendor_name, e.vendor_id,
+                                            e.distance))).then((value) {
+                              getCartCount();
+                            });*/
+                          },
+                          child:
+                        Column(
                           children: <Widget>[
                             SizedBox(
                               height: 2,
@@ -922,6 +970,7 @@ class _HomeState extends State<Home> {
                               //style: Theme.of(context).textTheme.bodyText1,
                             ),
                           ],
+                        ),
                         ),
                       ),
                       margin: EdgeInsets.all(5.0),
@@ -1030,7 +1079,22 @@ class _HomeState extends State<Home> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(2.0),
                         ),
-                        child: Column(
+                        child: InkWell(
+                          onTap: () {
+                            hitNavigatorStore(context, e.ui_type, e.vendor_name, e.vendor_id, e.delivery_range, e.distance, e.about,
+                                e.online_status,e.vendor_category_id, e.vendor_loc, e.logo, e.vendor_phone);
+                           /* Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        AppCategory(
+                                            e.vendor_name, e.vendor_id,
+                                            e.distance))).then((value) {
+                              getCartCount();
+                            });*/
+                          },
+                          child:
+                        Column(
                           children: <Widget>[
                             SizedBox(
                               height: 2,
@@ -1099,6 +1163,7 @@ class _HomeState extends State<Home> {
                             ),
                           ],
                         ),
+                        ),
                       ),
                       margin: EdgeInsets.all(5.0),
                     );
@@ -1163,7 +1228,6 @@ class _HomeState extends State<Home> {
                               style: TextStyle(
                                   color: Colors.black, fontSize: 15),),
                           ],
-
                         ),
                       ),
                       SizedBox(
@@ -1329,7 +1393,8 @@ class _HomeState extends State<Home> {
             ],
           ),
         ),
-      )
+      ),
+        onRefresh: refreshCall)
           : Center(
         child: Padding(
           padding: const EdgeInsets.all(5.0),
@@ -1406,9 +1471,9 @@ class _HomeState extends State<Home> {
     }
   }
 
-  void hitServiceBestDeal() async {
-    var url = bestDealUrl;
-    var response = await http.get(url);
+  void hitServiceBestDeal(var lat, var lng) async {
+    var url = bestDealUrl + '?lat=' + lat.toString() + '&lng=' + lng.toString();
+    var response = await http.get(Uri.parse(url));
     try {
       if (response.statusCode == 200) {
         var jsonData = jsonDecode(response.body);
@@ -1430,10 +1495,11 @@ class _HomeState extends State<Home> {
     }
   }
 
-  void hitServiceBestRated() async {
-    var url = bestRatingUrl;
-    var response = await http.get(url);
+  void hitServiceBestRated(var lat, var lng) async {
+    var url = bestRatingUrl + '?lat=' + lat.toString() + '&lng=' + lng.toString();
+    var response = await http.get(Uri.parse(url));
     try {
+      var body = jsonDecode(response.body);
       if (response.statusCode == 200) {
         var jsonData = jsonDecode(response.body);
         if (jsonData['status'] == "1") {
@@ -1454,7 +1520,60 @@ class _HomeState extends State<Home> {
     }
   }
 
+  void hitSearchUrl(var searchValue,var lat, var lng) async {
+    setState(() {
+      isFetch = true;
+    });
+
+    var url = searchUrl;
+    http.post(url,body: {
+      "type":'["all"]',
+      "keyword":'${searchValue.toString()}',
+      "vendor_cat_id":'',
+      "lat":'${lat.toString()}',
+      "lng":'${lng.toString()}',
+    }).then((response) {
+      if (response.statusCode == 200) {
+        var ab=response.body;
+        var jsonData = jsonDecode(response.body);
+
+        //if (jsonData['status'] == "1") {
+          var tagObjsJson = jsonDecode(response.body)['data'] as List;
+          List<Data> tagObjs = tagObjsJson
+              .map((tagJson) => Data.fromJson(tagJson))
+              .toList();
+
+          if (tagObjs.isNotEmpty) {
+            setState(() {
+              searchList.clear();
+              searchList = tagObjs;
+            });
+          } else {
+            setState(() {
+              isFetch = false;
+            });
+          }
+        } else {
+          setState(() {
+            isFetch = false;
+          });
+        }
+     /* } else {
+        setState(() {
+          isFetch = false;
+        });
+      }*/
+    }).catchError((e) {
+      setState(() {
+        isFetch = false;
+      });
+    });
+  }
+
   void hitBannerUrl(var lat, var lng) async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
     setState(() {
       isFetch = true;
     });
@@ -1472,9 +1591,19 @@ class _HomeState extends State<Home> {
           setState(() {
             isDelvmartBanner = jsonData['delvmart_set'];
             delvmartBanner = jsonData['dbanner_url'];
-            delvmartBannerId = jsonData['dbanner_store_id'];
+            delvmartVendorId = jsonData['vendor_id'];
             delvmartVendorName = jsonData['vendor_name'];
             delvmartDistance = jsonData['distance'];
+            delvmartVendorLogo = jsonData['vendor_logo'];
+            delvmartVendorCategoryId = jsonData['vendor_category_id'];
+            delvmartVendorPhone = jsonData['vendor_phone'];
+            delvmartDeliveryRange = jsonData['delivery_range'];
+            delvmartOnlineStatus = jsonData['online_status'];
+            delvmartVendorLoc = jsonData['vendor_loc'];
+            delvmartAbout = jsonData['about'];
+            delvmartUiType = jsonData['ui_type'];
+
+            prefs.setString('delvmart_vendor_id', delvmartVendorId.toString());
           });
 
           if (tagObjs.isNotEmpty) {
@@ -1544,6 +1673,65 @@ class _HomeState extends State<Home> {
     }
   }
 
+  void hitNavigatorStore(context, ui_type, vendor_name, vendorId,deliveryrange, distance,about,onlineStatus,
+      vendor_category_id, vendorLoc,vendorLogo,vendorPhone) async {
+    NearStores item=NearStores(vendor_name, vendorPhone, vendorId, vendorLogo, vendor_category_id, distance, lat, lng,
+        deliveryrange, onlineStatus, vendorLoc, about);
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (ui_type == "grocery" || ui_type == "Grocery" || ui_type == "1"|| ui_type == 1) {
+      prefs.setString("vendor_cat_id", '${vendor_category_id}');
+      prefs.setString("ui_type", '${ui_type}');
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  AppCategory(
+                      vendor_name, vendorId,
+                      distance,ui_type))).then((value) {
+        getCartCount();
+      });
+    } else if (ui_type == "resturant" ||
+        ui_type == "Resturant" ||
+        ui_type == "2"|| ui_type == 2) {
+      prefs.setString("vendor_cat_id", '${vendor_category_id}');
+      prefs.setString("ui_type", '${ui_type}');
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => Restaurant_Sub(item, currency)))
+          .then((value) {
+        getCartCount();
+      });
+    }
+    else if (ui_type == "pharmacy" ||
+        ui_type == "Pharmacy" ||
+        ui_type == "3" || ui_type == 3) {
+      prefs.setString("vendor_cat_id", '${vendor_category_id}');
+      prefs.setString("ui_type", '${ui_type}');
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => PharmaItemPage(
+                  vendor_name, vendor_category_id, deliveryrange, distance)))
+          .then((value) {
+        getCartCount();
+      });
+    } else if (ui_type == "parcal" || ui_type == "Parcal" || ui_type == "4"|| ui_type == 4) {
+      prefs.setString("vendor_cat_id", '${vendor_category_id}');
+      prefs.setString("ui_type", '${ui_type}');
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  AddressFrom(vendor_name, vendor_category_id, distance)));
+     /* Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ParcalStoresPage('${vendor_category_id}')));*/
+    }
+  }
+
   void getBackResult(latss, lngss, address) async {
     print('$latss - $lngss');
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -1599,5 +1787,18 @@ class _HomeState extends State<Home> {
       hitService();
       hitBannerUrl(lat, lng);
     });
+  }
+
+  Future<Null> refreshCall() async {
+    refreshKey.currentState?.show(atTop: false);
+    await Future.delayed(Duration(seconds: 2));
+    setState(() {
+      getCurrency();
+      hitService();
+      hitBannerUrl(lat, lng);
+      hitServiceBestDeal(lat, lng);
+      hitServiceBestRated(lat, lng);
+    });
+    return null;
   }
 }

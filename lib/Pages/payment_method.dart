@@ -57,15 +57,12 @@ class PaymentPageState extends State<PaymentPage> {
   double newtotalAmount = 0.0;
   PaymentVia paymentVia;
   dynamic currency = '';
-
   bool visiblity = false;
   String promocode = '';
   final dynamic order_id;
   final dynamic cart_id;
-
   bool razor = false;
   bool paystack = false;
-
   final _formKey = GlobalKey<FormState>();
   final _verticalSizeBox = const SizedBox(height: 20.0);
   final _horizontalSizeBox = const SizedBox(width: 10.0);
@@ -73,28 +70,20 @@ class PaymentPageState extends State<PaymentPage> {
   String _cvv;
   int _expiryMonth = 0;
   int _expiryYear = 0;
-
   dynamic orderid;
   dynamic clientidR;
   dynamic screetKeyR;
-
   var showDialogBox = false;
-
   int radioId = -1;
-
   var setProgressText = 'Proceeding to placed order please wait!....';
-
   var showPaymentDialog = false;
-
   var _inProgress = false;
-
   double walletAmount = 0.0;
   double walletUsedAmount = 0.0;
+  double walletUsedAmountPercent = 0;
   bool isFetch = false;
-
   bool iswallet = false;
   bool isCoupon = false;
-
   double coupAmount = 0.0;
 
   PaymentPageState(
@@ -133,29 +122,65 @@ class PaymentPageState extends State<PaymentPage> {
     }).then((value) {
       if (value.statusCode == 200 && jsonDecode(value.body)['status'] == "1") {
         var jsonData = jsonDecode(value.body);
+        walletUsedAmountPercent = double.parse(jsonData['wallet_deduct_percentg']);
         var dataList = jsonData['data'] as List;
         setState(() {
           walletAmount = double.parse('${dataList[0]['wallet_credits']}');
-          if (totalAmount > walletAmount) {
+
+          walletUsedAmount = (totalAmount*walletUsedAmountPercent)/100;
+
+          if (walletUsedAmount > walletAmount) {
             if (walletAmount > 0.0) {
               iswallet = true;
             } else {
               iswallet = false;
             }
-            totalAmount = totalAmount - walletAmount;
-            walletUsedAmount = walletAmount;
+
+            walletUsedAmount=walletAmount;
+            totalAmount = totalAmount - walletUsedAmount;
+
+          } else if (walletUsedAmount < walletAmount) {
+            if (walletAmount > 0.0) {
+              iswallet = true;
+            } else {
+              iswallet = false;
+            }
+
+            totalAmount = totalAmount-walletUsedAmount;
+
+          } else {
+            iswallet = false;
+            walletUsedAmount = 0.0;
+          }
+
+          /*if (totalAmount > walletAmount) {
+            if (walletAmount > 0.0) {
+              iswallet = true;
+            } else {
+              iswallet = false;
+            }
+
+            *//*totalAmount = totalAmount - walletAmount;
+            walletUsedAmount = walletAmount;*//*
+            walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
+            totalAmount = totalAmount - walletUsedAmount;
+
           } else if (totalAmount < walletAmount) {
             if (walletAmount > 0.0) {
               iswallet = true;
             } else {
               iswallet = false;
             }
-            totalAmount = 0.0;
-            walletUsedAmount = newtotalAmount;
+            //totalAmount=0.0;
+
+            //walletUsedAmount = newtotalAmount;
+            walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
+            totalAmount = totalAmount-walletUsedAmount;
+
           } else {
             iswallet = false;
             walletUsedAmount = 0.0;
-          }
+          }*/
         });
       }
       setState(() {
@@ -205,7 +230,8 @@ class PaymentPageState extends State<PaymentPage> {
       'payment_method': '${paymentMethod}',
       'wallet': iswallet ? 'yes' : 'no',
       'payment_status': paymentStatus,
-      'cart_id': '$cart_id'
+      'cart_id': '$cart_id',
+      'wallet_deduct': '$walletUsedAmount',
     }).then((value) {
       print(value.body);
       if (value != null && value.statusCode == 200) {
@@ -282,16 +308,26 @@ class PaymentPageState extends State<PaymentPage> {
               } else {
                 iswallet = false;
               }
-              totalAmount = totalAmount - walletAmount;
-              walletUsedAmount = walletAmount;
+              //totalAmount = totalAmount - walletAmount;
+              //walletUsedAmount = walletAmount;
+
+              //walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
+              walletUsedAmount = 0.0;
+              totalAmount = newtotalAmount - coupAmount;;
             } else if (totalAmount < walletAmount) {
               if (walletAmount > 0.0) {
                 iswallet = true;
               } else {
                 iswallet = false;
               }
-              totalAmount = 0.0;
-              walletUsedAmount = newtotalAmount - coupAmount;
+              //totalAmount = 0.0;
+
+              //walletUsedAmount = newtotalAmount - coupAmount;
+              //walletUsedAmount = ((walletAmount*walletUsedAmountPercent)/100)-coupAmount;
+              //totalAmount = totalAmount-walletUsedAmount;
+              walletUsedAmount=0.0;
+              totalAmount = newtotalAmount - coupAmount;
+
             } else {
               iswallet = false;
               walletUsedAmount = 0.0;
@@ -310,16 +346,25 @@ class PaymentPageState extends State<PaymentPage> {
               } else {
                 iswallet = false;
               }
-              totalAmount = totalAmount - walletAmount;
-              walletUsedAmount = walletAmount;
+              //totalAmount = totalAmount - walletAmount;
+              //walletUsedAmount = walletAmount;
+             // walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
+              //totalAmount = totalAmount - walletUsedAmount;
+              walletUsedAmount=0.0;
+              totalAmount = newtotalAmount - coupAmount;
             } else if (totalAmount < walletAmount) {
               if (walletAmount > 0.0) {
                 iswallet = true;
               } else {
                 iswallet = false;
               }
-              totalAmount = 0.0;
-              walletUsedAmount = newtotalAmount;
+              //totalAmount = 0.0;
+
+              //walletUsedAmount = newtotalAmount;
+              //walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
+              //totalAmount = totalAmount-walletUsedAmount;
+              walletUsedAmount=0.0;
+              totalAmount = newtotalAmount - coupAmount;
             } else {
               iswallet = false;
               walletUsedAmount = 0.0;
@@ -338,16 +383,28 @@ class PaymentPageState extends State<PaymentPage> {
               } else {
                 iswallet = false;
               }
-              totalAmount = totalAmount - walletAmount;
+
+              /*totalAmount = totalAmount - walletAmount;
               walletUsedAmount = walletAmount;
+              walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
+              totalAmount = totalAmount - walletUsedAmount;*/
+              walletUsedAmount=0.0;
+              totalAmount = newtotalAmount - coupAmount;
+
             } else if (totalAmount < walletAmount) {
               if (walletAmount > 0.0) {
                 iswallet = true;
               } else {
                 iswallet = false;
               }
-              totalAmount = 0.0;
-              walletUsedAmount = newtotalAmount;
+              //totalAmount = 0.0;
+
+              //walletUsedAmount = newtotalAmount;
+              //walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
+              //totalAmount = totalAmount-walletUsedAmount;
+              walletUsedAmount=0.0;
+              totalAmount = newtotalAmount - coupAmount;
+
             } else {
               iswallet = false;
               walletUsedAmount = 0.0;
@@ -366,16 +423,28 @@ class PaymentPageState extends State<PaymentPage> {
             } else {
               iswallet = false;
             }
-            totalAmount = totalAmount - walletAmount;
-            walletUsedAmount = walletAmount;
+
+            /* totalAmount = totalAmount - walletAmount;
+              walletUsedAmount = walletAmount;
+            walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
+            totalAmount = totalAmount - walletUsedAmount;*/
+            walletUsedAmount=0.0;
+            totalAmount = newtotalAmount - coupAmount;
+
           } else if (totalAmount < walletAmount) {
             if (walletAmount > 0.0) {
               iswallet = true;
             } else {
               iswallet = false;
             }
-            totalAmount = 0.0;
-            walletUsedAmount = newtotalAmount;
+            //totalAmount = 0.0;
+
+            //walletUsedAmount = newtotalAmount;
+           /* walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
+            totalAmount = totalAmount-walletUsedAmount;*/
+            walletUsedAmount=0.0;
+            totalAmount = newtotalAmount - coupAmount;
+
           } else {
             iswallet = false;
             walletUsedAmount = 0.0;
@@ -396,16 +465,28 @@ class PaymentPageState extends State<PaymentPage> {
           } else {
             iswallet = false;
           }
-          totalAmount = totalAmount - walletAmount;
+
+         /* totalAmount = totalAmount - walletAmount;
           walletUsedAmount = walletAmount;
+          walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
+          totalAmount = totalAmount - walletUsedAmount;*/
+          walletUsedAmount=0.0;
+          totalAmount = newtotalAmount - coupAmount;
+
         } else if (totalAmount < walletAmount) {
           if (walletAmount > 0.0) {
             iswallet = true;
           } else {
             iswallet = false;
           }
-          totalAmount = 0.0;
-          walletUsedAmount = newtotalAmount;
+          //totalAmount = 0.0;
+
+          //walletUsedAmount = newtotalAmount;
+         /* walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
+          totalAmount = totalAmount-walletUsedAmount;*/
+          walletUsedAmount=0.0;
+          totalAmount = newtotalAmount - coupAmount;
+
         } else {
           iswallet = false;
           walletUsedAmount = 0.0;
@@ -868,6 +949,48 @@ class PaymentPageState extends State<PaymentPage> {
                                     BuildListTile(
                                         image: 'images/payment/amount.png',
                                         text: 'Cash on Delivery',
+                                        onTap: () {
+                                          setState(() {
+                                            setProgressText =
+                                                'Proceeding to placed order please wait!....';
+                                            showDialogBox = true;
+                                          });
+                                          placedOrder(
+                                              "success", "COD", context);
+                                        }),
+                                  ],
+                                ),
+                              ),
+                              Visibility(
+                                visible:
+                                    (paymentVia.payMode.codStatus != null &&
+                                            '${paymentVia.payMode.codStatus}'
+                                                    .toUpperCase() ==
+                                                'ON')
+                                        ? true
+                                        : false,
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 8.0, horizontal: 16.0),
+                                      color: kCardBackgroundColor,
+                                      child: Text(
+                                        locale.cashText,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .caption
+                                            .copyWith(
+                                                color: kDisabledColor,
+                                                fontWeight: FontWeight.bold,
+                                                letterSpacing: 0.67),
+                                      ),
+                                    ),
+                                    BuildListTile(
+                                        image: 'images/payment/amount.png',
+                                        text: 'Cashfree',
                                         onTap: () {
                                           setState(() {
                                             setProgressText =

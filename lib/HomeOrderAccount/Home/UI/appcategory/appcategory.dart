@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
 import 'package:toast/toast.dart';
 import 'package:user/Components/custom_appbar.dart';
+import 'package:user/HomeOrderAccount/Home/UI/Search.dart';
 import 'package:user/HomeOrderAccount/Home/UI/appcategory/uploadprescription.dart';
 import 'package:user/Locale/locales.dart';
 import 'package:user/Pages/items.dart';
@@ -25,8 +26,9 @@ class AppCategory extends StatefulWidget {
   final String pageTitle;
   final dynamic vendor_id;
   final dynamic distance;
+  final dynamic uiType;
 
-  AppCategory(this.pageTitle, this.vendor_id, this.distance) {
+  AppCategory(this.pageTitle, this.vendor_id, this.distance, this.uiType) {
     setStoreName(pageTitle);
   }
 
@@ -37,22 +39,25 @@ class AppCategory extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return AppCategoryState(pageTitle, vendor_id);
+    return AppCategoryState(pageTitle, vendor_id,uiType);
   }
 }
 
 class AppCategoryState extends State<AppCategory> {
+
   final String pageTitle;
   final dynamic vendor_id;
+  final dynamic uiType;
   bool isCartCount = false;
   bool isFetch = false;
   int cartCount = 0;
+  var vendorCategoryId='';
 
   bool isNoCategoryTrue = false;
 
   TextEditingController searchController = TextEditingController();
 
-  AppCategoryState(this.pageTitle, this.vendor_id);
+  AppCategoryState(this.pageTitle, this.vendor_id, this.uiType);
 
   List<VendorBanner> listImage = [];
   List<String> listImages = ['', '', '', '', ''];
@@ -81,11 +86,17 @@ class AppCategoryState extends State<AppCategory> {
     setState(() {
       isFetch = true;
     });
+
+    //SharedPreferences prefs = await SharedPreferences.getInstance();
+   // prefs.setString("vendor_id",vendor_id);
+
+    print('vendor =='+vendor_id.toString());
     var url = vendorBanner;
     http.post(url, body: {'vendor_id': '$vendor_id'}).then((value) {
       if (value.statusCode == 200) {
         var jsonData = jsonDecode(value.body);
         print('Response Body: - ${value.body}');
+        vendorCategoryId=jsonData['vendor_category_id'];
         if (jsonData['status'] == "1") {
           var tagObjsJson = jsonDecode(value.body)['data'] as List;
           List<VendorBanner> tagObjs = tagObjsJson
@@ -201,8 +212,16 @@ class AppCategoryState extends State<AppCategory> {
                             hintText: locale.searchCategoryText,
                             suffixIcon: IconButton(
                               onPressed: () {
-                                setState(() {
+                                /*setState(() {
                                   isSearchOpen = !isSearchOpen;
+                                });*/
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        //builder: (context) => SearchPage('["shop"]',categoryLists[0].vendor_id)))
+                                        builder: (context) => SearchPage('["all"]',uiType,vendorCategoryId,vendor_id.toString(),'')))
+                                    .then((value) {
+                                  getCartCount();
                                 });
                               },
                               icon: Icon(
@@ -244,8 +263,16 @@ class AppCategoryState extends State<AppCategory> {
                           color: kHintColor,
                         ),
                         onPressed: () {
-                          setState(() {
+                          /*setState(() {
                             isSearchOpen = !isSearchOpen;
+                          });*/
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  //builder: (context) => SearchPage('["shop"]',categoryLists[0].vendor_id),))
+                                  builder: (context) => SearchPage('["all"]',uiType,vendorCategoryId,vendor_id.toString(),''),))
+                              .then((value) {
+                            getCartCount();
                           });
                         }),
                   ),
@@ -284,7 +311,7 @@ class AppCategoryState extends State<AppCategory> {
                                   style: TextStyle(
                                       fontSize: 7,
                                       color: kWhiteColor,
-                                      fontWeight: FontWeight.w200),
+                                      fontWeight: FontWeight.w900),
                                 ),
                               ),
                             ))
@@ -304,23 +331,29 @@ class AppCategoryState extends State<AppCategory> {
                               '',
                               '',
                               widget.distance,
-                              widget.vendor_id))).then((value) {
+                              widget.vendor_id,
+                          widget.uiType))).then((value) {
                     getCartCount();
                   });
                 },
                 behavior: HitTestBehavior.opaque,
                 child: Card(
-                  color: kMainColor,
+                 // color: kMainColor,
                   elevation: 0.1,
                   child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: 52,
-                    color: kMainColor,
-                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    width: MediaQuery.of(context).size.width-20,
+                    height: 150,
+                    //color: kMainColor,
+                    padding: EdgeInsets.symmetric(horizontal: 0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+                        Image.asset(
+                        'images/great_deal.png',
+                        fit: BoxFit.fill,
+                        width: MediaQuery.of(context).size.width-20,
+                        height: 150,),
+                        /*Text(
                           locale.dealOfferZoneText,
                           style: TextStyle(color: kWhiteColor),
                         ),
@@ -332,7 +365,7 @@ class AppCategoryState extends State<AppCategory> {
                               size: 24,
                             )
                           ],
-                        )
+                        )*/
                       ],
                     ),
                   ),
@@ -345,7 +378,8 @@ class AppCategoryState extends State<AppCategory> {
                   child: Column(
                     children: [
                       Visibility(
-                        visible: (!isFetch && listImage.length == 0) ? false : true,
+                       // visible: (!isFetch && listImage.length == 0) ? false : true,
+                        visible: false,
                         child: Padding(
                           padding: EdgeInsets.only(top: 10, bottom: 5),
                           child: CarouselSlider(
@@ -446,7 +480,8 @@ class AppCategoryState extends State<AppCategory> {
                                     pageTitle,
                                     e.category_name,
                                     e.category_id,
-                                    widget.distance);
+                                    widget.distance,
+                                widget.uiType);
                               },
                               behavior: HitTestBehavior.opaque,
                               child: Container(
@@ -558,7 +593,7 @@ class AppCategoryState extends State<AppCategory> {
             ],
           ),
         ),
-        floatingActionButton: GestureDetector(
+       /* floatingActionButton: GestureDetector(
           onTap: () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) {
               return UploadPrescription(widget.vendor_id);
@@ -581,7 +616,7 @@ class AppCategoryState extends State<AppCategory> {
               ),
             ),
           ),
-        ),
+        ),*/
       ),
     );
   }
@@ -623,12 +658,12 @@ class AppCategoryState extends State<AppCategory> {
     }
   }
 
-  void hitNavigator(context, pageTitle, category_name, category_id, distance) {
+  void hitNavigator(context, pageTitle, category_name, category_id, distance,uiType) {
     Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) =>
-                    ItemsPage(pageTitle, category_name, category_id, distance)))
+                    ItemsPage(pageTitle, category_name, category_id, distance,uiType,vendorCategoryId)))
         .then((value) {
       getCartCount();
     });

@@ -300,6 +300,9 @@ class AppLocalizations {
   String get walletText {
     return _localizedValues[locale.languageCode]['walletText'];
   }
+  String get editProfileText {
+    return _localizedValues[locale.languageCode]['editProfileText'];
+  }
 
   String get rewardsText {
     return _localizedValues[locale.languageCode]['rewardsText'];

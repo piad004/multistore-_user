@@ -12,11 +12,16 @@ dynamic price;
 dynamic delivery_charge;
 dynamic remaining_amount;
 dynamic coupon_discount;
+dynamic delivery_boy_id;
 dynamic delivery_boy_name;
 dynamic delivery_boy_phone;
 dynamic vendor_name;
+dynamic vendor_id;
 dynamic vendor_loc;
 dynamic address;
+ReviewRatingVendor reviewRatingVendor;
+ReviewRatingDelvboy reviewRatingDelvboy;
+
 List<RespectiveData> data;
 
 OngoingOrders(
@@ -31,27 +36,50 @@ OngoingOrders(
       this.delivery_charge,
       this.remaining_amount,
       this.coupon_discount,
+      this.delivery_boy_id,
       this.delivery_boy_name,
       this.delivery_boy_phone,
       this.vendor_name,
+      this.vendor_id,
       this.vendor_loc,
       this.address,
-      this.data);
+      this.data,
+      this.reviewRatingVendor,
+      this.reviewRatingDelvboy);
 
 factory OngoingOrders.fromJson(dynamic json){
   var tagObjsJson = json['data'] as List;
+  var reviewVendor = json['review_rating_vendor'];
+  var reviewVendo = reviewVendor.toString();
+  var reviewDelvboy = json['review_rating_delvboy'];
+  ReviewRatingVendor reviewRatingVendor =(reviewVendor != null && reviewVendor != "") ?
+  ReviewRatingVendor.fromJson((reviewVendor))
+  : ReviewRatingVendor.fromJson(json);
+  ReviewRatingDelvboy reviewRatingDelvboy = (reviewDelvboy != null && reviewDelvboy != "") ?
+  ReviewRatingDelvboy.fromJson(reviewDelvboy)
+      : ReviewRatingDelvboy.fromJson(json);
+
   if(tagObjsJson.length>0){
     List<RespectiveData> _tags = tagObjsJson.map((tagJson) => RespectiveData.fromJson(tagJson)).toList();
-    return OngoingOrders(json['order_status'], json['delivery_date'], json['time_slot'], json['payment_method'], json['payment_status'], json['paid_by_wallet'], json['cart_id'], json['price'], json['del_charge']!=null?json['del_charge']:json['delivery_charge'], json['remaining_amount'], json['coupon_discount'], json['delivery_boy_name'], json['delivery_boy_phone'], json['vendor_name'], json['vendor_loc'], json['address'],_tags);
+    return OngoingOrders(json['order_status'], json['delivery_date'], json['time_slot'], json['payment_method'], json['payment_status'],
+        json['paid_by_wallet'], json['cart_id'], json['price'], json['del_charge']!=null?json['del_charge']:json['delivery_charge'],
+        json['remaining_amount'], json['coupon_discount'], json['delivery_boy_id'], json['delivery_boy_name'], json['delivery_boy_phone'],
+        json['vendor_name'], json['vendor_id'], json['vendor_loc'], json['address'],_tags, reviewRatingVendor,reviewRatingDelvboy);
   }else{
-    return OngoingOrders(json['order_status'], json['delivery_date'], json['time_slot'], json['payment_method'], json['payment_status'], json['paid_by_wallet'], json['cart_id'], json['price'], json['del_charge']!=null?json['del_charge']:json['delivery_charge'], json['remaining_amount'], json['coupon_discount'], json['delivery_boy_name'], json['delivery_boy_phone'],json['vendor_name'], json['vendor_loc'], json['address'],[]);
+    return OngoingOrders(json['order_status'], json['delivery_date'], json['time_slot'], json['payment_method'], json['payment_status'],
+        json['paid_by_wallet'], json['cart_id'], json['price'], json['del_charge']!=null?json['del_charge']:json['delivery_charge'],
+        json['remaining_amount'], json['coupon_discount'], json['delivery_boy_id'], json['delivery_boy_name'], json['delivery_boy_phone'],
+        json['vendor_name'],json['vendor_id'], json['vendor_loc'], json['address'],[], reviewRatingVendor,reviewRatingDelvboy);
   }
-
 }
 
 @override
   String toString() {
-    return '{order_status: $order_status, delivery_date: $delivery_date, time_slot: $time_slot, payment_method: $payment_method, payment_status: $payment_status, paid_by_wallet: $paid_by_wallet, cart_id: $cart_id, price: $price, delivery_charge: $delivery_charge, remaining_amount: $remaining_amount, coupon_discount: $coupon_discount, delivery_boy_name: $delivery_boy_name, delivery_boy_phone: $delivery_boy_phone, data: $data}';
+    return '{order_status: $order_status, delivery_date: $delivery_date, time_slot: $time_slot, payment_method: $payment_method, '
+        'payment_status: $payment_status, paid_by_wallet: $paid_by_wallet, cart_id: $cart_id, price: $price, delivery_charge: $delivery_charge,'
+        ' remaining_amount: $remaining_amount, coupon_discount: $coupon_discount, delivery_boy_id: $delivery_boy_id,'
+        ' delivery_boy_name: $delivery_boy_name, delivery_boy_phone: $delivery_boy_phone, data: $data, '
+        'review_rating_vendor: $reviewRatingVendor,review_rating_delvboy: $reviewRatingDelvboy}';
   }
 }
 
@@ -194,5 +222,37 @@ factory RespectiveData.fromJson(dynamic json){
   @override
   String toString() {
     return 'RespectiveData{store_order_id: $store_order_id, product_name: $product_name, quantity: $quantity, unit: $unit, varient_id: $varient_id, qty: $qty, price: $price, total_mrp: $total_mrp, order_cart_id: $order_cart_id, order_date: $order_date, varient_image: $varient_image, description: $description}';
+  }
+}
+
+class ReviewRatingVendor {
+  dynamic review;
+  dynamic rating;
+
+  ReviewRatingVendor(this.review, this.rating);
+
+  factory ReviewRatingVendor.fromJson(dynamic json){
+    return ReviewRatingVendor(json['review'], json['rating']);
+  }
+
+  @override
+  String toString() {
+    return 'ReviewRatingVendor{review: $review, rating: $rating}';
+  }
+}
+
+class ReviewRatingDelvboy {
+  dynamic review;
+  dynamic rating;
+
+  ReviewRatingDelvboy(this.review, this.rating);
+
+  factory ReviewRatingDelvboy.fromJson(dynamic json){
+    return ReviewRatingDelvboy(json['review'], json['rating']);
+  }
+
+  @override
+  String toString() {
+    return 'ReviewRatingDelvboy{review: $review, rating: $rating}';
   }
 }

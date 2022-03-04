@@ -63,4 +63,19 @@ class VarientList {
   String toString() {
     return 'VarientList{varient_id: $varient_id, product_id: $product_id, quantity: $quantity, unit: $unit, strick_price: $strick_price, price: $price, description: $description, varient_image: $varient_image, vendor_id: $vendor_id, stock: $stock}';
   }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['varient_id'] = this.varient_id;
+    data['product_id'] = this.product_id;
+    data['quantity'] = this.quantity;
+    data['unit'] = this.unit;
+    data['strick_price'] = this.strick_price;
+    data['price'] = this.price;
+    data['description'] = this.description;
+    data['varient_image'] = this.varient_image;
+    data['vendor_id'] = this.vendor_id;
+    data['stock'] = this.stock;
+    return data;
+  }
 }

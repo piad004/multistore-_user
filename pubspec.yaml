@@ -71,6 +71,8 @@ dependencies:
   http_auth: ^1.0.0
   smooth_star_rating: 1.1.1
   flutter_rating_bar: ^4.0.0
+  cashfree_pg: 1.2.5+22
+  flutter_tawk: ^0.0.5
 
 #dependency_overrides:
 #  intl: any

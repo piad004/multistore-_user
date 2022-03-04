@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:toast/toast.dart';
+import 'package:user/Components/entry_field.dart';
 import 'package:user/Locale/locales.dart';
 import 'package:user/Themes/colors.dart';
 import 'package:user/baseurlp/baseurl.dart';
@@ -22,10 +23,10 @@ class CancelProduct extends StatefulWidget {
 
 class CancelProductState extends State<CancelProduct> {
   List<CancelProductList> cancelListPro = [];
-
   var idd = -1;
-
   bool showDialogBox = false;
+  bool isOtherTextShow = false;
+  final TextEditingController _cancelReasonController = TextEditingController();
 
   @override
   void initState() {
@@ -96,7 +97,23 @@ class CancelProductState extends State<CancelProduct> {
                                     setState(() {
                                       idd = value;
                                     });
-                                  })
+                                    if ((cancelListPro[value].reason)
+                                                .toString()
+                                                .toLowerCase() ==
+                                            'other' ||
+                                        (cancelListPro[value].reason)
+                                                .toString()
+                                                .toLowerCase() ==
+                                            'others') {
+                                      setState(() {
+                                        isOtherTextShow = true;
+                                      });
+                                    } else {
+                                      setState(() {
+                                        isOtherTextShow = false;
+                                      });
+                                    }
+                                  }),
                             ],
                           );
                         },
@@ -109,6 +126,22 @@ class CancelProductState extends State<CancelProduct> {
                         itemCount: cancelListPro.length),
                   ),
                 ),
+                Visibility(
+                    visible: isOtherTextShow,
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      child: EntryField(
+                          hint: 'Order cancel reason',
+                          controller: _cancelReasonController,
+                          keyboardType: TextInputType.text,
+                          maxLines: 3,
+                          minLines: 3,
+                          enable: !showDialogBox,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(color: kHintColor, width: 1),
+                          )),
+                    )),
                 Align(
                   alignment: Alignment.centerRight,
                   child: RaisedButton(
@@ -129,11 +162,37 @@ class CancelProductState extends State<CancelProduct> {
                         showDialogBox = true;
                       });
                       if (idd == -1) {
-                        Toast.show(
-                            locale.pleaseSelectReasonToCancelTheProduct,
+                        Toast.show(locale.pleaseSelectReasonToCancelTheProduct,
                             context,
                             duration: Toast.LENGTH_SHORT);
-                      } else {
+                        setState(() {
+                          showDialogBox = false;
+                        });
+                      } else if(((cancelListPro[idd].reason)
+                          .toString()
+                          .toLowerCase() ==
+                          'other' ||
+                          (cancelListPro[idd].reason)
+                              .toString()
+                              .toLowerCase() ==
+                              'others') && _cancelReasonController.text.isEmpty){
+                        Toast.show(
+                            'Please type cancel reason!', context,
+                            duration: Toast.LENGTH_SHORT);
+                        setState(() {
+                          showDialogBox = false;
+                        });
+                      }else{
+                        if(((cancelListPro[idd].reason)
+                            .toString()
+                            .toLowerCase() ==
+                            'other' ||
+                            (cancelListPro[idd].reason)
+                                .toString()
+                                .toLowerCase() ==
+                                'others'))
+                        hitService('${_cancelReasonController.text}', context);
+                        else
                         hitService('${cancelListPro[idd].reason}', context);
                       }
                     },
