@@ -284,6 +284,9 @@ class AppLocalizations {
   String get tnc {
     return _localizedValues[locale.languageCode]['tnc'];
   }
+  String get privacyPolicy {
+    return _localizedValues[locale.languageCode]['privacyPolicy'];
+  }
 
   String get support {
     return _localizedValues[locale.languageCode]['support'];

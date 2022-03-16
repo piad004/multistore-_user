@@ -1,15 +1,14 @@
-/*
 import 'package:cashfree_pg/cashfree_pg.dart';
 import 'package:flutter/material.dart';
 
-void main() => runApp(MaterialApp(home: MyApp()));
+void main() => runApp(MaterialApp(home: Cashfree()));
 
-class MyApp extends StatefulWidget {
+class Cashfree extends StatefulWidget {
   @override
-  _MyAppState createState() => _MyAppState();
+  _CashfreeState createState() => _CashfreeState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _CashfreeState extends State<Cashfree> {
 
   var _selectedApp;
 
@@ -411,4 +410,4 @@ class _MyAppState extends State<MyApp> {
       //Do something with the result
     }));
   }
-}*/
+}

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cashfree_pg/cashfree_pg.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_paystack/flutter_paystack.dart';
@@ -40,7 +41,7 @@ class PaymentPage extends StatefulWidget {
   final ShowAddressNew addressDelivery;
 
   PaymentPage(this.vendor_ids, this.order_id, this.cart_id, this.totalAmount,
-      this.tagObjs, this.orderArray,this.addressDelivery);
+      this.tagObjs, this.orderArray, this.addressDelivery);
 
   @override
   State<StatefulWidget> createState() {
@@ -56,6 +57,10 @@ class PaymentPageState extends State<PaymentPage> {
   double totalAmount = 0.0;
   double newtotalAmount = 0.0;
   PaymentVia paymentVia;
+  String cfToken;
+  String userName;
+  String userMobile;
+  String userEmail;
   dynamic currency = '';
   bool visiblity = false;
   String promocode = '';
@@ -114,6 +119,9 @@ class PaymentPageState extends State<PaymentPage> {
     setState(() {
       isFetch = true;
       currency = prefs.getString('curency');
+      userName = prefs.getString('user_name');
+      userMobile = prefs.getString('user_phone');
+      userEmail = prefs.getString('user_email');
     });
     var client = http.Client();
     var url = showWalletAmount;
@@ -122,12 +130,13 @@ class PaymentPageState extends State<PaymentPage> {
     }).then((value) {
       if (value.statusCode == 200 && jsonDecode(value.body)['status'] == "1") {
         var jsonData = jsonDecode(value.body);
-        walletUsedAmountPercent = double.parse(jsonData['wallet_deduct_percentg']);
+        walletUsedAmountPercent =
+            double.parse(jsonData['wallet_deduct_percentg']);
         var dataList = jsonData['data'] as List;
         setState(() {
           walletAmount = double.parse('${dataList[0]['wallet_credits']}');
 
-          walletUsedAmount = (totalAmount*walletUsedAmountPercent)/100;
+          walletUsedAmount = (totalAmount * walletUsedAmountPercent) / 100;
 
           if (walletUsedAmount > walletAmount) {
             if (walletAmount > 0.0) {
@@ -136,9 +145,8 @@ class PaymentPageState extends State<PaymentPage> {
               iswallet = false;
             }
 
-            walletUsedAmount=walletAmount;
+            walletUsedAmount = walletAmount;
             totalAmount = totalAmount - walletUsedAmount;
-
           } else if (walletUsedAmount < walletAmount) {
             if (walletAmount > 0.0) {
               iswallet = true;
@@ -146,8 +154,7 @@ class PaymentPageState extends State<PaymentPage> {
               iswallet = false;
             }
 
-            totalAmount = totalAmount-walletUsedAmount;
-
+            totalAmount = totalAmount - walletUsedAmount;
           } else {
             iswallet = false;
             walletUsedAmount = 0.0;
@@ -160,8 +167,8 @@ class PaymentPageState extends State<PaymentPage> {
               iswallet = false;
             }
 
-            *//*totalAmount = totalAmount - walletAmount;
-            walletUsedAmount = walletAmount;*//*
+            */ /*totalAmount = totalAmount - walletAmount;
+            walletUsedAmount = walletAmount;*/ /*
             walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
             totalAmount = totalAmount - walletUsedAmount;
 
@@ -259,6 +266,39 @@ class PaymentPageState extends State<PaymentPage> {
       setState(() {
         showDialogBox = false;
       });
+      Toast.show(locale.somethingWentwrong, context,
+          duration: Toast.LENGTH_SHORT);
+    });
+  }
+
+  void hitServiceCashfreeToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    dynamic userId = prefs.getInt('user_id');
+    var url = cashfreeToken;
+    http.post(url, body: {
+      'cart_id': cart_id.toString(),
+      'user_id': userId.toString(),
+      'amount': totalAmount.toString()
+    }).then((value) {
+      String a = value.body.toString().trim();
+      print(paymentVia.toString()+"token::" + a);
+      if (value != null && value.statusCode == 200) {
+        var jsonData = jsonDecode(value.body);
+        // if (jsonData['status'].toString().toUpperCase() == "OK") {
+        setState(() {
+          cfToken = jsonData['cftoken'];
+          makePayment(cart_id.toString() + '_' + userId.toString(),
+              totalAmount.toString());
+        });
+        // }
+      }
+      setState(() {
+        showDialogBox = false;
+      });
+    }).catchError((e) {
+      setState(() {
+        showDialogBox = false;
+      });
     });
   }
 
@@ -313,7 +353,8 @@ class PaymentPageState extends State<PaymentPage> {
 
               //walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
               walletUsedAmount = 0.0;
-              totalAmount = newtotalAmount - coupAmount;;
+              totalAmount = newtotalAmount - coupAmount;
+              ;
             } else if (totalAmount < walletAmount) {
               if (walletAmount > 0.0) {
                 iswallet = true;
@@ -325,9 +366,8 @@ class PaymentPageState extends State<PaymentPage> {
               //walletUsedAmount = newtotalAmount - coupAmount;
               //walletUsedAmount = ((walletAmount*walletUsedAmountPercent)/100)-coupAmount;
               //totalAmount = totalAmount-walletUsedAmount;
-              walletUsedAmount=0.0;
+              walletUsedAmount = 0.0;
               totalAmount = newtotalAmount - coupAmount;
-
             } else {
               iswallet = false;
               walletUsedAmount = 0.0;
@@ -348,9 +388,9 @@ class PaymentPageState extends State<PaymentPage> {
               }
               //totalAmount = totalAmount - walletAmount;
               //walletUsedAmount = walletAmount;
-             // walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
+              // walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
               //totalAmount = totalAmount - walletUsedAmount;
-              walletUsedAmount=0.0;
+              walletUsedAmount = 0.0;
               totalAmount = newtotalAmount - coupAmount;
             } else if (totalAmount < walletAmount) {
               if (walletAmount > 0.0) {
@@ -363,7 +403,7 @@ class PaymentPageState extends State<PaymentPage> {
               //walletUsedAmount = newtotalAmount;
               //walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
               //totalAmount = totalAmount-walletUsedAmount;
-              walletUsedAmount=0.0;
+              walletUsedAmount = 0.0;
               totalAmount = newtotalAmount - coupAmount;
             } else {
               iswallet = false;
@@ -388,9 +428,8 @@ class PaymentPageState extends State<PaymentPage> {
               walletUsedAmount = walletAmount;
               walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
               totalAmount = totalAmount - walletUsedAmount;*/
-              walletUsedAmount=0.0;
+              walletUsedAmount = 0.0;
               totalAmount = newtotalAmount - coupAmount;
-
             } else if (totalAmount < walletAmount) {
               if (walletAmount > 0.0) {
                 iswallet = true;
@@ -402,9 +441,8 @@ class PaymentPageState extends State<PaymentPage> {
               //walletUsedAmount = newtotalAmount;
               //walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
               //totalAmount = totalAmount-walletUsedAmount;
-              walletUsedAmount=0.0;
+              walletUsedAmount = 0.0;
               totalAmount = newtotalAmount - coupAmount;
-
             } else {
               iswallet = false;
               walletUsedAmount = 0.0;
@@ -428,9 +466,8 @@ class PaymentPageState extends State<PaymentPage> {
               walletUsedAmount = walletAmount;
             walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
             totalAmount = totalAmount - walletUsedAmount;*/
-            walletUsedAmount=0.0;
+            walletUsedAmount = 0.0;
             totalAmount = newtotalAmount - coupAmount;
-
           } else if (totalAmount < walletAmount) {
             if (walletAmount > 0.0) {
               iswallet = true;
@@ -440,11 +477,10 @@ class PaymentPageState extends State<PaymentPage> {
             //totalAmount = 0.0;
 
             //walletUsedAmount = newtotalAmount;
-           /* walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
+            /* walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
             totalAmount = totalAmount-walletUsedAmount;*/
-            walletUsedAmount=0.0;
+            walletUsedAmount = 0.0;
             totalAmount = newtotalAmount - coupAmount;
-
           } else {
             iswallet = false;
             walletUsedAmount = 0.0;
@@ -466,13 +502,12 @@ class PaymentPageState extends State<PaymentPage> {
             iswallet = false;
           }
 
-         /* totalAmount = totalAmount - walletAmount;
+          /* totalAmount = totalAmount - walletAmount;
           walletUsedAmount = walletAmount;
           walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
           totalAmount = totalAmount - walletUsedAmount;*/
-          walletUsedAmount=0.0;
+          walletUsedAmount = 0.0;
           totalAmount = newtotalAmount - coupAmount;
-
         } else if (totalAmount < walletAmount) {
           if (walletAmount > 0.0) {
             iswallet = true;
@@ -482,11 +517,10 @@ class PaymentPageState extends State<PaymentPage> {
           //totalAmount = 0.0;
 
           //walletUsedAmount = newtotalAmount;
-         /* walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
+          /* walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
           totalAmount = totalAmount-walletUsedAmount;*/
-          walletUsedAmount=0.0;
+          walletUsedAmount = 0.0;
           totalAmount = newtotalAmount - coupAmount;
-
         } else {
           iswallet = false;
           walletUsedAmount = 0.0;
@@ -645,7 +679,13 @@ class PaymentPageState extends State<PaymentPage> {
                                             //     paymentVia
                                             //         .stripe.paymentCurrency,
                                             //     context);
-                                            setStripePayment(paymentVia.stripe.stripeSecret, totalAmount, cardPay, paymentVia.stripe.paymentCurrency, context);
+                                            setStripePayment(
+                                                paymentVia.stripe.stripeSecret,
+                                                totalAmount,
+                                                cardPay,
+                                                paymentVia
+                                                    .stripe.paymentCurrency,
+                                                context);
                                           } else {
                                             Toast.show(
                                                 'Payment cancelled', context,
@@ -732,7 +772,13 @@ class PaymentPageState extends State<PaymentPage> {
                                             //     paymentVia
                                             //         .stripe.paymentCurrency,
                                             //     context);
-                                            setStripePayment(paymentVia.stripe.stripeSecret, totalAmount, cardPay, paymentVia.stripe.paymentCurrency, context);
+                                            setStripePayment(
+                                                paymentVia.stripe.stripeSecret,
+                                                totalAmount,
+                                                cardPay,
+                                                paymentVia
+                                                    .stripe.paymentCurrency,
+                                                context);
                                           } else {
                                             Toast.show(
                                                 'Payment cancelled', context,
@@ -961,7 +1007,7 @@ class PaymentPageState extends State<PaymentPage> {
                                   ],
                                 ),
                               ),
-                              Visibility(
+                              /*Visibility(
                                 visible:
                                     (paymentVia.payMode.codStatus != null &&
                                             '${paymentVia.payMode.codStatus}'
@@ -997,12 +1043,16 @@ class PaymentPageState extends State<PaymentPage> {
                                                 'Proceeding to placed order please wait!....';
                                             showDialogBox = true;
                                           });
-                                          placedOrder(
-                                              "success", "COD", context);
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) => Cashfree())).then((value) {
+
+                                          });
                                         }),
                                   ],
                                 ),
-                              ),
+                              ),*/
                               Visibility(
                                 visible: (paymentVia.payMode.paymentStatus !=
                                             null &&
@@ -1019,6 +1069,9 @@ class PaymentPageState extends State<PaymentPage> {
                                             paymentVia != null &&
                                             (('${paymentVia.paystack.paystackStatus}'.toUpperCase() == 'YES') ||
                                                 ('${paymentVia.razorpay.razorpayStatus}'
+                                                        .toUpperCase() ==
+                                                    'YES') ||
+                                                ('${paymentVia.cashfree.cashfreeStatus}'
                                                         .toUpperCase() ==
                                                     'YES') ||
                                                 ('${paymentVia.paypal.paypalStatus}'
@@ -1071,6 +1124,44 @@ class PaymentPageState extends State<PaymentPage> {
                                                   (totalAmount * 100),
                                                   '${paymentVia.razorpay.razorpaySecret}',
                                                   context);
+                                            },
+                                          ),
+                                        )),
+                                    Visibility(
+                                        visible: (paymentVia != null &&
+                                            '${paymentVia.cashfree.cashfreeStatus}'
+                                                    .toUpperCase() ==
+                                                'YES'),
+                                        child: Container(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          child: BuildListTile(
+                                            image:
+                                                'images/payment/credit_card.png',
+                                            text: 'Cashfree',
+                                            onTap: () {
+                                              /*setState(() {
+                                                setProgressText =
+                                                    'Proceeding to placed order please wait!....';
+                                                showDialogBox = true;
+                                              });
+                                              openCheckout(
+                                                  '${paymentVia.cashfree.cashfreeKey}',
+                                                  (totalAmount * 100),
+                                                  '${paymentVia.cashfree.cashfreeSecret}',
+                                                  context);*/
+                                              /* Navigator.of(context).pushNamed(PageRoutes.cashfree, arguments: {
+                                                //'url': js['next_action']['redirect_to_url']['url']
+                                              }).then((value) {
+                                                //confirmPaymentStripe(payintent['id'], hearder);
+                                              }).catchError((e) {
+                                                print(e);
+                                                setState(() {
+                                                  showDialogBox = false;
+                                                });
+                                              });*/
+
+                                              hitServiceCashfreeToken();
                                             },
                                           ),
                                         )),
@@ -1201,7 +1292,8 @@ class PaymentPageState extends State<PaymentPage> {
                                               //   androidPayMode: 'test',
                                               // ));
                                               Navigator.of(context)
-                                                  .pushNamed(PageRoutes.stripecard)
+                                                  .pushNamed(
+                                                      PageRoutes.stripecard)
                                                   .then((value) {
                                                 if (value != null) {
                                                   CreditCard cardPay = value;
@@ -1212,21 +1304,31 @@ class PaymentPageState extends State<PaymentPage> {
                                                   //     paymentVia
                                                   //         .stripe.paymentCurrency,
                                                   //     context);
-                                                  setStripePayment(paymentVia.stripe.stripeSecret, totalAmount, cardPay, paymentVia.stripe.paymentCurrency, context);
+                                                  setStripePayment(
+                                                      paymentVia
+                                                          .stripe.stripeSecret,
+                                                      totalAmount,
+                                                      cardPay,
+                                                      paymentVia.stripe
+                                                          .paymentCurrency,
+                                                      context);
                                                 } else {
                                                   Toast.show(
-                                                      'Payment cancelled', context,
+                                                      'Payment cancelled',
+                                                      context,
                                                       gravity: Toast.CENTER,
-                                                      duration: Toast.LENGTH_SHORT);
+                                                      duration:
+                                                          Toast.LENGTH_SHORT);
                                                   setState(() {
                                                     showDialogBox = false;
                                                   });
                                                 }
                                               }).catchError((e) {
-                                                Toast.show(
-                                                    'Payment cancelled', context,
+                                                Toast.show('Payment cancelled',
+                                                    context,
                                                     gravity: Toast.CENTER,
-                                                    duration: Toast.LENGTH_SHORT);
+                                                    duration:
+                                                        Toast.LENGTH_SHORT);
                                                 setState(() {
                                                   showDialogBox = false;
                                                 });
@@ -1600,6 +1702,69 @@ class PaymentPageState extends State<PaymentPage> {
     );
   }
 
+  // WEB Intent
+  makePayment(orderID, orderAmt) {
+    //Replace with actual values
+    String orderId = orderID.toString();
+    //String stage = "PROD";
+    String stage = (paymentVia!=null &&paymentVia.cashfree!=null &&paymentVia.cashfree.cashfreeType!=null &&
+        paymentVia.cashfree.cashfreeType.toUpperCase()=='LIVE')?'PROD':'TEST';
+    String orderAmount = orderAmt.toString();
+    String tokenData = cfToken.toString().trim();
+    String customerName = userName;
+    String orderNote = "Order note";
+    String orderCurrency = "INR";
+    String appId = (paymentVia!=null &&paymentVia.cashfree!=null &&paymentVia.cashfree.cashfreeKey!=null)?
+    paymentVia.cashfree.cashfreeKey:'13461dbcee1026aff5cb6f39916431';
+    String customerPhone = userMobile;
+    String customerEmail = userEmail;
+    String notifyUrl = "https://test.gocashfree.com/notify";
+    print('ordid:' + orderId);
+
+    Map<String, dynamic> inputParams = {
+      "orderId": orderId,
+      "orderAmount": orderAmount,
+      "customerName": customerName,
+      "orderNote": orderNote,
+      "orderCurrency": orderCurrency,
+      "appId": appId,
+      "customerPhone": customerPhone,
+      "customerEmail": customerEmail,
+      "stage": stage,
+      "tokenData": tokenData,
+      "notifyUrl": notifyUrl
+    };
+
+    CashfreePGSDK.doPayment(inputParams)
+        .then((value) => value?.forEach((key, value) {
+              print("$key : $value");
+              setState(() {
+                showDialogBox = true;
+              });
+              if (key.toString() == 'txStatus' &&
+                  value.toString() == 'SUCCESS') {
+                placedOrder("success", "Card", context);
+              } else if (key.toString() == 'txStatus' &&
+                  (value.toString() == 'FAILED' ||
+                      value.toString() == 'CANCELLED')) {
+                Toast.show('Transaction failed!!', context,
+                    duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+                setState(() {
+                  showDialogBox = false;
+                });
+              } else if (key.toString() == 'txStatus' &&
+                  (value.toString() == 'FLAGGED' ||
+                      value.toString() == 'PENDING')) {
+                Toast.show(
+                    'Transaction pending, we will inform shortly!!', context,
+                    duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+                setState(() {
+                  showDialogBox = false;
+                });
+              }
+            }));
+  }
+
   var payPlugin = PaystackPlugin();
 
   void payStatck(String key, int price, BuildContext context,
@@ -1841,13 +2006,16 @@ class PaymentPageState extends State<PaymentPage> {
     );
   }
 
-  void setStripePayment(dynamic clientScretKey, double amount,
-      CreditCard creditCardPay, String paymentCurrency, BuildContext context) async{
+  void setStripePayment(
+      dynamic clientScretKey,
+      double amount,
+      CreditCard creditCardPay,
+      String paymentCurrency,
+      BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     // print('${creditCardPay.toJson().toString()}');
     Map<String, String> headers = {
-      'Authorization':
-          'Bearer $clientScretKey',
+      'Authorization': 'Bearer $clientScretKey',
       'Content-Type': 'application/x-www-form-urlencoded'
     };
 
@@ -1860,7 +2028,8 @@ class PaymentPageState extends State<PaymentPage> {
       'card[exp_year]': '${creditCardPay.expYear}',
       'card[cvc]': '${creditCardPay.cvc}',
       'billing_details[address][line1]': '${widget.addressDelivery.address}',
-      'billing_details[address][postal_code]': '${widget.addressDelivery.pincode}',
+      'billing_details[address][postal_code]':
+          '${widget.addressDelivery.pincode}',
       'billing_details[address][state]': '${widget.addressDelivery.state}',
       'billing_details[email]': '${prefs.getString('user_email')}',
       'billing_details[name]': '${prefs.getString('user_name')}',
@@ -1873,11 +2042,11 @@ class PaymentPageState extends State<PaymentPage> {
         .then((value) {
       print(value.body);
       var jsP = jsonDecode(value.body);
-      if(jsP['error']!=null){
+      if (jsP['error'] != null) {
         setState(() {
           showDialogBox = false;
         });
-      }else{
+      } else {
         createPaymentIntent('${amount.toInt() * 100}', '$paymentCurrency',
             headers, jsP, clientScretKey, context);
       }
@@ -1918,12 +2087,13 @@ class PaymentPageState extends State<PaymentPage> {
       };
       http.post(paymentApiUrl, body: body, headers: hearder).then((value) {
         var js = jsonDecode(value.body);
-        if(js['error']!=null){
+        if (js['error'] != null) {
           setState(() {
             showDialogBox = false;
           });
-        }else{
-          confirmCreatePaymentIntent(amount, currency, hearder, paymentMethod, js, clientScretKey, context);
+        } else {
+          confirmCreatePaymentIntent(amount, currency, hearder, paymentMethod,
+              js, clientScretKey, context);
         }
       }).catchError((e) {
         print('dd ${e}');
@@ -1945,49 +2115,53 @@ class PaymentPageState extends State<PaymentPage> {
     }
   }
 
-  void confirmCreatePaymentIntent(String amount,
+  void confirmCreatePaymentIntent(
+      String amount,
       String currency,
       Map<String, String> hearder,
       dynamic paymentMethod,
       dynamic payintent,
       clientScretKey,
-      BuildContext context) async{
-
+      BuildContext context) async {
     var body1 = {
       'payment_method': '${paymentMethod['id']}',
       'use_stripe_sdk': 'false',
-      'return_url': '$imageBaseUrl'+'resources/views/admin/paymentvia/payment.php',
+      'return_url':
+          '$imageBaseUrl' + 'resources/views/admin/paymentvia/payment.php',
     };
 
-    http.post(Uri.parse('$paymentApiUrl/${payintent['id']}/confirm'),
-        body: body1, headers: hearder)
+    http
+        .post(Uri.parse('$paymentApiUrl/${payintent['id']}/confirm'),
+            body: body1, headers: hearder)
         .then((value) {
       print(value.body);
       var js = jsonDecode(value.body);
-      if(js['error']!=null){
+      if (js['error'] != null) {
         setState(() {
           showDialogBox = false;
         });
-      }else{
-        if('${js['status']}'=='succeeded'){
-          placedOrder("success", "Card",context);
-        }else if('${js['status']}'=='requires_action'){
-if(js['next_action']!=null && js['next_action']['redirect_to_url']!=null){
-  Navigator.of(context).pushNamed(PageRoutes.paymentdoned, arguments: {
-    'url': js['next_action']['redirect_to_url']['url']
-  }).then((value) {
-confirmPaymentStripe(payintent['id'], hearder);
-  }).catchError((e) {
-    print(e);
-    setState(() {
-      showDialogBox = false;
-    });
-  });
-}else{
-  setState(() {
-    showDialogBox = false;
-  });
-}
+      } else {
+        if ('${js['status']}' == 'succeeded') {
+          placedOrder("success", "Card", context);
+        } else if ('${js['status']}' == 'requires_action') {
+          if (js['next_action'] != null &&
+              js['next_action']['redirect_to_url'] != null) {
+            Navigator.of(context).pushNamed(PageRoutes.paymentdoned,
+                arguments: {
+                  'url': js['next_action']['redirect_to_url']['url']
+                }).then((value) {
+              confirmPaymentStripe(payintent['id'], hearder);
+            }).catchError((e) {
+              print(e);
+              setState(() {
+                showDialogBox = false;
+              });
+            });
+          } else {
+            setState(() {
+              showDialogBox = false;
+            });
+          }
         }
       }
     }).catchError((e) {
@@ -1996,23 +2170,23 @@ confirmPaymentStripe(payintent['id'], hearder);
         showDialogBox = false;
       });
     });
-
   }
 
-  void confirmPaymentStripe(dynamic jsValue, dynamic hearder) async{
-    http.get(Uri.parse('$paymentApiUrl/$jsValue'),headers: hearder)
+  void confirmPaymentStripe(dynamic jsValue, dynamic hearder) async {
+    http
+        .get(Uri.parse('$paymentApiUrl/$jsValue'), headers: hearder)
         .then((value) {
       print(value.body);
       var js = jsonDecode(value.body);
-      if(js['error']!=null){
+      if (js['error'] != null) {
         setState(() {
           showDialogBox = false;
         });
-      }else{
+      } else {
         print(js['status']);
-        if('${js['status']}'=='succeeded'){
-          placedOrder("success", "Card",context);
-        }else{
+        if ('${js['status']}' == 'succeeded') {
+          placedOrder("success", "Card", context);
+        } else {
           setState(() {
             showDialogBox = false;
           });
@@ -2035,7 +2209,9 @@ confirmPaymentStripe(payintent['id'], hearder);
         'source': tokenId,
         'description': 'Shopping Charges'
       };
-      http.post(Uri.parse('https://api.stripe.com/v1/charges'), body: body, headers: headers)
+      http
+          .post(Uri.parse('https://api.stripe.com/v1/charges'),
+              body: body, headers: headers)
           .then((value) {
         print('ss - ${value.body}');
         if (value.body.toString().contains('error')) {
@@ -2208,7 +2384,8 @@ confirmPaymentStripe(payintent['id'], hearder);
         "attributes": {
           'payment_method': '${pmpa.data.id}',
           'client_key': '${pday.data.attributes.clientKey}',
-          'return_url':'$imageBaseUrl'+'resources/views/admin/paymentvia/payment.php',
+          'return_url':
+              '$imageBaseUrl' + 'resources/views/admin/paymentvia/payment.php',
         }
       }
     };
@@ -2332,8 +2509,10 @@ confirmPaymentStripe(payintent['id'], hearder);
           "amount": amount,
           "currency": "PHP",
           "redirect": {
-            "failed": "$imageBaseUrl"+"resources/views/admin/paymentvia/payment.php",
-            "success": "$imageBaseUrl"+"resources/views/admin/paymentvia/payment.php"
+            "failed": "$imageBaseUrl" +
+                "resources/views/admin/paymentvia/payment.php",
+            "success":
+                "$imageBaseUrl" + "resources/views/admin/paymentvia/payment.php"
           },
           "type": type
         }

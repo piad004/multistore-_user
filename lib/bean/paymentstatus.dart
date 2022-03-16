@@ -2,6 +2,7 @@ class PaymentVia {
   String status;
   String message;
   RazorpayBean razorpay;
+  CashfreeBean cashfree;
   PaypalBean paypal;
   StripeBean stripe;
   PaystackBean paystack;
@@ -12,6 +13,7 @@ class PaymentVia {
       {this.status,
         this.message,
         this.razorpay,
+        this.cashfree,
         this.paypal,
         this.stripe,
         this.paystack,
@@ -23,6 +25,9 @@ class PaymentVia {
     message = json['message'];
     razorpay = json['razorpay'] != null
         ? new RazorpayBean.fromJson(json['razorpay'])
+        : null;
+    cashfree = json['cashfree'] != null
+        ? new CashfreeBean.fromJson(json['cashfree'])
         : null;
     paypal =
     json['paypal'] != null ? new PaypalBean.fromJson(json['paypal']) : null;
@@ -43,6 +48,9 @@ class PaymentVia {
     data['message'] = this.message;
     if (this.razorpay != null) {
       data['razorpay'] = this.razorpay.toJson();
+    }
+    if (this.cashfree != null) {
+      data['cashfree'] = this.cashfree.toJson();
     }
     if (this.paypal != null) {
       data['paypal'] = this.paypal.toJson();
@@ -123,6 +131,39 @@ class RazorpayBean {
     data['razorpay_status'] = this.razorpayStatus;
     data['razorpay_secret'] = this.razorpaySecret;
     data['razorpay_key'] = this.razorpayKey;
+    data['payment_currency'] = this.paymentCurrency;
+    return data;
+  }
+}
+
+class CashfreeBean {
+  String cashfreeStatus;
+  String cashfreeSecret;
+  String cashfreeKey;
+  String cashfreeType;
+  String paymentCurrency;
+
+  CashfreeBean(
+      {this.cashfreeStatus,
+        this.cashfreeSecret,
+        this.cashfreeKey,
+        this.cashfreeType,
+        this.paymentCurrency});
+
+  CashfreeBean.fromJson(Map<String, dynamic> json) {
+    cashfreeStatus = json['cashfree_status'];
+    cashfreeSecret = json['cashfree_secret'];
+    cashfreeKey = json['cashfree_key'];
+    cashfreeType = json['cashfree_type'];
+    paymentCurrency = json['payment_currency'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['cashfree_status'] = this.cashfreeStatus;
+    data['cashfree_secret'] = this.cashfreeSecret;
+    data['cashfree_key'] = this.cashfreeKey;
+    data['cashfree_type'] = this.cashfreeType;
     data['payment_currency'] = this.paymentCurrency;
     return data;
   }

@@ -73,6 +73,8 @@ dependencies:
   flutter_rating_bar: ^4.0.0
   cashfree_pg: 1.2.5+22
   flutter_tawk: ^0.0.5
+  webview_flutter: ^1.0.7
+  flutter_webview_plugin: ^0.3.5
 
 #dependency_overrides:
 #  intl: any

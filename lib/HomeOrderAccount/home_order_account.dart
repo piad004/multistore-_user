@@ -32,12 +32,12 @@ const AndroidNotificationChannel channel = AndroidNotificationChannel(
   'This channel is used for important notifications.', // description
   importance: Importance.high,
   playSound: true,
-  sound: RawResourceAndroidNotificationSound('airtel'),
+  //sound: RawResourceAndroidNotificationSound('alert'),
 );
 
 Future<void> myBackgroundMessageHandler(RemoteMessage message) async {
-  _showNotification(flutterLocalNotificationsPlugin,
-      '${message.notification.title}', '${message.notification.body}');
+ /* _showNotification(flutterLocalNotificationsPlugin,
+      '${message.notification.title}', '${message.notification.body}');*/
 }
 
 class HomeStateless extends StatelessWidget {
@@ -94,7 +94,7 @@ class _HomeOrderAccountState extends State<HomeOrderAccount> {
         .then((RemoteMessage message) {
       if (message != null) {
         _showNotification(flutterLocalNotificationsPlugin,
-            '${message.notification.title}', '${message.notification.body}');
+            '${message.notification.title}', '${message.notification.body}', '${message.notification.title}');
       }
     });
 
@@ -117,7 +117,7 @@ class _HomeOrderAccountState extends State<HomeOrderAccount> {
                 channel.description,
                 icon: 'logo_user',
                 playSound: true,
-                sound: RawResourceAndroidNotificationSound('airtel'),
+                //sound: RawResourceAndroidNotificationSound('alert'),
               ),
             ));
       }
@@ -247,7 +247,7 @@ class _HomeOrderAccountState extends State<HomeOrderAccount> {
   Future onDidReceiveLocalNotification(
       int id, String title, String body, String payload) async {
     // var message = jsonDecode('${payload}');
-    _showNotification(flutterLocalNotificationsPlugin, '${title}', '${body}');
+    _showNotification(flutterLocalNotificationsPlugin, '${title}', '${body}', '${body}');
   }
 
   Future selectNotification(String payload) async {}
@@ -284,7 +284,8 @@ class _HomeOrderAccountState extends State<HomeOrderAccount> {
 Future<void> _showNotification(
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
     dynamic title,
-    dynamic body) async {
+    dynamic body,
+    dynamic largeIcon) async {
   final Int64List vibrationPattern = Int64List(5);
   vibrationPattern[0] = 0;
   vibrationPattern[1] = 1000;
@@ -299,8 +300,9 @@ Future<void> _showNotification(
           enableLights: true,
           enableVibration: true,
           playSound: true,
-          sound: RawResourceAndroidNotificationSound('airtel'),
-          ticker: 'ticker');
+          //sound: RawResourceAndroidNotificationSound('alert'),
+          ticker: 'ticker',
+          largeIcon: largeIcon);
   final IOSNotificationDetails iOSPlatformChannelSpecifics =
       IOSNotificationDetails(presentSound: true);
   final NotificationDetails platformChannelSpecifics = NotificationDetails(

@@ -4,6 +4,7 @@ import 'package:user/Auth/MobileNumber/UI/phone_number.dart';
 import 'package:user/Auth/Registration/UI/register_page.dart';
 import 'package:user/Auth/Verification/UI/verification_page.dart';
 import 'package:user/HomeOrderAccount/Account/UI/ListItems/about_us_page.dart';
+import 'package:user/HomeOrderAccount/Account/UI/ListItems/privacy_policy.dart';
 import 'package:user/HomeOrderAccount/Account/UI/ListItems/support_page.dart';
 import 'package:user/HomeOrderAccount/Account/UI/ListItems/tnc_page.dart';
 import 'package:user/HomeOrderAccount/Account/UI/account_page.dart';
@@ -11,6 +12,7 @@ import 'package:user/HomeOrderAccount/Home/UI/home.dart';
 import 'package:user/HomeOrderAccount/Home/UI/order_placed_map.dart';
 import 'package:user/HomeOrderAccount/Order/UI/order_page.dart';
 import 'package:user/HomeOrderAccount/home_order_account.dart';
+import 'package:user/Pages/cashfree.dart';
 import 'package:user/Pages/paymentwebviewmongo.dart';
 import 'package:user/Pages/paymongocredcard.dart';
 import 'package:user/Pages/stripecard.dart';
@@ -40,6 +42,7 @@ class PageRoutes {
   static const String accountPage = 'account_page';
   static const String orderPage = 'order_page';
   static const String tncPage = 'tnc_page';
+  static const String privacyPolicy = 'privacy_policy';
   static const String aboutUsPage = 'about_us_page';
   static const String settings = 'settings';
   static const String savedAddressesPage = 'saved_addresses_page';
@@ -55,6 +58,7 @@ class PageRoutes {
   static const String returanthome = 'returanthome';
   static const String pharmacart = 'pharmacart';
   static const String stripecard = 'stripecard';
+  static const String cashfree = 'cashfree';
   static const String invoice = 'invoice';
   static const String invoicerest = 'invoicerest';
   static const String invoiceparcel = 'invoiceparcel';
@@ -72,6 +76,7 @@ class PageRoutes {
       orderPage: (context) => OrderPage(),
       accountPage: (context) => AccountPage(),
       tncPage: (context) => TncPage(),
+      privacyPolicy: (context) => PrivacyPolicyPage(),
       aboutUsPage: (context) => AboutUsPage(),
       supportPage: (context) => SupportPage(),
       orderMapPage: (context) => OrderMapPage(),
@@ -83,6 +88,7 @@ class PageRoutes {
       restviewCart: (context) => RestuarantViewCart(),
       pharmacart: (context) => PharmaViewCart(),
       stripecard: (context) => MyStripeCard(),
+      cashfree: (context) => Cashfree(),
       invoice: (context) => MyInvoicePdf(),
       invoicerest: (context) => MyInvoiceRestPdf(),
       invoiceparcel: (context) => MyParcelInvoicePdf(),

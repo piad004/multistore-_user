@@ -142,6 +142,7 @@ class _OrderMapState extends State<OrderMap> {
                 Image.asset(
                   'images/map.png',
                   width: MediaQuery.of(context).size.width,
+                  height: (MediaQuery.of(context).size.height)-120,
                   fit: BoxFit.fitWidth,
                 ),
                 Positioned(

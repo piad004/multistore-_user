@@ -35,6 +35,7 @@ import 'package:user/pharmacy/pharmastore.dart';
 import 'package:user/restaturantui/pages/restaurant.dart';
 import 'package:user/restaturantui/ui/resturanthome.dart';
 import 'package:user/restaturantui/ui/search.dart';
+import 'package:user/HomeOrderAccount/Home/UI/partner_with_us.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -1352,44 +1353,59 @@ class _HomeState extends State<Home> {
               ),
               SizedBox(
                 height: 5,
-              ),
-              Card(
+              ),TextButton(
+                  //onPressed: openPartnerForm(context),
+                  child: Text(
+                    'Partner with us and earn',
+                    style: TextStyle(color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+             /* Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(8)),
-                  /*side: BorderSide(width: 0, )*/),
+                  *//*side: BorderSide(width: 0, )*//*),
                 // child: ListTile(),
-                child: Container(
-                  alignment: Alignment.center,
-                  padding: EdgeInsets.only(top: 12, bottom: 12),
-                  //height: 50,
-                  width: MediaQuery
-                      .of(context)
-                      .size
-                      .width - 20,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(2.0),
-                      gradient: LinearGradient(
-                        begin: Alignment.topRight,
-                        end: Alignment.bottomLeft,
-                        colors: [
-                          darkYellowColor,
-                          darkRedColor,
-                        ],
-                      )
-                  ),
-                  child: Column(
-                    children: <Widget>[
-                      Text(
-                        'Partner with us and earn',
-                        style: TextStyle(color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                child: InkWell(
+                  //onTap: openPartnerForm(context),
+                  child:  Container(
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.only(top: 12, bottom: 12),
+                    //height: 50,
+                    width: MediaQuery
+                        .of(context)
+                        .size
+                        .width - 20,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(2.0),
+                        gradient: LinearGradient(
+                          begin: Alignment.topRight,
+                          end: Alignment.bottomLeft,
+                          colors: [
+                            darkYellowColor,
+                            darkRedColor,
+                          ],
+                        )
+                    ),
+                    child: Column(
+                      children: <Widget>[
+                        InkWell(
+                         onTap: openPartnerForm(context),
+                          child:  Text(
+                            'Partner with us and earn',
+                            style: TextStyle(color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+
+                      ],
+                    ),
                   ),
                 ),
                 margin: EdgeInsets.all(5.0),
-              )
+              )*/
             ],
           ),
         ),
@@ -1800,5 +1816,16 @@ class _HomeState extends State<Home> {
       hitServiceBestRated(lat, lng);
     });
     return null;
+  }
+
+  openPartnerForm(contex) {
+    Navigator.of(contex)
+        .push(MaterialPageRoute(builder: (context) {
+      return PartnerWithUsWebView();
+    })).then((value) {
+
+    }).catchError((e) {
+      print(e);
+    });
   }
 }

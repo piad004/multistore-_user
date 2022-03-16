@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Delvfast</string>
+    <!--<string name="app_name">Delvfast</string>-->
+    <string name="app_name">Primacy User</string>
     <string name="default_notification_channel_id">7458</string>
     <string name="map_key">AIzaSyB2kvOckQn8vJlqi8PPnbOzK5dCf-xg3eQ</string>
 </resources>

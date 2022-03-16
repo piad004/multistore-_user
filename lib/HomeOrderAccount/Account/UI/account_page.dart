@@ -120,6 +120,10 @@ class _AccountState extends State<Account> with WidgetsBindingObserver{
             text: locale.tnc,
             onTap: () => Navigator.pushNamed(context, PageRoutes.tncPage)),
         BuildListTile(
+            image: 'images/account/privacy_policy.png',
+            text: 'Privacy Policy',
+            onTap: () => Navigator.pushNamed(context, PageRoutes.privacyPolicy)),
+        BuildListTile(
             image: 'images/account/support.png',
             text: locale.support,
             onTap: () => Navigator.pushNamed(context, PageRoutes.supportPage,

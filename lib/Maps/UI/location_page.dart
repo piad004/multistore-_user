@@ -520,7 +520,7 @@ class SetLocationState extends State<SetLocation> {
         if (jsonData['status'].toString() == "1") {
           Navigator.pop(context, BackLatLng(lat, lng, currentAddress));
         } else {
-          Toast.show('Undeliverable address!!', context,
+          Toast.show(jsonData['message'].toString(), context,
               duration: Toast.LENGTH_SHORT);
         }
       }

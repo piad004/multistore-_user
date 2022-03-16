@@ -149,7 +149,20 @@ class RefferScreenState extends State<RefferScreen> {
                         padding: EdgeInsets.symmetric(horizontal: 10),
                         child: Text(
                          // '${refferText}',
-                          '\nRefer your friends and get Rs.50 delvfast cash for each refer.\n\n'+
+                          '\nRefer your friends and get Rs.50 delvfast cash for each refer.\n',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                              /*fontWeight: FontWeight.w800,
+                              fontSize: 25,*/
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: kMainTextColor),
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        child: Text(
+                         // '${refferText}',
                           'How it works\n'
                         '1.Share your referral link with your friends\n'
                         '2. When your friends click on your referral link or sign up through your referral code, your friends will get Rs.50 Delvfast cash on sign up and you will get Rs.50 when they complete their first order of Rs.200 or above..\n',
@@ -157,8 +170,8 @@ class RefferScreenState extends State<RefferScreen> {
                           style: TextStyle(
                               /*fontWeight: FontWeight.w800,
                               fontSize: 25,*/
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                              fontWeight: FontWeight.normal,
+                              fontSize: 16,
                               color: kMainTextColor),
                         ),
                       ),
