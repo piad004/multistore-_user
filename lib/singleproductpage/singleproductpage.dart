@@ -256,7 +256,7 @@ class SingleProductState extends State<SingleProductPage> {
                                                 )
                                               : Image(
                                                   image: AssetImage(
-                                                      'images/logos/logo_user.png'),
+                                                      'images/logos/logo_user1.png'),
                                                   height: 93.3,
                                                   width: 93.3,
                                                 ),

@@ -139,7 +139,7 @@ class StoresPharmaPageState extends State<StoresPharmaPage> {
                               style: TextStyle(
                                   fontSize: 7,
                                   color: kWhiteColor,
-                                  fontWeight: FontWeight.w200),
+                                  fontWeight: FontWeight.w600),
                             ),
                           ),
                         ))
@@ -594,7 +594,7 @@ class StoresPharmaPageState extends State<StoresPharmaPage> {
       double tt = min % 60;
       String minutes = '${tt.toInt()}';
       minutes = minutes.length == 1 ? "0" + minutes : minutes;
-      return '${(min.toInt() / 60)}' + " hour " + minutes +"mins";
+      return '${(min.toInt() / 60).toStringAsFixed(0)}' + " hour " + minutes +" mins";
     }
   }
 }

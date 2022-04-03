@@ -165,6 +165,38 @@ class _RegisterFormState extends State<RegisterForm> {
                 ),
               ),
               Positioned(
+                bottom: 85,
+                left: 40,
+                right: 40.0,
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      showDialogBox = true;
+                    });
+                    {
+                      hitService('Guest', _emailController.text,
+                          _referalController.text, context);
+                    }
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    height: 42,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(50)),
+                        color: kMainColor),
+                    child: Text(
+                      'Skip',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w300,
+                        fontSize: 14,
+                        color: kWhiteColor,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
                 bottom: 12,
                 left: 20,
                 right: 20.0,

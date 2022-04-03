@@ -94,7 +94,7 @@ class MyInvoiceRestPdfState extends State<MyInvoiceRestPdf> {
   void createPdf(OrderHistoryRestaurant invoiceBean) async {
     SharedPreferences prefse = await SharedPreferences.getInstance();
     rootBundle
-        .load('images/logos/logo_user.png')
+        .load('images/logos/logo_user1.png')
         .then((data) => setState(() => this.imageData = data));
     PDF.Document pdf = PDF.Document();
     pdf.addPage(PDF.MultiPage(

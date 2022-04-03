@@ -27,7 +27,7 @@ apply plugin: 'com.google.gms.google-services'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 32
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -40,9 +40,10 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         //applicationId "com.primacyinfotech.mstore"
-        applicationId "delfastuser.primacyinfotech.com"
+        //applicationId "delfastuser.primacyinfotech.com"
+        applicationId "user.delvfast.com"
         minSdkVersion 20
-        targetSdkVersion 30
+        targetSdkVersion 32
         versionCode 1
         versionName "0.0.1"
         multiDexEnabled true

@@ -4,9 +4,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@color/colorRed" />
     <item android:gravity="center"
-        android:height="150dp"
-        android:width="200dp"
-        android:drawable="@drawable/logo_user"
+        android:height="330dp"
+        android:width="260dp"
+        android:drawable="@drawable/splash"
         tools:ignore="UnusedAttribute">
     </item>
 </layer-list>

@@ -120,23 +120,10 @@ class _HomeState extends State<Home> {
         bool isLocationServiceEnableds =
         await Geolocator.isLocationServiceEnabled();
         if (isLocationServiceEnableds) {
-          Position position = await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.best);
-          double lat = position.latitude;
-          double lng = position.longitude;
-          //get
-          setState(() {
-            locGrant = true;
-            this.lat = lat;
-            this.lng = lng;
-          });
-          prefs.setString("lat", lat.toString());
-          prefs.setString("lng", lng.toString());
-          prefs.setString("userLat", lat.toString());
-          prefs.setString("userLng", lng.toString());
-          hitAddressPlace(lat, lng);
+         //getLoc();
         } else {
-          showAlertDialog(context, locale, 'opens');
+         getLoc();
+          //showAlertDialog(context, locale, 'opens');
         }
       } else if (permission == LocationPermission.denied) {
         showAlertDialog(context, locale, 'openp');
@@ -157,6 +144,26 @@ class _HomeState extends State<Home> {
         _getLocation(context, locale);
       }
     }
+  }
+
+  void getLoc()async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best);
+    double lat = position.latitude;
+    double lng = position.longitude;
+    //get
+    setState(() {
+      locGrant = true;
+      this.lat = lat;
+      this.lng = lng;
+    });
+    prefs.setString("lat", lat.toString());
+    prefs.setString("lng", lng.toString());
+    prefs.setString("userLat", lat.toString());
+    prefs.setString("userLng", lng.toString());
+    hitAddressPlace(lat, lng);
   }
 
   void hitAddressPlace(double latd, double lngd) async {
@@ -1215,17 +1222,17 @@ class _HomeState extends State<Home> {
                             Container(
                               width: 50,
                               height: 50,
-                              padding: EdgeInsets.all(10),
+                              padding: EdgeInsets.all(0),
                               child: Image.asset(
-                                'images/instantdelivery.png',
-                                width: 30,
-                                height: 30,
+                                'images/allinone.png',
+                                width: 50,
+                                height: 50,
                                 fit: BoxFit.fitWidth,),
                               decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: Color(0xffe8442e)),
                             ),
-                            Text("  Instant delivery\n  at door step",
+                            Text("  All In One App ",
                               style: TextStyle(
                                   color: Colors.black, fontSize: 15),),
                           ],
@@ -1243,24 +1250,24 @@ class _HomeState extends State<Home> {
                             Container(
                               width: 50,
                               height: 50,
-                              padding: EdgeInsets.all(10),
+                              padding: EdgeInsets.all(5),
                               child: Image.asset(
-                                'images/orderwide.png',
-                                width: 30,
-                                height: 30,
+                                'images/db.png',
+                                width: 50,
+                                height: 50,
                                 fit: BoxFit.fitWidth,),
                               decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: Color(0xffe8442e)),
                             ),
-                            Text("  Order wide range\n  of variety",
+                            Text("  Instant Delivery",
                               style: TextStyle(
                                   color: Colors.black, fontSize: 15),),
                           ],
 
                         ),
                       ),
-                      SizedBox(
+                     SizedBox(
                         height: 5,
                       ),
                       Container(
@@ -1270,24 +1277,24 @@ class _HomeState extends State<Home> {
                             Container(
                               width: 50,
                               height: 50,
-                              padding: EdgeInsets.all(10),
+                              padding: EdgeInsets.all(5),
                               child: Image.asset(
-                                'images/localtest.png',
-                                width: 30,
-                                height: 30,
+                                'images/novalue.png',
+                                width: 50,
+                                height: 50,
                                 fit: BoxFit.fitWidth,),
                               decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: Color(0xffe8442e)),
                             ),
-                            Text("  No minimum     \n  order value",
+                            Text("  No minimum   \n  order value",
                               style: TextStyle(
                                   color: Colors.black, fontSize: 15),),
                           ],
 
                         ),
                       ),
-                      SizedBox(
+                      /*SizedBox(
                         height: 5,
                       ),
                       Container(
@@ -1340,21 +1347,22 @@ class _HomeState extends State<Home> {
                           ],
 
                         ),
-                      ),
+                      ),*/
                     ],
                   ),
                   Image.asset(
-                    'images/delivery_boy.png',
+                    'images/delivery_boy1.png',
                     width: 145,
                     height: 160,
-                    fit: BoxFit.fitWidth,
+                    fit: BoxFit.fitHeight,
                   ),
                 ],
               ),
               SizedBox(
                 height: 5,
-              ),TextButton(
-                  //onPressed: openPartnerForm(context),
+              ),
+              TextButton(
+                  onPressed: openPartnerForm(context),
                   child: Text(
                     'Partner with us and earn',
                     style: TextStyle(color: Colors.white,
@@ -1819,13 +1827,13 @@ class _HomeState extends State<Home> {
   }
 
   openPartnerForm(contex) {
-    Navigator.of(contex)
+   /* Navigator.of(contex)
         .push(MaterialPageRoute(builder: (context) {
       return PartnerWithUsWebView();
     })).then((value) {
 
     }).catchError((e) {
       print(e);
-    });
+    });*/
   }
 }

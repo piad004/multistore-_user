@@ -367,7 +367,7 @@ class _ItemsPharmaPageState extends State<PharmaItemPage>
                                     style: TextStyle(
                                         fontSize: 7,
                                         color: kWhiteColor,
-                                        fontWeight: FontWeight.w200),
+                                        fontWeight: FontWeight.w600),
                                   ),
                                 ),
                               ))
@@ -462,7 +462,7 @@ class _ItemsPharmaPageState extends State<PharmaItemPage>
                                                 width: 93.3,
                                                     child: Image(
                                                 image: AssetImage(
-                                                      'images/logos/logo_user.png'),
+                                                      'images/logos/logo_user1.png'),
                                                 height: 93.3,
                                                 width: 93.3,
                                                       fit: BoxFit.fill,
@@ -1020,7 +1020,7 @@ class _ItemsPharmaPageState extends State<PharmaItemPage>
                           //   width: MediaQuery.of(context).size.width,
                           //   child: ,
                           // )
-                          Container(
+                         /* Container(
                             alignment: Alignment.centerRight,
                             padding: EdgeInsets.only(right: 20),
                             child: GestureDetector(
@@ -1047,7 +1047,7 @@ class _ItemsPharmaPageState extends State<PharmaItemPage>
                                 ),
                               ),
                             ),
-                          ),
+                          ),*/
                           Container(height: 15,),
                           Visibility(
                             visible: isCartCount,

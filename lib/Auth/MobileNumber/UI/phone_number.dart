@@ -158,13 +158,13 @@ class PhoneNumberState extends State<PhoneNumber> {
                       Container(
                         width: widthRender,
                         child: Image.asset(
-                          "images/logos/icon.JPEG",
-                          height: 130.0,
+                          "images/logos/icon.png",
+                          height: 80.0,
                           width: 99.7,
                         ),
                       ),
                       SizedBox(
-                        height: 20,
+                        height: 30,
                       ),
                       Container(
                         width: widthRender,

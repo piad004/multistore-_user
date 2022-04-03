@@ -471,7 +471,7 @@ class SearchRestaurantStoreState extends State<SearchRestaurantStore> {
                                                   width: 90,
                                                 )
                                               : Image.asset(
-                                                  'images/logos/logo_user.png',
+                                                  'images/logos/logo_user1.png',
                                                   height: 80,
                                                   width: 90,
                                                 ),

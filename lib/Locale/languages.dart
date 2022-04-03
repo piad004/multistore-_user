@@ -17,7 +17,7 @@ class Languages {
       'continueText': 'Continue',
       'createNewAccountText': 'Create New Account',
       'fullNameText': 'Full Name',
-      'emailAddressText': 'Email Address',
+      'emailAddressText': 'Email Address (Optional)',
       'applyreferralText': 'Apply Referral Code (Optional)',
       'termsandconditionText1': 'By signing up you accept the',
       'termsandconditionText2': 'Terms of service and Privacy Policy',
@@ -79,7 +79,8 @@ class Languages {
       'noValueCartText': 'No Item in the cart!',
       'dealOfferZoneText': 'Deal/Offer Zone',
       'noCategoryFoundStoreText': 'No category found for this store',
-      'searchStoreText': 'Search store...',
+      //'searchStoreText': 'Search store...',
+      'searchStoreText': 'Search for item/store',
       'storesFoundText': 'Stores found',
       'storesClosedText': 'Store Closed Now',
       'noStoresFoundText': 'No Store Found at your location',
@@ -121,7 +122,8 @@ class Languages {
       'cashText': 'CASH',
       'selectPymntMthdText': 'Select Payment Method',
       'onlinePaymentText': 'ONLINE PAYMENT',
-      'promoCodeText': 'Promo Code',
+      //'promoCodeText': 'Promo Code',
+      'promoCodeText': 'PROMO CODE',
       'stripeText': 'Stripe',
       'goToHomeText': 'Go To Home',
       'orderPlacedText1-1': 'Order Id',
@@ -310,7 +312,8 @@ class Languages {
       'externalwallet':'EXTERNAL WALLET',
       'ok':'Ok',
       'locationheading':'Location Services Notification',
-      'locationheadingSub':'We want your location to provide you your nearest stores by which you will make your order and get your delivery at your home our app does\'t store your location or share your location at any cost to anyone.',
+      //'locationheadingSub':'We want your location to provide you your nearest stores by which you will make your order and get your delivery at your home our app does\'t store your location or share your location at any cost to anyone.',
+      'locationheadingSub':"Allow 'Delvfast' to access your location.",
       'presstoallow':'Press To Allow',
       'alertloc11':'Location Permission Needed',
       'editProfileText':'Edit Profile'
@@ -619,7 +622,8 @@ class Languages {
       'externalwallet':'EXTERNAL WALLET',
       'ok':'Ok',
       'locationheading':'Location Services Notification',
-      'locationheadingSub':'We want your location to provide you your nearest stores by which you will make your order and get your delivery at your home our app does\'t store your location or share your location at any cost to anyone.',
+      //'locationheadingSub':'We want your location to provide you your nearest stores by which you will make your order and get your delivery at your home our app does\'t store your location or share your location at any cost to anyone.',
+      'locationheadingSub':"Allow 'Delvfast' to access your location.",
     };
   }
 
@@ -926,9 +930,9 @@ class Languages {
       'externalwallet':'EXTERNAL WALLET',
       'ok':'Ok',
       'locationheading':'Location Services Notification',
-      'locationheadingSub':'We want your location to provide you your nearest stores by which you will make your order and get your delivery at your home our app does\'t store your location or share your location at any cost to anyone.',
+      //'locationheadingSub':'We want your location to provide you your nearest stores by which you will make your order and get your delivery at your home our app does\'t store your location or share your location at any cost to anyone.',
+      'locationheadingSub':"Allow 'Delvfast' to access your location.",
     };
   }
-
 
 }

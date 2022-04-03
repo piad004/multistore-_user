@@ -60,7 +60,7 @@ class AboutUsPageState extends State<AboutUsPage>{
                 height: 220,
                 color: kCardBackgroundColor,
                 child: Image(
-                  image: AssetImage("images/logos/logo_user.png"),
+                  image: AssetImage("images/logos/logo_user1.png"),
                   centerSlice: Rect.largest,
                   fit: BoxFit.fill,
                   height: 220,

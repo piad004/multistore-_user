@@ -57,7 +57,7 @@ class TncPageState extends State<TncPage> {
               Container(
                 color: kCardBackgroundColor,
                 child: Image(
-                  image: AssetImage("images/logos/logo_user.png"),
+                  image: AssetImage("images/logos/logo_user1.png"),
                   centerSlice: Rect.largest,
                   fit: BoxFit.fill,
                   height: 220,

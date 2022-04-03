@@ -7,9 +7,154 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:166450175647:android:2b1a2e64ead36b39404caa",
+        "android_client_info": {
+          "package_name": "delfastdb.primacyinfotech.com"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "166450175647-iq8jubgbse5r96lvte1j729oo5nngpf4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjPo10KeBT51hj-dD-E2l2BxyGrSnOoY0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "166450175647-iq8jubgbse5r96lvte1j729oo5nngpf4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:166450175647:android:f901323ca05f7358404caa",
         "android_client_info": {
           "package_name": "delfastuser.primacyinfotech.com"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "166450175647-iq8jubgbse5r96lvte1j729oo5nngpf4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjPo10KeBT51hj-dD-E2l2BxyGrSnOoY0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "166450175647-iq8jubgbse5r96lvte1j729oo5nngpf4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:166450175647:android:1cc461a811741a4d404caa",
+        "android_client_info": {
+          "package_name": "delfastvendor.primacyinfotech.com"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "166450175647-iq8jubgbse5r96lvte1j729oo5nngpf4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjPo10KeBT51hj-dD-E2l2BxyGrSnOoY0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "166450175647-iq8jubgbse5r96lvte1j729oo5nngpf4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:166450175647:android:d7356e4d084914dd404caa",
+        "android_client_info": {
+          "package_name": "delivery.delvfast.com"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "166450175647-iq8jubgbse5r96lvte1j729oo5nngpf4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjPo10KeBT51hj-dD-E2l2BxyGrSnOoY0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "166450175647-iq8jubgbse5r96lvte1j729oo5nngpf4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:166450175647:android:39251ffa74fc1d6b404caa",
+        "android_client_info": {
+          "package_name": "user.delvfast.com"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "166450175647-iq8jubgbse5r96lvte1j729oo5nngpf4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjPo10KeBT51hj-dD-E2l2BxyGrSnOoY0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "166450175647-iq8jubgbse5r96lvte1j729oo5nngpf4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:166450175647:android:9092c31893575e99404caa",
+        "android_client_info": {
+          "package_name": "vendor.delvfast.com"
         }
       },
       "oauth_client": [
