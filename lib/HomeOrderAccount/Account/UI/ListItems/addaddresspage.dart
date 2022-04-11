@@ -33,6 +33,8 @@ class AddAddressPage extends StatefulWidget {
 class AddAddressState extends State<AddAddressPage> {
   var pincodeController = TextEditingController();
   var houseController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   TextEditingController streetController = TextEditingController();
   TextEditingController streetController1 = TextEditingController();
   var stateController = TextEditingController();
@@ -224,6 +226,49 @@ class AddAddressState extends State<AddAddressPage> {
                         children: [
                           SizedBox(
                             height: 30,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: EntryField(
+                                textCapitalization: TextCapitalization.words,
+                                hint: locale.name,
+                                controller: nameController,
+                                minLines: 2,
+                                maxLines: 2,
+                                readOnly: false,
+                                onTap: () {},
+                                contentPadding: EdgeInsets.only(
+                                    left: 20, top: 20, bottom: 0),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide:
+                                  BorderSide(color: kHintColor, width: 1),
+                                )),
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: EntryField(
+                                textCapitalization: TextCapitalization.words,
+                                hint: locale.emailAddressText,
+                                controller: emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                minLines: 2,
+                                maxLines: 2,
+                                readOnly: false,
+                                onTap: () {},
+                                contentPadding: EdgeInsets.only(
+                                    left: 20, top: 20, bottom: 0),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide:
+                                  BorderSide(color: kHintColor, width: 1),
+                                )),
+                          ),
+                          SizedBox(
+                            height: 15,
                           ),
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: 10),
@@ -511,6 +556,11 @@ class AddAddressState extends State<AddAddressPage> {
                         selectAreaId != '' &&
                         selectAreaId != null &&
                         selectAreaId != '' &&*/
+                        nameController.text != null &&
+                       /* emailController.text != null &&
+                        (emailController.text.isEmpty ||
+                            !emailController.text.contains('@') ||
+                            !emailController.text.contains('.')) &&*/
                         houseController.text != null &&
                         houseController.text != '' &&
                         streetController.text != null &&
@@ -525,6 +575,8 @@ class AddAddressState extends State<AddAddressPage> {
                       addAddres(
                           selectAreaId,
                           selectCityId,
+                          nameController.text,
+                          emailController.text,
                           houseController.text,
                           '${streetController.text}',
                           streetController1.text,
@@ -584,6 +636,8 @@ class AddAddressState extends State<AddAddressPage> {
   void addAddres(
       dynamic area_id,
       dynamic city_id,
+      name,
+      email,
       house_no,
       String street,
       String street1,
@@ -609,10 +663,14 @@ class AddAddressState extends State<AddAddressPage> {
     var locale = AppLocalizations.of(context);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String vendorId = prefs.getString('vendor_id');
+    String phVendorId = prefs.getString('ph_vendor_id');
+
     var url = addAddress;
     http.post(url, body: {
       'user_id': '${prefs.getInt('user_id')}',
-      'user_name': '${prefs.getString('user_name')}',
+      //'user_name': '${prefs.getString('user_name')}',
+      'user_name': name,
+      'user_email':email,
       'user_number': '${prefs.getString('user_phone')}',
       /*'area_id': '$area_id',
       'city_id': '$city_id',*/
@@ -625,7 +683,7 @@ class AddAddressState extends State<AddAddressPage> {
       'lat': '${lat}',
       'lng': '${lng}',
       'address_type': '${addressType}',
-      'vendor_id': '${vendorId}',
+      'vendor_id': '${(vendorId==null)?phVendorId:vendorId}',
     }).then((value) {
       print('Response Body: - ${value.body}');
       if (value.statusCode == 200) {

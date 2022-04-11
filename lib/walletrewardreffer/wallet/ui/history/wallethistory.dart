@@ -51,6 +51,7 @@ class WalletHistoryState extends State<WalletHistoryPage> {
     client.post(url, body: {
       'user_id': '${userId}',
     }).then((value) {
+      var resp=value.body;
       if (value.statusCode == 200) {
         var jsonData = jsonDecode(value.body);
         if (jsonData['status'] == "1") {

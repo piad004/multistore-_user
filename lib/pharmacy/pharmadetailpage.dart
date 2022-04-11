@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:user/Components/custom_appbar.dart';
+import 'package:user/HomeOrderAccount/Home/UI/Search.dart';
 import 'package:user/HomeOrderAccount/Home/UI/appcategory/uploadprescription.dart';
 import 'package:user/Locale/locales.dart';
 import 'package:user/Routes/routes.dart';
@@ -257,21 +258,33 @@ class _ItemsPharmaPageState extends State<PharmaItemPage>
                           color: kHintColor,
                         ),
                         hintText: locale.searchCategoryText,
-                        suffixIcon: IconButton(
+                       /* suffixIcon: IconButton(
                           onPressed: () {
-                            setState(() {
+                           *//* setState(() {
                               isSearchOpen = !isSearchOpen;
-                            });
+                            });*//*
+
                           },
                           icon: Icon(
                             Icons.close,
                             color: kHintColor,
                           ),
-                        ),
+                        ),*/
                       ),
                       cursorColor: kMainColor,
                       autofocus: false,
-                      onChanged: (value) {
+                      readOnly: true,
+                      onTap: (){
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SearchPage(
+                                    '["all"]','3',
+                                    '',widget.vendor_id,''))).then((value) {
+                          getCartCount();
+                        });
+                      },
+                      /*onChanged: (value) {
                         setState(() {
                           categoryList3 = categoryList3Search
                               .where((element) => element.product_name
@@ -280,7 +293,7 @@ class _ItemsPharmaPageState extends State<PharmaItemPage>
                               .contains(value.toLowerCase()))
                               .toList();
                         });
-                      },
+                      },*/
                     ),
                   ),
                 ),
@@ -331,8 +344,16 @@ class _ItemsPharmaPageState extends State<PharmaItemPage>
                             color: kHintColor,
                           ),
                           onPressed: () {
-                            setState(() {
+                           /* setState(() {
                               isSearchOpen = !isSearchOpen;
+                            });*/
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => SearchPage(
+                                        '["all"]','PHARMACY',
+                                        '',widget.vendor_id,''))).then((value) {
+                              getCartCount();
                             });
                           }),
                     ),

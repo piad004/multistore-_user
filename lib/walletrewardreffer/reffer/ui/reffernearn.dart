@@ -19,6 +19,8 @@ class RefferScreen extends StatefulWidget {
 
 class RefferScreenState extends State<RefferScreen> {
   var refferText = '';
+  var refferTitle = '';
+  var refferMessage = '';
   var appLink = '';
 
   var refferCode = '';
@@ -48,6 +50,8 @@ class RefferScreenState extends State<RefferScreen> {
         var dataList = jsonData['data'] as List;
         setState(() {
           refferText = '${dataList[0]['reffer_message']}';
+          refferMessage = '${dataList[0]['static_msg']}';
+          refferTitle = '${dataList[0]['static_head']}';
           appLink = dataList[0]['app_link'];
         });
       }
@@ -148,30 +152,30 @@ class RefferScreenState extends State<RefferScreen> {
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 10),
                         child: Text(
-                         // '${refferText}',
-                          '\nRefer your friends and get Rs.50 delvfast cash for each refer.\n',
+                         "\n"+refferTitle+"\n",
+                          //'\nRefer your friends and get Rs.50 delvfast cash for each refer.\n',
                           textAlign: TextAlign.left,
                           style: TextStyle(
                               /*fontWeight: FontWeight.w800,
                               fontSize: 25,*/
                               fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                              fontSize: 17,
                               color: kMainTextColor),
                         ),
                       ),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 10),
                         child: Text(
-                         // '${refferText}',
-                          'How it works\n'
+                          '${refferMessage}',
+                         /* 'How it works\n'
                         '1.Share your referral link with your friends\n'
-                        '2. When your friends click on your referral link or sign up through your referral code, your friends will get Rs.50 Delvfast cash on sign up and you will get Rs.50 when they complete their first order of Rs.200 or above..\n',
+                        '2. When your friends click on your referral link or sign up through your referral code, your friends will get Rs.50 Delvfast cash on sign up and you will get Rs.50 when they complete their first order of Rs.200 or above..\n',*/
                           textAlign: TextAlign.left,
                           style: TextStyle(
                               /*fontWeight: FontWeight.w800,
                               fontSize: 25,*/
-                              fontWeight: FontWeight.normal,
-                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 15,
                               color: kMainTextColor),
                         ),
                       ),

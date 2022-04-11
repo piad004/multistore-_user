@@ -167,13 +167,13 @@ class _SavedAddressesState extends State<SavedAddresses> {
               showAddressList.clear();
               showAddressList = tagObjs;
               if (addressDelivery.length > 0) {
-                int index = addressDelivery.indexOf(ShowAddressNew('', '', '', '', '', '', '',
+                int index = addressDelivery.indexOf(ShowAddressNew('','', '', '', '', '', '', '',
                     '', '', '', '', '1', '', '', '', '','','','','',''));
                 idd1 = index;
                 print('eed - $idd1');
                 deleteAddressList();
               }else{
-                int index1 = showAddressList.indexOf(ShowAddress('', '', '', '', '', '', '',
+                int index1 = showAddressList.indexOf(ShowAddress('','', '', '', '', '', '', '',
                     '', '', '', '', '1', '', '', '', '','','','','','',''));
                 idd = index1;
                 print('${idd}');
@@ -302,6 +302,12 @@ class _SavedAddressesState extends State<SavedAddresses> {
                                                           builder:
                                                               (context) {
                                                             return EditAddresspage(
+                                                              addressDelivery[
+                                                              index]
+                                                                  .userName,
+                                                              addressDelivery[
+                                                              index]
+                                                                  .userEmail,
                                                               addressDelivery[
                                                               index]
                                                                   .pincode,
@@ -456,6 +462,12 @@ class _SavedAddressesState extends State<SavedAddresses> {
                                                                 builder:
                                                                     (context) {
                                                                   return EditAddresspage(
+                                                                      showAddressList[
+                                                                      index]
+                                                                          .user_name,
+                                                                      showAddressList[
+                                                                      index]
+                                                                          .user_email,
                                                                       showAddressList[
                                                                       index]
                                                                           .pincode,

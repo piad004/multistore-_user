@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:user/Components/custom_appbar.dart';
+import 'package:user/HomeOrderAccount/Home/UI/Search.dart';
 import 'package:user/Locale/locales.dart';
 import 'package:user/Routes/routes.dart';
 import 'package:user/Themes/colors.dart';
@@ -167,14 +168,25 @@ class StoresPharmaPageState extends State<StoresPharmaPage> {
                     ),
                     cursorColor: kMainColor,
                     autofocus: false,
-                    onChanged: (value) {
+                    readOnly: true,
+                    onTap: (){
+                  Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                  builder: (context) => SearchPage(
+                  '["all"]','3',
+                  vendor_category_id,nearStoresSearch[0].vendor_id,''))).then((value) {
+                  getCartCount();
+                  });
+                    },
+                    /*onChanged: (value) {
                       nearStores = nearStoresSearch
                           .where((element) => element.vendor_name
                               .toString()
                               .toLowerCase()
                               .contains(value.toLowerCase()))
                           .toList();
-                    },
+                    },*/
                   ),
                 ),
                 preferredSize:

@@ -46,6 +46,7 @@ class ShowAddress{
   dynamic created_at;
   dynamic updated_at;
   dynamic user_name;
+  dynamic user_email;
   dynamic user_number;
   dynamic select_status;
   dynamic cityadmin_id;
@@ -71,6 +72,7 @@ class ShowAddress{
       this.created_at,
       this.updated_at,
       this.user_name,
+      this.user_email,
       this.user_number,
       this.select_status,
       this.cityadmin_id,
@@ -86,13 +88,13 @@ class ShowAddress{
 
 
   factory ShowAddress.fromJson(dynamic json){
-    return ShowAddress(json['address_id'], json['user_id'], json['city_id'], json['area_id'], json['address'], json['lat'], json['lng'], json['created_at'], json['updated_at'], json['user_name'], json['user_number'], json['select_status'], json['cityadmin_id'], json['area_name'], json['delivery_charge'], json['cod'], json['vendor_id'],json['houseno'],json['pincode'],json['state'],json['type'],json['street']);
+    return ShowAddress(json['address_id'], json['user_id'], json['city_id'], json['area_id'], json['address'], json['lat'], json['lng'], json['created_at'], json['updated_at'], json['user_name'], json['user_email'], json['user_number'], json['select_status'], json['cityadmin_id'], json['area_name'], json['delivery_charge'], json['cod'], json['vendor_id'],json['houseno'],json['pincode'],json['state'],json['type'],json['street']);
   }
 
 
   @override
   String toString() {
-    return 'ShowAddress{address_id: $address_id, user_id: $user_id, city_id: $city_id, area_id: $area_id, address: $address, lat: $lat, lng: $lng, created_at: $created_at, updated_at: $updated_at, user_name: $user_name, user_number: $user_number, select_status: $select_status, cityadmin_id: $cityadmin_id, area_name: $area_name, delivery_charge: $delivery_charge, cod: $cod, vendor_id: $vendor_id, houseno: $houseno, pincode: $pincode, state: $state, type: $type, street: $street}';
+    return 'ShowAddress{address_id: $address_id, user_id: $user_id, city_id: $city_id, area_id: $area_id, address: $address, lat: $lat, lng: $lng, created_at: $created_at, updated_at: $updated_at, user_name: $user_name, user_email: $user_email, user_number: $user_number, select_status: $select_status, cityadmin_id: $cityadmin_id, area_name: $area_name, delivery_charge: $delivery_charge, cod: $cod, vendor_id: $vendor_id, houseno: $houseno, pincode: $pincode, state: $state, type: $type, street: $street}';
   }
 
   @override
@@ -155,6 +157,7 @@ class ShowAddressNew {
   dynamic createdAt;
   dynamic updatedAt;
   dynamic userName;
+  dynamic userEmail;
   dynamic userNumber;
   dynamic selectStatus;
   dynamic houseno;
@@ -178,6 +181,7 @@ class ShowAddressNew {
       this.createdAt,
       this.updatedAt,
       this.userName,
+      this.userEmail,
       this.userNumber,
       this.selectStatus,
       this.houseno,
@@ -202,6 +206,7 @@ class ShowAddressNew {
         json['created_at'],
         json['updated_at'],
         json['user_name'],
+        json['user_email'],
         json['user_number'],
         json['select_status'],
         json['houseno'],
@@ -217,7 +222,7 @@ class ShowAddressNew {
 
   @override
   String toString() {
-    return '{addressId: $addressId, userId: $userId, cityId: $cityId, areaId: $areaId, address: $address, lat: $lat, lng: $lng, createdAt: $createdAt, updatedAt: $updatedAt, userName: $userName, userNumber: $userNumber, selectStatus: $selectStatus, houseno: $houseno, pincode: $pincode, state: $state, street: $street, vendor_area_id: $vendor_area_id, delivery_charge: $delivery_charge, cod: $cod, vendor_id: $vendor_id, type: $type}';
+    return '{addressId: $addressId, userId: $userId, cityId: $cityId, areaId: $areaId, address: $address, lat: $lat, lng: $lng, createdAt: $createdAt, updatedAt: $updatedAt, userName: $userName,userEmail: $userEmail, userNumber: $userNumber, selectStatus: $selectStatus, houseno: $houseno, pincode: $pincode, state: $state, street: $street, vendor_area_id: $vendor_area_id, delivery_charge: $delivery_charge, cod: $cod, vendor_id: $vendor_id, type: $type}';
   }
 
   @override

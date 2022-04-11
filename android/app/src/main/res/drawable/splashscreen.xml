@@ -4,7 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@color/colorRed" />
     <item android:gravity="center"
-        android:height="330dp"
+        android:height="360dp"
         android:width="260dp"
         android:drawable="@drawable/splash"
         tools:ignore="UnusedAttribute">

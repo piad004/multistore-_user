@@ -29,6 +29,8 @@ class OrderPlaced extends StatelessWidget {
       db.deleteAllAddOns();
     } else if (uiType == "3") {
       clearCart(db);
+    }else if (uiType == "5") {
+     db.deleteAllPharma();
     }
   }
 
@@ -84,12 +86,12 @@ class OrderPlaced extends StatelessWidget {
               ),
             ),
             BottomBar(
-              text: 'Track Your Order',
+              text: 'Explore More',
               //text: locale.goToHomeText,
               onTap: () {
+                changeMenuIndex();
                 Navigator.of(context).pushNamedAndRemoveUntil(PageRoutes.homeOrderAccountPage, (Route<dynamic> route) => false);
-                //Navigator.pushNamed(context, PageRoutes.orderPage);
-          changeMenuIndex();
+                //Navigator.pushNamed(context, PageRoutes.homePage);
               },
             )
           ],

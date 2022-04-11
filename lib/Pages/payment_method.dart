@@ -90,6 +90,8 @@ class PaymentPageState extends State<PaymentPage> {
   bool iswallet = false;
   bool isCoupon = false;
   double coupAmount = 0.0;
+  var appliedCouponCode ='';
+  TextEditingController couponController = TextEditingController();
 
   PaymentPageState(
       this.order_id, this.cart_id, this.totalAmount, this.paymentVia);
@@ -131,11 +133,12 @@ class PaymentPageState extends State<PaymentPage> {
       if (value.statusCode == 200 && jsonDecode(value.body)['status'] == "1") {
         var jsonData = jsonDecode(value.body);
         walletUsedAmountPercent =
-            double.parse(jsonData['wallet_deduct_percentg']);
+            double.parse(jsonData['wallet_deduct_percentg'].toString().trim());
         var dataList = jsonData['data'] as List;
         setState(() {
-          walletAmount = double.parse('${dataList[0]['wallet_credits']}');
+          walletAmount = double.parse('${dataList[0]['wallet_credits'].toString().trim()}');
 
+          //walletAmount = double.parse('${'5000'}');
           walletUsedAmount = (totalAmount * walletUsedAmountPercent) / 100;
 
           if (walletUsedAmount > walletAmount) {
@@ -334,14 +337,17 @@ class PaymentPageState extends State<PaymentPage> {
       'coupon_code': '$couponCode',
       'cart_id': cart_id.toString()
     }).then((value) {
+      var jsonData1 = (value.body);
       if (value != null && value.statusCode == 200) {
         var jsonData = jsonDecode(value.body);
         if (jsonData['status'] == "1") {
+          appliedCouponCode = couponCode;
           CartDetail details = CartDetail.fromJson(jsonData['data']);
           setState(() {
             isCoupon = true;
             totalAmount = double.parse(details.rem_price.toString());
             coupAmount = double.parse('${details.coupon_discount}');
+
             if (totalAmount > walletAmount) {
               if (walletAmount > 0.0) {
                 iswallet = true;
@@ -375,12 +381,15 @@ class PaymentPageState extends State<PaymentPage> {
             showDialogBox = false;
           });
         } else if (jsonData['status'] == "2") {
+          appliedCouponCode = '';
           CartDetail details = CartDetail.fromJson(jsonData['data']);
           setState(() {
             isCoupon = false;
             totalAmount = double.parse(details.total_price.toString());
             coupAmount = 0.0;
-            if (totalAmount > walletAmount) {
+            walletUsedAmount = (totalAmount * walletUsedAmountPercent) / 100;
+
+            if (walletUsedAmount >= walletAmount) {
               if (walletAmount > 0.0) {
                 iswallet = true;
               } else {
@@ -390,9 +399,9 @@ class PaymentPageState extends State<PaymentPage> {
               //walletUsedAmount = walletAmount;
               // walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
               //totalAmount = totalAmount - walletUsedAmount;
-              walletUsedAmount = 0.0;
-              totalAmount = newtotalAmount - coupAmount;
-            } else if (totalAmount < walletAmount) {
+              walletUsedAmount = walletAmount;
+              totalAmount = newtotalAmount - walletUsedAmount;
+            } else if (walletUsedAmount <= walletAmount) {
               if (walletAmount > 0.0) {
                 iswallet = true;
               } else {
@@ -403,8 +412,8 @@ class PaymentPageState extends State<PaymentPage> {
               //walletUsedAmount = newtotalAmount;
               //walletUsedAmount = (walletAmount*walletUsedAmountPercent)/100;
               //totalAmount = totalAmount-walletUsedAmount;
-              walletUsedAmount = 0.0;
-              totalAmount = newtotalAmount - coupAmount;
+
+              totalAmount = newtotalAmount - walletUsedAmount;
             } else {
               iswallet = false;
               walletUsedAmount = 0.0;
@@ -1419,20 +1428,62 @@ class PaymentPageState extends State<PaymentPage> {
                                   ],
                                 ),
                               ),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 8.0, horizontal: 16.0),
-                                color: kCardBackgroundColor,
-                                child: Text(
-                                  locale.promoCodeText,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .caption
-                                      .copyWith(
+                              Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 8.0, horizontal: 16.0),
+                                    color: kCardBackgroundColor,
+                                    child: Text(
+                                      locale.promoCodeText,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .caption
+                                          .copyWith(
                                           color: kDisabledColor,
                                           fontWeight: FontWeight.bold,
                                           letterSpacing: 0.67),
-                                ),
+                                    ),
+                                  ),
+                                  Visibility(
+                                    visible: appliedCouponCode.isNotEmpty?true:false,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          radioId = -1;
+                                          showDialogBox =
+                                          true;
+                                          appCoupon(
+                                              appliedCouponCode,
+                                              context);
+                                          couponController.clear();
+                                        });
+                                      },
+                                      child: Container(
+                                        margin: EdgeInsets.symmetric(
+                                            horizontal: 16.0),
+                                        alignment: Alignment.center,
+                                        width: MediaQuery.of(context).size.width *
+                                            0.18,
+                                        height: 25,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                            BorderRadius.circular(20),
+                                            color: kMainColor),
+                                        child: Text(
+                                          'Clear',
+                                          textAlign: TextAlign.start,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w300,
+                                              fontSize: 14,
+                                              color: kWhiteColor),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                               Divider(
                                 color: kCardBackgroundColor,
@@ -1504,6 +1555,7 @@ class PaymentPageState extends State<PaymentPage> {
                                           GestureDetector(
                                             onTap: () {
                                               setState(() {
+                                                if(promocode!=null && promocode!=''){
                                                 if (totalAmount != 0.0) {
                                                   visiblity = !visiblity;
                                                   setProgressText =
@@ -1519,6 +1571,13 @@ class PaymentPageState extends State<PaymentPage> {
                                                           Toast.LENGTH_SHORT,
                                                       gravity: Toast.CENTER);
                                                 }
+                                                }else
+                                                  Toast.show(
+                                                      "Empty promo code!!",
+                                                      context,
+                                                      duration:
+                                                      Toast.LENGTH_SHORT,
+                                                      gravity: Toast.CENTER);
                                               });
                                             },
                                             child: Container(
@@ -1577,7 +1636,12 @@ class PaymentPageState extends State<PaymentPage> {
                                                   children: [
                                                     Expanded(
                                                         child: Text(
-                                                            '${couponL[t].coupon_code}\n${couponL[t].coupon_description}')),
+                                                            '${couponL[t].coupon_code}\n${couponL[t].coupon_description}',
+                                                          style: TextStyle(
+                                                              fontWeight: FontWeight.w300,
+                                                              fontSize: 14,
+                                                              color: kMainTextColor),
+                                                            )),
                                                     Radio(
                                                         value: t,
                                                         groupValue: radioId,

@@ -68,7 +68,7 @@ class _HomeOrderAccountState extends State<HomeOrderAccount> {
     setFirebase();
     _navigationController =
     new CircularBottomNavigationController(_currentIndex);
-    setMenuIndex();
+    //setMenuIndex();
     getCurrency();
   }
 

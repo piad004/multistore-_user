@@ -18,6 +18,8 @@ import 'package:user/bean/latlng.dart';
 import 'package:user/Routes/routes.dart';
 
 class EditAddresspage extends StatefulWidget {
+  final dynamic name;
+  final dynamic email;
   final dynamic pincode;
   final dynamic houseno;
   final dynamic address;
@@ -30,7 +32,8 @@ class EditAddresspage extends StatefulWidget {
   final String lat;
   final String lng;
 
-  EditAddresspage(
+  EditAddresspage(this.name,
+      this.email,
       this.pincode,
       this.houseno,
       this.address,
@@ -46,11 +49,21 @@ class EditAddresspage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
     return EditAddresspageState(
-        pincode, houseno, address, state, type, lat, lng);
+        name,
+        email,
+        pincode,
+        houseno,
+        address,
+        state,
+        type,
+        lat,
+        lng);
   }
 }
 
 class EditAddresspageState extends State<EditAddresspage> {
+  TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   TextEditingController pincodeController = TextEditingController();
   TextEditingController houseController = TextEditingController();
   TextEditingController streetController = TextEditingController();
@@ -78,8 +91,10 @@ class EditAddresspageState extends State<EditAddresspage> {
   dynamic selectAreaId;
   dynamic selectCityId;
 
-  EditAddresspageState(
-      pincode, houseno, address, state, type, String latd, String lngd) {
+  EditAddresspageState(name, email, pincode, houseno, address, state, type,
+      String latd, String lngd) {
+    nameController.text = '${name}';
+    emailController.text = '${email}';
     pincodeController.text = '${pincode}';
     houseController.text = '${houseno}';
     stateController.text = state;
@@ -109,7 +124,7 @@ class EditAddresspageState extends State<EditAddresspage> {
         if (jsonData['status'] == "1") {
           var tagObjsJson = jsonDecode(value.body)['data'] as List;
           List<CityList> tagObjs =
-              tagObjsJson.map((tagJson) => CityList.fromJson(tagJson)).toList();
+          tagObjsJson.map((tagJson) => CityList.fromJson(tagJson)).toList();
           if (tagObjs != null && tagObjs.length > 0) {
             setState(() {
               cityListt.clear();
@@ -120,7 +135,7 @@ class EditAddresspageState extends State<EditAddresspage> {
             });
             List<CityList> tagObjs1 = tagObjs
                 .where((element) =>
-                    element.city_id.toString() == '${widget.city_id}')
+            element.city_id.toString() == '${widget.city_id}')
                 .toList();
             if (tagObjs1 != null && tagObjs1.length > 0) {
               setState(() {
@@ -163,7 +178,7 @@ class EditAddresspageState extends State<EditAddresspage> {
         if (jsonData['status'] == "1") {
           var tagObjsJson = jsonDecode(value.body)['data'] as List;
           List<AreaList> tagObjs =
-              tagObjsJson.map((tagJson) => AreaList.fromJson(tagJson)).toList();
+          tagObjsJson.map((tagJson) => AreaList.fromJson(tagJson)).toList();
           if (tagObjs != null && tagObjs.length > 0) {
             setState(() {
               areaList.clear();
@@ -171,7 +186,7 @@ class EditAddresspageState extends State<EditAddresspage> {
             });
             List<AreaList> tagObjs1 = tagObjs
                 .where((element) =>
-                    element.area_id.toString() == '${widget.area_id}')
+            element.area_id.toString() == '${widget.area_id}')
                 .toList();
             if (tagObjs1 != null && tagObjs1.length > 0) {
               setState(() {
@@ -208,7 +223,7 @@ class EditAddresspageState extends State<EditAddresspage> {
         if (jsonData['status'] == "1") {
           var tagObjsJson = jsonDecode(value.body)['data'] as List;
           List<AreaList> tagObjs =
-              tagObjsJson.map((tagJson) => AreaList.fromJson(tagJson)).toList();
+          tagObjsJson.map((tagJson) => AreaList.fromJson(tagJson)).toList();
           if (tagObjs != null && tagObjs.length > 0) {
             setState(() {
               areaList.clear();
@@ -230,7 +245,10 @@ class EditAddresspageState extends State<EditAddresspage> {
   Widget build(BuildContext context) {
     var locale = AppLocalizations.of(context);
     double appbarsize = AppBar().preferredSize.height;
-    double statusBarHeight = MediaQuery.of(context).padding.top;
+    double statusBarHeight = MediaQuery
+        .of(context)
+        .padding
+        .top;
     if (!enteredFirst) {
       setState(() {
         enteredFirst = true;
@@ -252,13 +270,22 @@ class EditAddresspageState extends State<EditAddresspage> {
         titleSpacing: 0.0,
         title: Text(
           locale.editAddress,
-          style: Theme.of(context).textTheme.bodyText1,
+          style: Theme
+              .of(context)
+              .textTheme
+              .bodyText1,
         ),
       ),
       body: Container(
-        width: MediaQuery.of(context).size.width,
+        width: MediaQuery
+            .of(context)
+            .size
+            .width,
         height:
-            MediaQuery.of(context).size.height - (appbarsize + statusBarHeight),
+        MediaQuery
+            .of(context)
+            .size
+            .height - (appbarsize + statusBarHeight),
         child: Column(
           children: [
             Expanded(
@@ -271,7 +298,51 @@ class EditAddresspageState extends State<EditAddresspage> {
                         children: [
                           SizedBox(
                             height: 30,
-                          ), Padding(
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: EntryField(
+                                textCapitalization: TextCapitalization.words,
+                                hint: locale.name,
+                                controller: nameController,
+                                minLines: 2,
+                                maxLines: 2,
+                                readOnly: false,
+                                onTap: () {},
+                                contentPadding: EdgeInsets.only(
+                                    left: 20, top: 20, bottom: 0),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide:
+                                  BorderSide(color: kHintColor, width: 1),
+                                )),
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: EntryField(
+                                textCapitalization: TextCapitalization.words,
+                                hint: locale.emailAddressText,
+                                controller: emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                minLines: 2,
+                                maxLines: 2,
+                                readOnly: false,
+                                onTap: () {},
+                                contentPadding: EdgeInsets.only(
+                                    left: 20, top: 20, bottom: 0),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide:
+                                  BorderSide(color: kHintColor, width: 1),
+                                )),
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Padding(
                             padding: EdgeInsets.symmetric(horizontal: 10),
                             child: EntryField(
                                 textCapitalization: TextCapitalization.words,
@@ -280,7 +351,7 @@ class EditAddresspageState extends State<EditAddresspage> {
                                 minLines: 2,
                                 readOnly: true,
                                 onTap: () {
-                                 /* Navigator.pushNamed(
+                                  /* Navigator.pushNamed(
                                       context, PageRoutes.searchloc)
                                       .then((value) {
                                     if (value != null) {
@@ -292,9 +363,10 @@ class EditAddresspageState extends State<EditAddresspage> {
                                     }
                                   });*/
                                   Navigator.of(context)
-                                      .push(MaterialPageRoute(builder: (context) {
-                                    return LocationPage(lat, lng,true);
-                                  })).then((value) {
+                                      .push(
+                                      MaterialPageRoute(builder: (context) {
+                                        return LocationPage(lat, lng, true);
+                                      })).then((value) {
                                     if (value != null) {
                                       print('${value.toString()}');
                                       BackLatLng back = value;
@@ -338,7 +410,10 @@ class EditAddresspageState extends State<EditAddresspage> {
                             height: 15,
                           ),
                           Container(
-                            width: MediaQuery.of(context).size.width * 0.95,
+                            width: MediaQuery
+                                .of(context)
+                                .size
+                                .width * 0.95,
                             padding: EdgeInsets.symmetric(horizontal: 10),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10.0),
@@ -368,7 +443,7 @@ class EditAddresspageState extends State<EditAddresspage> {
                           SizedBox(
                             height: 15,
                           ),
-                         /* Row(
+                          /* Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               Container(
@@ -455,10 +530,13 @@ class EditAddresspageState extends State<EditAddresspage> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               Container(
-                                width: MediaQuery.of(context).size.width * 0.45,
+                                width: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width * 0.45,
                                 child: EntryField(
                                     textCapitalization:
-                                        TextCapitalization.words,
+                                    TextCapitalization.words,
                                     hint: locale.housenotext,
                                     controller: houseController,
                                     maxLines: 1,
@@ -469,10 +547,13 @@ class EditAddresspageState extends State<EditAddresspage> {
                                     )),
                               ),
                               Container(
-                                width: MediaQuery.of(context).size.width * 0.45,
+                                width: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width * 0.45,
                                 child: EntryField(
                                     textCapitalization:
-                                        TextCapitalization.words,
+                                    TextCapitalization.words,
                                     hint: locale.enteryourpincode,
                                     controller: pincodeController,
                                     border: OutlineInputBorder(
@@ -487,7 +568,10 @@ class EditAddresspageState extends State<EditAddresspage> {
                             height: 15,
                           ),
                           Container(
-                            width: MediaQuery.of(context).size.width * 0.95,
+                            width: MediaQuery
+                                .of(context)
+                                .size
+                                .width * 0.95,
                             child: EntryField(
                                 textCapitalization: TextCapitalization.words,
                                 hint: locale.state,
@@ -496,7 +580,7 @@ class EditAddresspageState extends State<EditAddresspage> {
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                   borderSide:
-                                      BorderSide(color: kHintColor, width: 1),
+                                  BorderSide(color: kHintColor, width: 1),
                                 )),
                           ),
                           SizedBox(
@@ -508,50 +592,63 @@ class EditAddresspageState extends State<EditAddresspage> {
                     ),
                     Positioned.fill(
                         child: Visibility(
-                      visible: showDialogBox,
-                      child: GestureDetector(
-                        onTap: () {},
-                        child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.height - 100,
-                          alignment: Alignment.center,
-                          child: SizedBox(
-                            height: 120,
-                            width: MediaQuery.of(context).size.width * 0.9,
-                            child: Material(
-                              elevation: 5,
-                              borderRadius: BorderRadius.circular(20),
-                              clipBehavior: Clip.hardEdge,
-                              child: Container(
-                                color: white_color,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    CircularProgressIndicator(),
-                                    SizedBox(
-                                      width: 20,
+                          visible: showDialogBox,
+                          child: GestureDetector(
+                            onTap: () {},
+                            child: Container(
+                              width: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width,
+                              height: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .height - 100,
+                              alignment: Alignment.center,
+                              child: SizedBox(
+                                height: 120,
+                                width: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width * 0.9,
+                                child: Material(
+                                  elevation: 5,
+                                  borderRadius: BorderRadius.circular(20),
+                                  clipBehavior: Clip.hardEdge,
+                                  child: Container(
+                                    color: white_color,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment
+                                          .center,
+                                      children: <Widget>[
+                                        CircularProgressIndicator(),
+                                        SizedBox(
+                                          width: 20,
+                                        ),
+                                        Text(
+                                          locale.loadingPleaseWait,
+                                          style: TextStyle(
+                                              color: kMainTextColor,
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 20),
+                                        )
+                                      ],
                                     ),
-                                    Text(
-                                      locale.loadingPleaseWait,
-                                      style: TextStyle(
-                                          color: kMainTextColor,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 20),
-                                    )
-                                  ],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                    )),
+                        )),
                   ],
                 ),
               ),
             ),
             Container(
-              height: (MediaQuery.of(context).size.height - 77) * 0.1,
+              height: (MediaQuery
+                  .of(context)
+                  .size
+                  .height - 77) * 0.1,
               padding: EdgeInsets.symmetric(horizontal: 30),
               child: Align(
                 alignment: Alignment.bottomCenter,
@@ -563,6 +660,11 @@ class EditAddresspageState extends State<EditAddresspage> {
                         selectAreaId != '' &&
                         selectAreaId != null &&
                         selectAreaId != '' &&*/
+                        nameController.text != null &&
+                        /*emailController.text != null &&
+                        (emailController.text.isEmpty ||
+                            !emailController.text.contains('@') ||
+                            !emailController.text.contains('.')) &&*/
                         houseController.text != null &&
                         houseController.text != '' &&
                         streetController.text != null &&
@@ -577,6 +679,8 @@ class EditAddresspageState extends State<EditAddresspage> {
                       addAddres(
                           selectAreaId,
                           selectCityId,
+                          nameController.text,
+                          emailController.text,
                           houseController.text,
                           '${streetController.text}',
                           streetController1.text,
@@ -629,9 +733,10 @@ class EditAddresspageState extends State<EditAddresspage> {
 
   }
 
-  void addAddres(
-      dynamic area_id,
+  void addAddres(dynamic area_id,
       dynamic city_id,
+      name,
+      email,
       house_no,
       String street,
       String street1,
@@ -659,8 +764,10 @@ class EditAddresspageState extends State<EditAddresspage> {
     http.post(url, body: {
       'address_id': '${widget.address_id}',
       'user_id': '${prefs.getInt('user_id')}',
-      'user_name': '${prefs.getString('user_name')}',
+      //'user_name': '${prefs.getString('user_name')}',
+      'user_name': name,
       'user_number': '${prefs.getString('user_phone')}',
+      'user_email':email,
       /*'area_id': '$area_id',
       'city_id': '$city_id',*/
       'area_id': '',
@@ -674,7 +781,8 @@ class EditAddresspageState extends State<EditAddresspage> {
       'address_type': '${addressType}',
       'vendor_id': '${widget.vendorid}',
     }).then((value) {
-      print('Response Body: - ${value.body}'+widget.vendorid+'::'+pincode);
+      print(
+          'Response Body: - ${value.body}' + widget.vendorid + '::' + pincode);
       if (value.statusCode == 200) {
         var jsonData = jsonDecode(value.body);
         if (jsonData['status'] == "1") {

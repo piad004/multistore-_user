@@ -491,6 +491,19 @@ class _SearchState extends State<SearchPage> {
                                       // setList(searchList);
                                       getCartCount();
                                     });
+                                  }else if (searchList[index]
+                                          .type
+                                          .toString() ==
+                                      "mp") {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => PharmaItemPage(
+                                                searchList[index].vendorName, searchList[index].vendorId,
+                                                searchList[index].deliveryRange,searchList[index].distance)))
+                                        .then((value) {
+                                      getCartCount();
+                                    });
                                   }
                                 } else {
                                   Toast.show(locale.storesClosedText, context,
@@ -732,16 +745,20 @@ class _SearchState extends State<SearchPage> {
         uiType.toString() == "Resturant" ||
         uiType.toString() == "2")
       type='["resturant_product"]';
+    else if(uiType.toString()=="3")
+      type='["all"]';
+    else if(uiType.toString().toUpperCase()=="PHARMACY")
+      type='["medicine_product"]';
 
-    print('vendor cat;;;;'+vendorCatId.toString()+"vendor_id"+ vendorId+"subcat_id"+subCatId);
+    print('vendor cat;;;;'+vendorCatId.toString()+"vendor_id"+ vendorId.toString()+"subcat_id"+subCatId.toString());
     var url = searchUrl;
     http.post(url, body: {
       "type": type,
-      "vendor_id": vendorId,
-      "subcat_id": subCatId,
+      "vendor_id": vendorId.toString(),
+      "subcat_id": subCatId.toString(),
       //"type": '$searchType',
       "keyword": '${searchValue.toString()}',
-      "vendor_cat_id": '$vendorCatId',
+      "vendor_cat_id": vendorCatId.toString(),
       "lat": '${lat.toString()}',
       "lng": '${lng.toString()}',
     }).then((response) {

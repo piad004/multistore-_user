@@ -393,6 +393,9 @@ class _OtpVerifyState extends State<OtpVerify> {
         setState(() {
           showDialogBox = false;
         });
+
+        Toast.show("Something went wrong!", context,
+            gravity: Toast.BOTTOM);
       });
     } else {
       messaging.getToken().then((value) {

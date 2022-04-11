@@ -70,6 +70,7 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
     String vendor_cat_id = prefs.getString('vendor_cat_id');
     String ui_type = prefs.getString('ui_type');
     dynamic vendor_id = prefs.getString('ph_vendor_id');
+
     setState(() {
       currency = prefs.getString('curency');
       if (storename != null && storename.length > 0) {
@@ -1015,6 +1016,7 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
   void createCart(BuildContext context, AppLocalizations locale) async {
     if (cartListI != null && cartListI.length > 0) {
       if (totalAmount != null && totalAmount > 0.0 && addressDelivery != null) {
+
         SharedPreferences pref = await SharedPreferences.getInstance();
         int userId = pref.getInt('user_id');
         String vendorId = pref.getString('ph_vendor_id');
@@ -1032,8 +1034,11 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
           }
         }
 
-        String fid = _image.path.split('/').last;
         var url = pharmacy_order;
+        if(_image!=null){
+        String fid ='image.png';
+        if(_image !=null)
+          fid=_image.path.split('/').last;
         var request = http.MultipartRequest("POST", url);
 
         request.fields["user_id"] = '${userId}';
@@ -1045,8 +1050,9 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
         request.fields["order_array1"] =
             (orderAddonArray.length > 0) ? orderAddonArray.toString() : '';
         request.fields["ui_type"] = '${ui_type.toString()}';
-        http.MultipartFile.fromPath("orderlist", _image.path, filename: fid)
+        http.MultipartFile.fromPath("orderlist", (_image !=null)?_image.path:"", filename: fid)
             .then((pic) {
+          if(_image !=null)
           request.files.add(pic);
           request.send().then((values) {
             values.stream.toBytes().then((value) {
@@ -1094,6 +1100,45 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
           Toast.show(locale.someThingWentText, context,
               duration: Toast.LENGTH_SHORT, gravity: Toast.CENTER);
         });
+      }else {
+          http.post(url, body: {
+            'user_id': '${userId}',
+            'vendor_id': vendorId,
+            'delivery_charge': '${deliveryCharge.toString()}',
+            'orderlist': '',
+            'order_array': orderArray.toString(),
+            'order_array1':
+            (orderAddonArray.length > 0) ? orderAddonArray.toString() : '',
+            'ui_type': ui_type.toString(),
+
+          }).then((value) {
+            var bdy=value.body;
+            print('${value.statusCode} ${value.body}');
+            if (value != null && value.statusCode == 200) {
+              var jsonData = jsonDecode(value.body);
+              if (jsonData['status'] == "1") {
+                CartDetail details = CartDetail.fromJson(jsonData['data']);
+                getVendorPayment(vendorId, details,orderArray.toString());
+              }
+                Toast.show(jsonData['message'], context,
+                    duration: Toast.LENGTH_SHORT);
+                setState(() {
+                  showDialogBox = false;
+                });
+
+            } else {
+              setState(() {
+                showDialogBox = false;
+              });
+              Toast.show('Something went wrong!', context, duration: Toast.LENGTH_SHORT);
+            }
+          }).catchError((_) {
+            setState(() {
+              showDialogBox = false;
+            });
+            Toast.show('Server error!', context, duration: Toast.LENGTH_SHORT);
+          });
+      }
       } else {
         setState(() {
           showDialogBox = false;

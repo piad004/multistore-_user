@@ -120,7 +120,7 @@ class _HomeState extends State<Home> {
         bool isLocationServiceEnableds =
         await Geolocator.isLocationServiceEnabled();
         if (isLocationServiceEnableds) {
-         //getLoc();
+         getLoc();
         } else {
          getLoc();
           //showAlertDialog(context, locale, 'opens');
@@ -141,7 +141,8 @@ class _HomeState extends State<Home> {
       } else {
         prefs.remove('lat');
         prefs.remove('lng');
-        _getLocation(context, locale);
+        getLoc();
+        //_getLocation(context, locale);
       }
     }
   }
@@ -1210,8 +1211,8 @@ class _HomeState extends State<Home> {
               SizedBox(
                 height: 10,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+             /* Row(
+                //crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Column(
                     children: [
@@ -1220,13 +1221,13 @@ class _HomeState extends State<Home> {
                         child: Row(
                           children: [
                             Container(
-                              width: 50,
-                              height: 50,
+                              width: 40,
+                              height: 40,
                               padding: EdgeInsets.all(0),
                               child: Image.asset(
                                 'images/allinone.png',
-                                width: 50,
-                                height: 50,
+                                width: 40,
+                                height: 40,
                                 fit: BoxFit.fitWidth,),
                               decoration: BoxDecoration(
                                   shape: BoxShape.circle,
@@ -1243,18 +1244,19 @@ class _HomeState extends State<Home> {
                       ),
                       Container(
                         //child:Text("List item ")
+                        padding: EdgeInsets.only(left: 0),
                         child: Row(
                           children: [SizedBox(
                             width: 10,
                           ),
                             Container(
-                              width: 50,
-                              height: 50,
-                              padding: EdgeInsets.all(5),
+                              width: 40,
+                              height: 40,
+                              padding: EdgeInsets.all(2),
                               child: Image.asset(
                                 'images/db.png',
-                                width: 50,
-                                height: 50,
+                                width: 40,
+                                height: 40,
                                 fit: BoxFit.fitWidth,),
                               decoration: BoxDecoration(
                                   shape: BoxShape.circle,
@@ -1272,29 +1274,31 @@ class _HomeState extends State<Home> {
                       ),
                       Container(
                         //child:Text("List item ")
+                        padding: EdgeInsets.only(left: 10),
                         child: Row(
+
                           children: [
                             Container(
-                              width: 50,
-                              height: 50,
-                              padding: EdgeInsets.all(5),
+                              width: 40,
+                              height: 40,
+                              padding: EdgeInsets.all(2),
                               child: Image.asset(
                                 'images/novalue.png',
-                                width: 50,
-                                height: 50,
+                                width: 40,
+                                height: 40,
                                 fit: BoxFit.fitWidth,),
                               decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: Color(0xffe8442e)),
                             ),
-                            Text("  No minimum   \n  order value",
+                            Text("  No minimum order",
                               style: TextStyle(
                                   color: Colors.black, fontSize: 15),),
                           ],
 
                         ),
                       ),
-                      /*SizedBox(
+                      *//*SizedBox(
                         height: 5,
                       ),
                       Container(
@@ -1347,7 +1351,7 @@ class _HomeState extends State<Home> {
                           ],
 
                         ),
-                      ),*/
+                      ),*//*
                     ],
                   ),
                   Image.asset(
@@ -1357,11 +1361,19 @@ class _HomeState extends State<Home> {
                     fit: BoxFit.fitHeight,
                   ),
                 ],
+              ),*/
+              Container(
+                //margin: EdgeInsets.only(left: 10,right: 10),
+                child: Image.asset(
+                'images/footer.png',
+                /*width: 40,
+                height: 40,*/
+                fit: BoxFit.fitWidth,),
               ),
               SizedBox(
-                height: 5,
+                height: 0,
               ),
-              TextButton(
+              /*TextButton(
                   onPressed: openPartnerForm(context),
                   child: Text(
                     'Partner with us and earn',
@@ -1369,7 +1381,7 @@ class _HomeState extends State<Home> {
                         fontSize: 16,
                         fontWeight: FontWeight.bold),
                   ),
-                ),
+                ),*/
              /* Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(8)),
