@@ -93,7 +93,7 @@ class Languages {
       'itemsText': 'items',
       'noProductAvailableText': 'No product available for this category',
       'productSearchText': 'Searching Products..',
-      'outoffStockText': 'Out off stock',
+      'outoffStockText': 'Out of stock',
       'deliveryRangeText': 'Delivery range',
       'addonsText': 'Addons',
       'addonsaddproductText': 'Add product to add addon!',

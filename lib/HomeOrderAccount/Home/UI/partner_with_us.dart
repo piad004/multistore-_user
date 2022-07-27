@@ -17,6 +17,7 @@ class PartnerWithUsState extends State<PartnerWithUsWebView> {
 
   var url = '';
 
+
   @override
   Widget build(BuildContext context) {
     //Map<String, dynamic> datar = ModalRoute.of(context).settings.arguments;
@@ -33,6 +34,7 @@ class PartnerWithUsState extends State<PartnerWithUsWebView> {
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: true,
+          title: Text('Partner with us',style: TextStyle(color: Colors.black,fontSize: 17,fontWeight: FontWeight.w400),),
         ),
         body: Center(
           child: WebView(

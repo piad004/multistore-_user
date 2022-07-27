@@ -387,7 +387,7 @@ class _ItemsPageState extends State<ItemsPage>
                     TabBar(
                       tabs: tabs,
                       isScrollable: (subCategoryListApp != null &&
-                              subCategoryListApp.length > 3)
+                              subCategoryListApp.length > 2)
                           ? true
                           : false,
                       labelColor: kMainColor,
@@ -658,9 +658,7 @@ class _ItemsPageState extends State<ItemsPage>
                                                             int.parse(
                                                                     '${productVarientList[index].data[productVarientList[index].selectPos].stock}') >
                                                                 0)
-                                                        ? (productVarientList[
-                                                                        index]
-                                                                    .add_qnty ==
+                                                        ? (productVarientList[index].add_qnty ==
                                                                 0
                                                             ? Container(
                                                                 height: 30.0,

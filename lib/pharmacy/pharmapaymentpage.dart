@@ -91,7 +91,7 @@ class PaymentPharmaPageState extends State<PaymentPharmaPage> {
   bool isCoupon = false;
   bool isChecked = true;
   double coupAmount = 0.0;
-  var appliedCouponCode ='';
+  var appliedCouponCode = '';
   TextEditingController couponController = TextEditingController();
 
   PaymentPharmaPageState(
@@ -137,7 +137,8 @@ class PaymentPharmaPageState extends State<PaymentPharmaPage> {
             double.parse(jsonData['wallet_deduct_percentg'].toString().trim());
         var dataList = jsonData['data'] as List;
         setState(() {
-          walletAmount = double.parse('${dataList[0]['wallet_credits'].toString().trim()}');
+          walletAmount = double.parse(
+              '${dataList[0]['wallet_credits'].toString().trim()}');
           //walletAmount = double.parse('${'5000'}');
 
           walletUsedAmount = (totalAmount * walletUsedAmountPercent) / 100;
@@ -338,6 +339,7 @@ class PaymentPharmaPageState extends State<PaymentPharmaPage> {
     http.post(url, body: {
       'cart_id': '${cart_id}',
     }).then((value) {
+      var bod = value.body;
       print('${value.statusCode} ${value.body}');
       setState(() {
         showDialogBox = false;
@@ -640,9 +642,12 @@ class PaymentPharmaPageState extends State<PaymentPharmaPage> {
                                           ('${paymentVia.stripe.stripeStatus}'
                                                   .toUpperCase() ==
                                               'YES') ||
-                                          '${paymentVia.paymongobean.razorpayStatus}'
+                                          ('${paymentVia.paymongobean.razorpayStatus}'
                                                   .toUpperCase() ==
-                                              'YES')),
+                                              'YES') ||
+                                          ('${paymentVia.cashfree.cashfreeStatus}'
+                                                  .toUpperCase() ==
+                                              'YES'))),
                                   child: Container(
                                     padding: EdgeInsets.symmetric(
                                         vertical: 8.0, horizontal: 16.0),
@@ -1485,40 +1490,40 @@ class PaymentPharmaPageState extends State<PaymentPharmaPage> {
                                     ),
                                   ),
                                   Visibility(
-                                    visible: appliedCouponCode.isNotEmpty?true:false,
-                                      child: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        radioId = -1;
-                                        showDialogBox =
-                                        true;
-                                        appCoupon(
-                                            appliedCouponCode,
-                                            context);
-                                        couponController.clear();
-                                      });
-                                    },
-                                    child: Container(
-                                      margin: EdgeInsets.symmetric(
-                                          horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      width: MediaQuery.of(context).size.width *
-                                          0.18,
-                                      height: 25,
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                          color: kMainColor),
-                                      child: Text(
-                                        'Clear',
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w300,
-                                            fontSize: 14,
-                                            color: kWhiteColor),
+                                    visible: appliedCouponCode.isNotEmpty
+                                        ? true
+                                        : false,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          radioId = -1;
+                                          showDialogBox = true;
+                                          appCoupon(appliedCouponCode, context);
+                                          couponController.clear();
+                                        });
+                                      },
+                                      child: Container(
+                                        margin: EdgeInsets.symmetric(
+                                            horizontal: 16.0),
+                                        alignment: Alignment.center,
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.18,
+                                        height: 25,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                            color: kMainColor),
+                                        child: Text(
+                                          'Clear',
+                                          textAlign: TextAlign.start,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w300,
+                                              fontSize: 14,
+                                              color: kWhiteColor),
+                                        ),
                                       ),
                                     ),
-                                  ),
                                   ),
                                 ],
                               ),

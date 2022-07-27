@@ -21,6 +21,7 @@ var productListWithVarient = Uri.parse(baseUrl + "appproduct");
 var vendorUrl = Uri.parse(baseUrl + "vendorcategory");
 var bestDealUrl = (baseUrl + "bestdeal");
 var bestRatingUrl = (baseUrl + "bestrating");
+var userRatingUrl = (baseUrl + "user-rating-info");
 var addToCart = Uri.parse(baseUrl + "order");
 var deleteCartUrl = Uri.parse(baseUrl + "null_order");
 var timeSlots = Uri.parse(baseUrl + "timeslot");
@@ -67,6 +68,7 @@ var promocode_regenerate = Uri.parse(baseUrl + "promocode_regenerate"); //vendor
 var country_code = Uri.parse(baseUrl + "country_code"); //vendor_id
 var wallet_plans = Uri.parse(baseUrl + "wallet_plans"); //vendor_id
 var wallet_recharge = Uri.parse(baseUrl + "wallet_recharge"); //vendor_id
+
 // resturant model
 var resturant_banner = Uri.parse(baseUrl+"resturant_banner");
 var homecategoryss = Uri.parse(baseUrl+"homecategory");
@@ -82,7 +84,10 @@ var user_ongoing_order = Uri.parse(baseUrl+"user_ongoing_order");
 //pharmacy
 var pharmacy_banner = Uri.parse(baseUrl+"pharmacy_banner");
 var pharmacy_homecategory = Uri.parse(baseUrl+"pharmacy_homecategory");
+var pharmacy_category = Uri.parse(baseUrl+"pharmacy-category");
+var pharmacy_product_by_category = Uri.parse(baseUrl+"product-by-category");
 var pharmacy_popular_item = Uri.parse(baseUrl+"pharmacy_popular_item");
+var pharmacy_product_by_id = Uri.parse(baseUrl+"get-product-by-id");
 var pharmacy_order = Uri.parse(baseUrl+"pharmacy_order");
 var pharmacy_orderplaced = Uri.parse(baseUrl+"pharmacy_orderplaced");
 var pharmacy_order_cancel = Uri.parse(baseUrl+"pharmacy_order_cancel");

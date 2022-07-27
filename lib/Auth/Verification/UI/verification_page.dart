@@ -26,8 +26,8 @@ class OtpVerify extends StatefulWidget {
 class _OtpVerifyState extends State<OtpVerify> {
   final TextEditingController _controller = TextEditingController();
   FirebaseMessaging messaging;
-  bool isDialogShowing = false;
   dynamic token = '';
+  bool isDialogShowing = false;
   var showDialogBox = false;
   var verificaitonPin = "";
   var firebaseAuth;

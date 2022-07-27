@@ -728,7 +728,7 @@ class _ViewCartState extends State<ViewCart> {
                                   ),
                                   Text(
                                       addressDelivery != null
-                                          ? '${addressDelivery.address != null ? '${addressDelivery.address})' : ''} '
+                                          ? '${addressDelivery.address != null ? '${addressDelivery.address}' : ''} '
                                           //'\n ${(addressDelivery.delivery_charge != null) ? addressDelivery.delivery_charge : ''}'
                                           : '',
                                       style: Theme.of(context)

@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:user/Locale/locales.dart';
@@ -9,61 +12,101 @@ import 'package:user/Themes/style.dart';
 import 'package:user/baseurlp/baseurl.dart';
 import 'package:user/bean/productlistvarient.dart';
 import 'package:user/databasehelper/dbhelper.dart';
+import 'package:user/pharmacy/pharmabean/pharmahomecategory.dart';
 
-class SingleProductPage extends StatefulWidget {
-  final ProductWithVarient productWithVarient;
-  final dynamic currency;
-  List<VarientList> productVarintList = [];
+class SingleProductDetailPage extends StatefulWidget {
+  dynamic productId;
+  dynamic vendorId;
 
-  SingleProductPage(this.productWithVarient, this.currency) {
-    productVarintList = List.from(productWithVarient.data);
+  SingleProductDetailPage(this.productId, this.vendorId) {
+    productId = productId;
+    vendorId = vendorId;
   }
 
   @override
   State<StatefulWidget> createState() {
-    return SingleProductState(productVarintList);
+    return SingleProductDetailState(productId, vendorId);
   }
 }
 
-class SingleProductState extends State<SingleProductPage> {
+class SingleProductDetailState extends State<SingleProductDetailPage> {
   var currentIndex = 1;
   bool isCartCount = false;
+  bool isFetch = true;
   var cartCount = 0;
   dynamic currency = '';
+  dynamic productId;
+  dynamic vendorId;
+  dynamic totalAmount = 0.0;
+  List<CategoryPharmacy> productList = new List<CategoryPharmacy>();
 
-  SingleProductState(List<VarientList> productVarintList) {
-    setList(productVarintList);
+  SingleProductDetailState(var productId, var vendorId) {
+    //setList(productVarintList);
+    this.productId = productId;
+    this.vendorId = vendorId;
   }
 
-  void setList(List<VarientList> tagObjs) {
-    for (int i = 0; i < tagObjs.length; i++) {
-      DatabaseHelper db = DatabaseHelper.instance;
-      db.getVarientCount(tagObjs[i].varient_id).then((value) {
-        print('print val $value');
-        if (value == null) {
-          setState(() {
-            tagObjs[i].add_qnty = 0;
-          });
-        } else {
-          setState(() {
-            tagObjs[i].add_qnty = value;
-            isCartCount = true;
-          });
-        }
+  void hitProductDetail() async {
+    setState(() {
+      isFetch = true;
+    });
+
+    //SharedPreferences prefs = await SharedPreferences.getInstance();
+    // prefs.setString("vendor_id",vendor_id);
+
+    var url = pharmacy_product_by_id;
+    http.post(url, body: {
+      'productId': '$productId',
+     // 'type': '3',
+      'vendor_id': '$vendorId'
+    }).then((value) {
+
+      var jsonDat = (value.body);
+      if (value.statusCode == 200) {
+        var jsonData = jsonDecode(value.body);
+        print('Response Body: - productId: $productId vendor_id : $vendorId' +'${value.body}');
+
+       // if (jsonData['status'] == "1") {
+          var tagObjsJson = jsonDecode(value.body)['data'] as List;
+          List<CategoryPharmacy> tagObjs = tagObjsJson
+              .map((tagJson) => CategoryPharmacy.fromJson(tagJson))
+              .toList();
+          if (tagObjs.isNotEmpty) {
+            setState(() {
+              productList.clear();
+              productList = tagObjs;
+              setList(productList);
+            });
+          } else {
+            setState(() {
+              isFetch = false;
+            });
+          }
+     /* } else {
+        setState(() {
+          isFetch = false;
+        });
+      }*/
+      }
+    }).catchError((e) {
+      setState(() {
+        isFetch = false;
       });
-    }
+      print(e);
+    });
   }
 
   @override
   void initState() {
     super.initState();
+    hitProductDetail();
     getCartCount();
     getCurrency();
   }
 
   void getCartCount() {
     DatabaseHelper db = DatabaseHelper.instance;
-    db.queryRowCount().then((value) {
+    db.queryRowPharmaCount().then((value) {
       setState(() {
         if (value != null && value > 0) {
           cartCount = value;
@@ -72,6 +115,47 @@ class SingleProductState extends State<SingleProductPage> {
           cartCount = 0;
           isCartCount = false;
         }
+      });
+    });
+
+    getCatC();
+  }
+
+  void getCatC() async {
+    DatabaseHelper db = DatabaseHelper.instance;
+    db.calculateTotalpharma().then((value) {
+      db.calculateTotalPharmaAdon().then((valued) {
+        var tagObjsJson = value as List;
+        var tagObjsJsond = valued as List;
+        setState(() {
+          if (value != null) {
+            dynamic totalAmount_1 = tagObjsJson[0]['Total'];
+            print('T--${totalAmount_1}');
+            if (valued != null) {
+              dynamic totalAmount_2 = tagObjsJsond[0]['Total'];
+              print('T--${totalAmount_2}');
+              if (totalAmount_2 == null) {
+                if (totalAmount_1 == null) {
+                  totalAmount = 0.0;
+                } else {
+                  totalAmount = double.parse('${totalAmount_1}');
+                }
+              } else {
+                totalAmount = double.parse('${totalAmount_1}') +
+                    double.parse('${totalAmount_2}');
+              }
+            } else {
+              if (totalAmount_1 == null) {
+                totalAmount = 0.0;
+              } else {
+                totalAmount = double.parse('${totalAmount_1}');
+              }
+            }
+          } else {
+            totalAmount = 0.0;
+//          deliveryCharge = 0.0;
+          }
+        });
       });
     });
   }
@@ -85,7 +169,7 @@ class SingleProductState extends State<SingleProductPage> {
         child: AppBar(
           titleSpacing: 0.0,
           title: Text(
-            '${widget.productWithVarient.product_name}',
+            '${productList.length>0?productList[0].product_name:''}',
             style: TextStyle(
                 fontSize: 18, color: black_color, fontWeight: FontWeight.w500),
           ),
@@ -100,13 +184,9 @@ class SingleProductState extends State<SingleProductPage> {
                       ),
                       onPressed: () {
                         if (isCartCount) {
-                          Navigator.pushNamed(context, PageRoutes.viewCart)
-                              .then((value) {
-                            setList(widget.productVarintList);
-                            getCartCount();
-                          });
+                          hitViewCart(context, locale);
                         } else {
-                          Toast.show(locale.noValueInTheCart, context,
+                          Toast.show(locale.noValueCartText, context,
                               duration: Toast.LENGTH_SHORT);
                         }
                       }),
@@ -144,8 +224,7 @@ class SingleProductState extends State<SingleProductPage> {
                 child: Padding(
                   padding: EdgeInsets.only(bottom: 10.0),
                   child: Image(
-                    image: NetworkImage(imageBaseUrl +
-                        widget.productWithVarient.products_image),
+                    image: NetworkImage((productList.length>0?productList[0].product_image:"")),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -178,7 +257,7 @@ class SingleProductState extends State<SingleProductPage> {
                         style: TextStyle(
                             fontSize: 17,
                             color:
-                            (currentIndex == 1) ? kWhiteColor : black_color,
+                                (currentIndex == 1) ? kWhiteColor : black_color,
                             fontWeight: FontWeight.w500),
                       ),
                     ),
@@ -221,11 +300,10 @@ class SingleProductState extends State<SingleProductPage> {
                 child: IndexedStack(
                   index: currentIndex,
                   children: [
-                    ProductDescription(
-                        widget.productWithVarient.data[0].description),
-                    (widget.productVarintList.length > 0)
+                    ProductDescription(productList.length>0?productList[0].description:''),
+                    (productList.length > 0)
                         ? ListView.builder(
-                            itemCount: widget.productVarintList.length,
+                            itemCount: productList.length,
                             itemBuilder: (context, index) {
                               return Stack(
                                 children: <Widget>[
@@ -234,25 +312,21 @@ class SingleProductState extends State<SingleProductPage> {
                                     children: <Widget>[
                                       Padding(
                                         padding: EdgeInsets.only(
-                                            left: 20.0, top: 30.0, right: 14.0),
+                                            left: 5.0, top: 30.0, right: 14.0),
                                         child: Container(
                                           height: 93.3,
                                           width: 93.3,
-                                          child: (widget.productVarintList !=
-                                                      null &&
-                                                  widget.productVarintList
-                                                          .length >
-                                                      0)
+                                          child: (productList != null &&
+                                                  productList.length > 0 &&
+                                              productList[0].product_image != null &&
+                                              productList[0].product_image.toString() != '')
                                               ? Image.network(
-                                                  imageBaseUrl +
-                                                      widget
-                                                          .productVarintList[
-                                                              index]
-                                                          .varient_image,
+                                                         productList[0]
+                                                          .product_image,
 //                                scale: 2.5
                                                   height: 93.3,
                                                   width: 93.3,
-                                                  fit: BoxFit.fill,
+                                                  fit: BoxFit.cover,
                                                 )
                                               : Image(
                                                   image: AssetImage(
@@ -271,8 +345,7 @@ class SingleProductState extends State<SingleProductPage> {
                                               padding:
                                                   EdgeInsets.only(right: 20),
                                               child: Text(
-                                                  widget.productWithVarient
-                                                      .product_name,
+                                                  productList.length>0? productList[0].product_name:'',
                                                   style:
                                                       bottomNavigationTextStyle
                                                           .copyWith(
@@ -281,7 +354,7 @@ class SingleProductState extends State<SingleProductPage> {
                                             SizedBox(
                                               height: 8.0,
                                             ),
-                                            /*Text(
+                                           /* Text(
                                                 '${widget.currency} ${widget.productVarintList[index].price}',
                                                 style: Theme.of(context)
                                                     .textTheme
@@ -289,16 +362,16 @@ class SingleProductState extends State<SingleProductPage> {
                                             Row(
                                               children: [
                                                 Visibility(
-                                                  visible: (widget
-                                                          .productVarintList[
-                                                              index]
-                                                          .price) !=
-                                                      (widget
-                                                          .productVarintList[
-                                                              index]
-                                                          .strick_price),
+                                                  visible: (
+                                                      productList.length>0?
+                                                      productList[0]
+                                                          .variant[index]
+                                                          .price:'') !=
+                                                      (productList.length>0?productList[0]
+                                                          .variant[index]
+                                                          .strick_price:''),
                                                   child: Text(
-                                                      '$currency ${(widget.productVarintList[index].strick_price != null) ? widget.productVarintList[index].strick_price.toString() : 0}',
+                                                      '$currency ${productList.length>0?(productList[0].variant[index].strick_price != null) ? productList[0].variant[index].strick_price.toString() : 0:0}',
                                                       style: TextStyle(
                                                           decorationColor:
                                                               Colors.red,
@@ -309,8 +382,7 @@ class SingleProductState extends State<SingleProductPage> {
                                                               TextDecoration
                                                                   .lineThrough,
                                                           fontSize:
-                                                              14) /*Theme
-                                                              .of(
+                                                              14), /*Theme.of(
                                                               context)
                                                               .textTheme
                                                               .caption*/
@@ -318,7 +390,7 @@ class SingleProductState extends State<SingleProductPage> {
                                                 ),
                                                 SizedBox(width: 10),
                                                 Text(
-                                                    '$currency ${(widget.productVarintList[index].price != null) ? widget.productVarintList[index].price.toString() : 0}',
+                                                    '$currency ${productList.length>0?(productList[0].variant[index].price != null) ? productList[0].variant[index].price.toString() : 0:0}',
                                                     style: Theme.of(context)
                                                         .textTheme
                                                         .caption),
@@ -333,37 +405,42 @@ class SingleProductState extends State<SingleProductPage> {
                                     ],
                                   ),
                                   Positioned(
-                                    left: 120,
+                                    left: 110,
                                     bottom: 5,
                                     child: InkWell(
                                       onTap: () {},
                                       child: Container(
-                                        height: 30.0,
+                                        height: 40.0,
                                         padding: EdgeInsets.symmetric(
-                                            horizontal: 20.0),
+                                            horizontal: 5.0,vertical: 2),
                                         decoration: BoxDecoration(
                                           color: kCardBackgroundColor,
                                           borderRadius:
-                                              BorderRadius.circular(30.0),
+                                              BorderRadius.circular(10.0),
                                         ),
-                                        child: Row(
-                                          children: <Widget>[
+                                        child: Container(
+                                          width: 127.0,
+                                          child:
                                             Text(
-                                              '${widget.productVarintList[index].quantity} ${widget.productVarintList[index].unit}',
+                                              '${productList.length>0?productList[0].variant[index].quantity:0} ${productList.length>0?productList[0].variant[index].unit:''}',
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .caption,
                                             ),
-                                          ],
+
                                         ),
                                       ),
                                     ),
                                   ),
                                   Positioned(
                                       height: 30,
-                                      right: 20.0,
+                                      right: 0.0,
                                       bottom: 5,
-                                      child: widget.productVarintList[index].add_qnty ==
+                                      child: ((productList.length>0)?productList[0]
+                                                  .variant[index]
+                                                  .addOnQty:0) ==
                                               0
                                           ? Container(
                                               height: 30.0,
@@ -383,45 +460,32 @@ class SingleProductState extends State<SingleProductPage> {
                                                 onPressed: () {
                                                   setState(() {
                                                     var stock = int.parse(
-                                                        '${widget.productVarintList[index].stock}');
+                                                        //'${widget.productVarintList[index].stock}'
+                                                        '10');
                                                     if (stock >
-                                                        widget
-                                                            .productVarintList[
-                                                                index]
-                                                            .add_qnty) {
-                                                      widget
-                                                          .productVarintList[
-                                                              index]
-                                                          .add_qnty++;
+                                                        productList[0]
+                                                            .variant[index]
+                                                            .addOnQty) {
+                                                      productList[0]
+                                                          .variant[index]
+                                                          .addOnQty++;
                                                       addOrMinusProduct(
-                                                          index,
-                                                          widget
-                                                              .productWithVarient
+                                                          productList[0]
                                                               .product_name,
-                                                          widget
-                                                              .productVarintList[
-                                                                  index]
+                                                          productList[0]
+                                                              .variant[index]
                                                               .unit,
                                                           double.parse(
-                                                              '${widget.productVarintList[index].price}'),
+                                                              '${productList[0].variant[index].price}'),
                                                           int.parse(
-                                                              '${widget.productVarintList[index].quantity}'),
-                                                          widget
-                                                              .productVarintList[
-                                                                  index]
-                                                              .add_qnty,
-                                                          widget
-                                                              .productVarintList[
-                                                                  index]
-                                                              .varient_image,
-                                                          widget
-                                                              .productVarintList[
-                                                                  index]
-                                                              .varient_id,
-                                                          widget
-                                                              .productVarintList[
-                                                                  index]
-                                                              .vendor_id);
+                                                              '${productList[0].variant[index].quantity}'),
+                                                          productList[0].variant[index]
+                                                              .addOnQty,
+                                                          productList[0]
+                                                              .product_image,
+                                                          productList[0]
+                                                              .variant[index]
+                                                              .variant_id);
                                                     } else {
                                                       Toast.show(
                                                           locale
@@ -449,40 +513,27 @@ class SingleProductState extends State<SingleProductPage> {
                                                   InkWell(
                                                     onTap: () {
                                                       setState(() {
-                                                        widget
-                                                            .productVarintList[
-                                                                index]
-                                                            .add_qnty--;
+                              productList.length>0?productList[0]
+                                                            .variant[index]
+                                                            .addOnQty--:0;
                                                       });
                                                       addOrMinusProduct(
-                                                          index,
-                                                          widget
-                                                              .productWithVarient
+                                                          productList[0]
                                                               .product_name,
-                                                          widget
-                                                              .productVarintList[
-                                                                  index]
+                                                          productList[0]
+                                                              .variant[index]
                                                               .unit,
                                                           double.parse(
-                                                              '${widget.productVarintList[index].price}'),
+                                                              '${productList[0].variant[index].price}'),
                                                           int.parse(
-                                                              '${widget.productVarintList[index].quantity}'),
-                                                          widget
-                                                              .productVarintList[
-                                                                  index]
-                                                              .add_qnty,
-                                                          widget
-                                                              .productVarintList[
-                                                                  index]
-                                                              .varient_image,
-                                                          widget
-                                                              .productVarintList[
-                                                                  index]
-                                                              .varient_id,
-                                                          widget
-                                                              .productVarintList[
-                                                                  index]
-                                                              .vendor_id);
+                                                              '${productList[0].variant[index].quantity}'),
+                                                          productList[0].variant[index]
+                                                              .addOnQty,
+                                                          productList[0]
+                                                              .product_image,
+                                                          productList[0]
+                                                              .variant[index]
+                                                              .variant_id);
                                                     },
                                                     child: Icon(
                                                       Icons.remove,
@@ -493,11 +544,10 @@ class SingleProductState extends State<SingleProductPage> {
                                                   ),
                                                   SizedBox(width: 8.0),
                                                   Text(
-                                                      widget
-                                                          .productVarintList[
-                                                              index]
-                                                          .add_qnty
-                                                          .toString(),
+                              productList.length>0?productList[0]
+                                                          .variant[index]
+                                                          .addOnQty
+                                                          .toString():'',
                                                       style: Theme.of(context)
                                                           .textTheme
                                                           .caption),
@@ -506,45 +556,32 @@ class SingleProductState extends State<SingleProductPage> {
                                                     onTap: () {
                                                       setState(() {
                                                         var stock = int.parse(
-                                                            '${widget.productVarintList[index].stock}');
+                                                            //'${widget.productVarintList[index].stock}'
+                                                            '10');
                                                         if (stock >
-                                                            widget
-                                                                .productVarintList[
-                                                                    index]
-                                                                .add_qnty) {
-                                                          widget
-                                                              .productVarintList[
-                                                                  index]
-                                                              .add_qnty++;
+                                                            productList[0]
+                                                                .variant[index]
+                                                                .addOnQty) {
+                                                          productList[0]
+                                                              .variant[index]
+                                                              .addOnQty++;
                                                           addOrMinusProduct(
-                                                              index,
-                                                              widget
-                                                                  .productWithVarient
+                                                              productList[0]
                                                                   .product_name,
-                                                              widget
-                                                                  .productVarintList[
-                                                                      index]
+                                                              productList[0]
+                                                                  .variant[index]
                                                                   .unit,
                                                               double.parse(
-                                                                  '${widget.productVarintList[index].price}'),
+                                                                  '${productList[0].variant[index].price}'),
                                                               int.parse(
-                                                                  '${widget.productVarintList[index].quantity}'),
-                                                              widget
-                                                                  .productVarintList[
-                                                                      index]
-                                                                  .add_qnty,
-                                                              widget
-                                                                  .productVarintList[
-                                                                      index]
-                                                                  .varient_image,
-                                                              widget
-                                                                  .productVarintList[
-                                                                      index]
-                                                                  .varient_id,
-                                                              widget
-                                                                  .productVarintList[
-                                                                      index]
-                                                                  .vendor_id);
+                                                                  '${productList[0].variant[index].quantity}'),
+                                                              productList[0].variant[index]
+                                                                  .addOnQty,
+                                                              productList[0]
+                                                                  .product_image,
+                                                              productList[0]
+                                                                  .variant[index]
+                                                                  .variant_id);
                                                         } else {
                                                           Toast.show(
                                                               locale
@@ -579,58 +616,124 @@ class SingleProductState extends State<SingleProductPage> {
     );
   }
 
-  void addOrMinusProduct(index, product_name, unit, price, quantity, itemCount,
-      varient_image, varient_id, vendor_id) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var a = prefs.getString("vendor_id");
-    if (/*isCartCount &&*/
-        prefs.getString("vendor_id") != null &&
-            prefs.getString("vendor_id") != "" &&
-            prefs.getString("vendor_id") != '${vendor_id.toString()}') {
-      showAlertDialog(context, index);
-    } else {
-      prefs.setString("vendor_id", vendor_id.toString());
-//    addMinus = true;
-      DatabaseHelper db = DatabaseHelper.instance;
-      Future<int> existing = db.getcount(int.parse('${varient_id}'));
-      existing.then((value) {
-        var vae = {
-          DatabaseHelper.productName: product_name,
-          DatabaseHelper.price: (price * itemCount),
-          DatabaseHelper.unit: unit,
-          DatabaseHelper.quantitiy: quantity,
-          DatabaseHelper.addQnty: itemCount,
-          DatabaseHelper.productImage: varient_image,
-          DatabaseHelper.varientId: int.parse('${varient_id}')
-        };
-        if (value == 0) {
-          db.insert(vae);
+  void addOrMinusProduct(product_name, unit, price, quantity, itemCount,
+      varient_image, varient_id) async {
+    DatabaseHelper db = DatabaseHelper.instance;
+    db.getPharmaCount(varient_id).then((value) {
+      var vae = {
+        DatabaseHelper.productId: '1',
+        DatabaseHelper.productName: product_name,
+        DatabaseHelper.price: (double.parse('${price}') * itemCount),
+        DatabaseHelper.unit: unit,
+        DatabaseHelper.quantitiy: int.parse('${quantity}'),
+        DatabaseHelper.addQnty: itemCount,
+        DatabaseHelper.varientId: varient_id
+      };
+      if (value == 0) {
+        db.insertPharmaOrder(vae);
+      } else {
+        if (itemCount == 0) {
+          db.deletePharmaProduct(varient_id).then((value) {
+            db.deletePharmaAddOn(varient_id);
+          });
         } else {
-          if (itemCount == 0) {
-            db.delete(int.parse('${varient_id}'));
-          } else {
-            db.updateData(vae, int.parse('${varient_id}')).then((vay) {
-              print('vay - $vay');
-            });
-          }
+          db.updatePharmaProductData(vae, varient_id).then((vay) {
+            getCatC();
+          });
         }
+      }
+      getCartCount();
+    }).catchError((e) {
+      print(e);
+    });
+  }
+
+  hitViewCart(BuildContext context, AppLocalizations locale) {
+    if (isCartCount) {
+      Navigator.pushNamed(context, PageRoutes.pharmacart).then((value) {
+        setList(productList);
         getCartCount();
+      });
+    } else {
+      Toast.show(locale.noValueCartText, context, duration: Toast.LENGTH_SHORT);
+    }
+  }
+
+
+  void setList(List<CategoryPharmacy> tagObjs) {
+    for (int i = 0; i < tagObjs[0].variant.length; i++) {
+      DatabaseHelper db = DatabaseHelper.instance;
+      db.getVarientPharmaCount(tagObjs[0].variant[i].variant_id).then((value) {
+        print('print val $value');
+        if (value == null) {
+          setState(() {
+            tagObjs[0].variant[i].addOnQty = 0;
+          });
+        } else {
+          setState(() {
+            tagObjs[0].variant[i].addOnQty = value;
+            isCartCount = true;
+          });
+        }
       });
     }
   }
 
-  void clearCart(index) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      prefs.setString("vendor_id", '');
-      widget.productVarintList[index].add_qnty--;
-    });
+  void setLit(List<CategoryPharmacy> tagObjs) {
+    for (int i = 0; i < tagObjs[0].variant.length; i++) {
+      if (tagObjs[0].variant.length > 0) {
+        DatabaseHelper db = DatabaseHelper.instance;
+        db
+            .getVarientPharmaCount(
+            tagObjs[0].variant[i].variant_id)
+            .then((value) {
+          if (value == null) {
+            setState(() {
+              tagObjs[0].variant[i].addOnQty = 0;
+            });
+          } else {
+            setState(() {
+              tagObjs[i].addOnQty = value;
+              isCartCount = true;
+            });
+            for (int j = 0; j < tagObjs[i].addons.length; j++) {
+              db
+                  .getPharmaCountAddon(tagObjs[i].addons[j].addon_id,
+                  tagObjs[i].variant[tagObjs[i].selectPos].variant_id)
+                  .then((valued) {
+                if (valued != null && valued > 0) {
+                  setState(() {
+                    tagObjs[i].addons[j].isAdd = true;
+                  });
+                } else {
+                  setState(() {
+                    tagObjs[i].addons[j].isAdd = false;
+                  });
+                }
+              });
+            }
+          }
+        });
+      }
+    }
+  }
+
+  void clearCart() async {
     DatabaseHelper db = DatabaseHelper.instance;
-    db.deleteAll().then((value) {
-      //getCartItem();
-      getCartCount();
+    db.deleteAllPharma().then((value) {
+      db.deleteAllAddonPharma().then((value) {
+        getCatC();
+      });
     });
   }
+
+ /* void deleteAddOn(addonid) async {
+    DatabaseHelper db = DatabaseHelper.instance;
+    db.deleteAddOnIdPharma(int.parse(addonid)).then((value) {
+      getCartItem();
+      getCatC();
+    });
+  }*/
 
   showAlertDialog(BuildContext context, index) async {
     AppLocalizations locale = AppLocalizations.of(context);
@@ -647,7 +750,7 @@ class SingleProductState extends State<SingleProductPage> {
     Widget clear = GestureDetector(
       onTap: () {
         Navigator.of(context, rootNavigator: true).pop('dialog');
-        clearCart(index);
+        clearCart();
       },
       child: Card(
         elevation: 2,
@@ -673,7 +776,7 @@ class SingleProductState extends State<SingleProductPage> {
         Navigator.of(context, rootNavigator: true).pop('dialog');
         setState(() {
           // prefs.setString("vendor_id", '');
-          widget.productVarintList[index].add_qnty--;
+          productList[0].variant[index].addOnQty--;
         });
       },
       child: Card(
@@ -723,7 +826,8 @@ class SingleProductState extends State<SingleProductPage> {
   void getCurrency() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
-      currency = preferences.getString('curency');
+      //currency = preferences.getString('curency');
+      currency = '₹';
     });
   }
 }

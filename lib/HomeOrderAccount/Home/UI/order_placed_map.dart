@@ -496,7 +496,8 @@ class _OrderMapState extends State<OrderMap> {
     var userId = preferences.getInt('user_id');
     var url = ratingOrders;
     http.post(url, body: {'user_id': '$userId','cart_id': '$cartId',
-      'vendor_id': '$vendorId','vreview': '$review','vrating': '$rating','dreview': '$dBoyReview','drating': '$dBoyRating',
+      'vendor_id': '$vendorId','vreview': '$review','vrating': '$rating',
+      'dreview': '$dBoyReview','drating': '$dBoyRating',
       'dboy_id': '$dboyId'}).then((value) {
       print('${value.body}');
         //{"status":"1","message":"Thanks you for feedback."}

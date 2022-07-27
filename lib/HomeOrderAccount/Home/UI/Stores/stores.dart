@@ -388,10 +388,7 @@ class StoresPageState extends State<StoresPage> with WidgetsBindingObserver{
                             itemBuilder: (context, index) {
                               return GestureDetector(
                                 onTap: () {
-                                  if ((nearStores[index].online_status ==
-                                          "on" ||
-                                      nearStores[index].online_status == "On" ||
-                                      nearStores[index].online_status ==
+                                  if ((nearStores[index].online_status.toString().toUpperCase() ==
                                           "ON")) {
                                     hitNavigator(
                                         context,

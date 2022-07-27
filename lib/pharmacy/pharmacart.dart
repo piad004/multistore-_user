@@ -3,11 +3,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:gallery_saver/gallery_saver.dart';
 
 // import 'package:horizontal_calendar_widget/date_helper.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:user/Components/bottom_bar.dart';
@@ -63,6 +65,7 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
   int idd1 = 0;
   File _image;
   final picker = ImagePicker();
+  String albumName = 'Media';
 
   void getStoreName() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -360,6 +363,7 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
           )
         ],
       ),
+
       body: (!isCartFetch && cartListI != null && cartListI.length > 0)
           ? Stack(
               children: <Widget>[
@@ -379,6 +383,7 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
                                     .textTheme
                                     .headline6
                                     .copyWith(
+                                       // color: Colors.black54,
                                         color: Color(0xff616161),
                                         letterSpacing: 0.67)),
                           ),
@@ -476,7 +481,7 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
                                           0.75,
                                       color: kCardBackgroundColor,
                                       child: _image != null
-                                          ? Image.file(_image)
+                                          ? Center(child: Image.file(_image),)
                                           : Container(),
                                     ),
                                     Align(
@@ -491,7 +496,7 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
                                             size: 19.0,
                                           ),
                                           SizedBox(width: 14.3),
-                                          Text(locale.uploadPhotoText,
+                                          Text(locale.uploadprescriptionText,
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .caption
@@ -522,6 +527,7 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
                                     .textTheme
                                     .headline6
                                     .copyWith(
+                                  // color: Colors.red,
                                         color: Color(0xffce3b3b),
                                         letterSpacing: 0.67)),
                           ),
@@ -819,6 +825,7 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
                                     children: <Widget>[
                                       Icon(
                                         Icons.location_on,
+                                        //color: Colors.black12,
                                         color: Color(0xffc4c8c1),
                                         size: 13.3,
                                       ),
@@ -872,6 +879,7 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
                                           .caption
                                           .copyWith(
                                               fontSize: 11.7,
+                                             // color: Colors.black12))
                                               color: Color(0xffb7b7b7)))
                                 ],
                               ),
@@ -977,7 +985,8 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
                     leading: new Icon(Icons.photo_camera),
                     title: new Text(locale.camera),
                     onTap: () {
-                      _imgFromCamera();
+                      //_imgFromCamera();
+                      _takePhoto();
                       Navigator.of(context).pop();
                     },
                   ),
@@ -988,17 +997,91 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
         });
   }
 
+  Future<void> getLostData() async {
+    final LostDataResponse response =
+    await picker.retrieveLostData();
+    if (response.isEmpty) {
+      return;
+    }
+    if (response.files != null) {
+      for (final XFile file in response.files) {
+       // _handleFile(file);
+      }
+    } else {
+      //_handleError(response.exception);
+    }
+  }
+
+  void _takePhoto() async {
+    ImagePicker()
+        .getImage(source: ImageSource.camera,imageQuality: 80)
+        .then((PickedFile recordedImage) {
+      if (recordedImage != null && recordedImage.path != null) {
+        setState(() {
+          _image=File(recordedImage.path);
+        });
+       /* GallerySaver.saveImage(recordedImage.path, albumName: albumName)
+            .then((bool success) {
+          setState(() {
+            _image=File(recordedImage.path);
+            //firstButtonText = 'image saved!';
+          });
+        });*/
+      }
+    });
+  }
+
   _imgFromCamera() async {
     try {
-      final pickedFile = await picker.getImage(source: ImageSource.camera);
+
+      ImagePicker picker1 = ImagePicker();
+      final XFile photo = await picker1.pickImage(source: ImageSource.camera);
+
+      if (photo != null) {
+        Directory appDirectory = await getApplicationDocumentsDirectory();
+        File newImage = File(appDirectory.path + 'fileName.png');
+        newImage.writeAsBytes(File(photo.path).readAsBytesSync());
+
+       var a = GallerySaver.saveImage(newImage.path, albumName: 'albumName.png')
+            .then((bool success) {
+          setState(() {
+            //firstButtonText = 'image saved!';
+          });
+        });
+
+       a.then((value) => {
+       });
+
       setState(() {
-        if (pickedFile != null) {
-          _image = File(pickedFile.path);
+        if (photo != null) {
+          if(newImage!=null)
+            _image=newImage;
+          else
+          _image = File(photo.path);
+          print(_image);
         } else {
           print('No image selected.');
         }
       });
-    } catch (e) {}
+      }
+
+    /*  final pickedFile1 = await picker
+          .getImage(source: ImageSource.camera)
+          .then((pickedFile) => {
+                setState(() {
+                  if (pickedFile != null) {
+                    _image = File(pickedFile.path);
+                  } else {
+                    print('No image selected.');
+                  }
+                })
+              })
+          .catchError((e) => {
+            print(e)
+          });*/
+    } catch (e) {
+      print('image error'+e.toString());
+    }
   }
 
   _imgFromGallery() async {
@@ -1016,7 +1099,6 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
   void createCart(BuildContext context, AppLocalizations locale) async {
     if (cartListI != null && cartListI.length > 0) {
       if (totalAmount != null && totalAmount > 0.0 && addressDelivery != null) {
-
         SharedPreferences pref = await SharedPreferences.getInstance();
         int userId = pref.getInt('user_id');
         String vendorId = pref.getString('ph_vendor_id');
@@ -1035,51 +1117,67 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
         }
 
         var url = pharmacy_order;
-        if(_image!=null){
-        String fid ='image.png';
-        if(_image !=null)
-          fid=_image.path.split('/').last;
-        var request = http.MultipartRequest("POST", url);
+        if (_image != null) {
+          String fid = 'image.png';
+          if (_image != null) fid = _image.path
+              .split('/')
+              .last;
 
-        request.fields["user_id"] = '${userId}';
-        request.fields["vendor_id"] = '${vendorId}';
-       // request.fields["delivery_date"] = '';
-        //request.fields["time_slot"] = '';
-        request.fields["delivery_charge"] = '${deliveryCharge.toString()}';
-        request.fields["order_array"] = orderArray.toString();
-        request.fields["order_array1"] =
-            (orderAddonArray.length > 0) ? orderAddonArray.toString() : '';
-        request.fields["ui_type"] = '${ui_type.toString()}';
-        http.MultipartFile.fromPath("orderlist", (_image !=null)?_image.path:"", filename: fid)
-            .then((pic) {
-          if(_image !=null)
-          request.files.add(pic);
-          request.send().then((values) {
-            values.stream.toBytes().then((value) {
-              var responseString = String.fromCharCodes(value);
-              var jsonData = jsonDecode(responseString);
-              print('${jsonData}');
-              if (jsonData['status'] == "1") {
-                Toast.show(jsonData['message'], context,
-                    duration: Toast.LENGTH_SHORT);
-                CartDetail details = CartDetail.fromJson(jsonData['data']);
-                getVendorPayment(vendorId, details,orderArray.toString());
-              } else {
-                Toast.show(jsonData['message'], context,
-                    duration: Toast.LENGTH_SHORT);
+          if (_image.path.endsWith('.png')){
+            var request = http.MultipartRequest("POST", url);
+
+          /* final image = decodeImage(File(_image.path).readAsBytesSync());
+          File(_image.path).writeAsBytesSync(encodePng(image));*/
+
+          request.fields["user_id"] = '${userId}';
+          request.fields["vendor_id"] = '${vendorId}';
+          // request.fields["delivery_date"] = '';
+          //request.fields["time_slot"] = '';
+          request.fields["delivery_charge"] = '${deliveryCharge.toString()}';
+          request.fields["order_array"] = orderArray.toString();
+          request.fields["order_array1"] =
+          (orderAddonArray.length > 0) ? orderAddonArray.toString() : '';
+          request.fields["ui_type"] = '${ui_type.toString()}';
+          http.MultipartFile.fromPath(
+              "orderlist", (_image != null) ? _image.path : "",
+              filename: fid)
+              .then((pic) {
+            if (_image != null) request.files.add(pic);
+            request.send().then((values) {
+              values.stream.toBytes().then((value) {
+                var responseString = String.fromCharCodes(value);
+                print(responseString);
+                var jsonData = jsonDecode(responseString);
+                print('${jsonData}');
+                if (jsonData['status'] == "1") {
+                  Toast.show(jsonData['message'], context,
+                      duration: Toast.LENGTH_SHORT);
+                  CartDetail details = CartDetail.fromJson(jsonData['data']);
+                  getVendorPayment(vendorId, details, orderArray.toString());
+                } else {
+                  Toast.show(jsonData['message'], context,
+                      duration: Toast.LENGTH_SHORT);
+                  setState(() {
+                    showDialogBox = false;
+                  });
+                }
                 setState(() {
                   showDialogBox = false;
                 });
-              }
-              setState(() {
-                showDialogBox = false;
+              }).catchError((e) {
+                setState(() {
+                  showDialogBox = false;
+                });
+                print(e);
+
+                Toast.show(locale.someThingWentText, context,
+                    duration: Toast.LENGTH_SHORT, gravity: Toast.CENTER);
               });
             }).catchError((e) {
               setState(() {
                 showDialogBox = false;
               });
               print(e);
-
               Toast.show(locale.someThingWentText, context,
                   duration: Toast.LENGTH_SHORT, gravity: Toast.CENTER);
             });
@@ -1088,19 +1186,55 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
               showDialogBox = false;
             });
             print(e);
+
             Toast.show(locale.someThingWentText, context,
                 duration: Toast.LENGTH_SHORT, gravity: Toast.CENTER);
           });
-        }).catchError((e) {
-          setState(() {
-            showDialogBox = false;
-          });
-          print(e);
+        }else{
+            var base64file=getBase64FormateFile(_image.path);
+            http.post(url, body: {
+              'user_id': '${userId}',
+              'vendor_id': vendorId,
+              'delivery_charge': '${deliveryCharge.toString()}',
+              'orderlist': '',
+              'order_array': orderArray.toString(),
+              'order_array1':
+              (orderAddonArray.length > 0) ? orderAddonArray.toString() : '',
+              'ui_type': ui_type.toString(),
+              'order_camera_img': base64file,
+              'orderlist': "",
+            }).then((value) {
+              var bdy = value.body;
+              print('${value.statusCode} ${value.body}');
+              if (value != null && value.statusCode == 200) {
+                var jsonData = jsonDecode(value.body);
+                if (jsonData['status'] == "1") {
+                  CartDetail details = CartDetail.fromJson(jsonData['data']);
+                  getVendorPayment(vendorId, details, orderArray.toString());
+                }
+                Toast.show(jsonData['message'], context,
+                    duration: Toast.LENGTH_SHORT);
+                setState(() {
+                  showDialogBox = false;
+                });
+              } else {
+                setState(() {
+                  showDialogBox = false;
+                });
+               /* Toast.show('Something went wrong!', context,
+                    duration: Toast.LENGTH_SHORT);*/
+                Toast.show(bdy.toString(), context,
+                    duration: Toast.LENGTH_LONG);
+              }
+            }).catchError((_) {
+              setState(() {
+                showDialogBox = false;
+              });
+              Toast.show('Server error!', context, duration: Toast.LENGTH_SHORT);
+            });
+          }
 
-          Toast.show(locale.someThingWentText, context,
-              duration: Toast.LENGTH_SHORT, gravity: Toast.CENTER);
-        });
-      }else {
+        } else {
           http.post(url, body: {
             'user_id': '${userId}',
             'vendor_id': vendorId,
@@ -1108,29 +1242,28 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
             'orderlist': '',
             'order_array': orderArray.toString(),
             'order_array1':
-            (orderAddonArray.length > 0) ? orderAddonArray.toString() : '',
+                (orderAddonArray.length > 0) ? orderAddonArray.toString() : '',
             'ui_type': ui_type.toString(),
-
           }).then((value) {
-            var bdy=value.body;
+            var bdy = value.body;
             print('${value.statusCode} ${value.body}');
             if (value != null && value.statusCode == 200) {
               var jsonData = jsonDecode(value.body);
               if (jsonData['status'] == "1") {
                 CartDetail details = CartDetail.fromJson(jsonData['data']);
-                getVendorPayment(vendorId, details,orderArray.toString());
+                getVendorPayment(vendorId, details, orderArray.toString());
               }
-                Toast.show(jsonData['message'], context,
-                    duration: Toast.LENGTH_SHORT);
-                setState(() {
-                  showDialogBox = false;
-                });
-
+              Toast.show(jsonData['message'], context,
+                  duration: Toast.LENGTH_SHORT);
+              setState(() {
+                showDialogBox = false;
+              });
             } else {
               setState(() {
                 showDialogBox = false;
               });
-              Toast.show('Something went wrong!', context, duration: Toast.LENGTH_SHORT);
+              Toast.show('Something went wrong!', context,
+                  duration: Toast.LENGTH_SHORT);
             }
           }).catchError((_) {
             setState(() {
@@ -1138,7 +1271,7 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
             });
             Toast.show('Server error!', context, duration: Toast.LENGTH_SHORT);
           });
-      }
+        }
       } else {
         setState(() {
           showDialogBox = false;
@@ -1157,6 +1290,14 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
       });
       Toast.show(locale.noValueCartText, context, duration: Toast.LENGTH_SHORT);
     }
+  }
+
+  static String getBase64FormateFile(String path) {
+    File file = File(path);
+    print('File is = ' + file.toString());
+    List<int> fileInByte = file.readAsBytesSync();
+    String fileInBase64 = base64Encode(fileInByte);
+    return fileInBase64;
   }
 
   void createCart1(BuildContext context, AppLocalizations locale) async {
@@ -1199,7 +1340,7 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
               Toast.show(jsonData['message'], context,
                   duration: Toast.LENGTH_SHORT);
               CartDetail details = CartDetail.fromJson(jsonData['data']);
-              getVendorPayment(vendorId, details,orderArray.toString());
+              getVendorPayment(vendorId, details, orderArray.toString());
             } else {
               Toast.show(jsonData['message'], context,
                   duration: Toast.LENGTH_SHORT);
@@ -1241,7 +1382,8 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
     }
   }
 
-  void getVendorPayment(String vendorId, CartDetail details,String orderArray) async {
+  void getVendorPayment(
+      String vendorId, CartDetail details, String orderArray) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
       currency = preferences.getString('curency');
@@ -1335,21 +1477,29 @@ class _PharmaViewCartState extends State<PharmaViewCart> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    title,
-                    style: Theme.of(context)
-                        .textTheme
-                        .subtitle2
-                        .copyWith(color: kMainTextColor),
-                  ),
-                  // SizedBox(width: 30,),
-                  Text(
-                    '${currency} ${price}',
-                    style: Theme.of(context)
-                        .textTheme
-                        .subtitle2
-                        .copyWith(color: kMainTextColor),
-                  ),
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          //title,
+                          title.length > 27
+                              ? title.substring(0, 27) + '...'
+                              : title,
+                          style: Theme.of(context)
+                              .textTheme
+                              .subtitle2
+                              .copyWith(color: kMainTextColor),
+                        ),
+                        // SizedBox(width: 30,),
+                        Text(
+                          '${currency} ${price}',
+                          style: Theme.of(context)
+                              .textTheme
+                              .subtitle2
+                              .copyWith(color: kMainTextColor),
+                        ),
+                      ]),
                   Container(
                     height: 30.0,
                     //width: 76.7,

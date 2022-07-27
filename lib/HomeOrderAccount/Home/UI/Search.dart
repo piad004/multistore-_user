@@ -24,6 +24,7 @@ import 'package:user/parcel/fromtoaddress.dart';
 import 'package:user/parcel/parcalstorepage.dart';
 import 'package:user/pharmacy/pharmadetailpage.dart';
 import 'package:user/pharmacy/pharmastore.dart';
+import 'package:user/pharmacy/singleProductDetailpage.dart';
 import 'package:user/restaturantui/pages/restaurant.dart';
 import 'package:user/restaturantui/ui/resturanthome.dart';
 import 'package:user/singleproductpage/singleproductpage.dart';
@@ -429,13 +430,11 @@ class _SearchState extends State<SearchPage> {
                           itemBuilder: (context, index) {
                             return GestureDetector(
                               onTap: () {
-                                if ((searchList[index].onlineStatus == "on" ||
-                                    searchList[index].onlineStatus == "On" ||
-                                    searchList[index].onlineStatus == "ON")) {
-                                  if (searchList[index].type.toString() ==
-                                          "st" ||
-                                      searchList[index].type.toString() ==
-                                          "rp") {
+                                if ((searchList[index].onlineStatus.toString().toUpperCase() == "ON")) {
+                                  if (searchList[index].type.toString().toUpperCase() ==
+                                          "ST" ||
+                                      searchList[index].type.toString().toUpperCase() ==
+                                          "RP") {
                                     hitNavigatorStore(
                                         context,
                                         searchList[index].uiType.toString(),
@@ -458,8 +457,8 @@ class _SearchState extends State<SearchPage> {
                         searchList[index].vendorCategoryId.toString());*/
                                   } else if (searchList[index]
                                           .type
-                                          .toString() ==
-                                      "gp") {
+                                          .toString().toUpperCase() ==
+                                      "GP") {
                                     /* Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -493,8 +492,8 @@ class _SearchState extends State<SearchPage> {
                                     });
                                   }else if (searchList[index]
                                           .type
-                                          .toString() ==
-                                      "mp") {
+                                          .toString().toUpperCase() ==
+                                      "MP") {/*
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -503,11 +502,19 @@ class _SearchState extends State<SearchPage> {
                                                 searchList[index].deliveryRange,searchList[index].distance)))
                                         .then((value) {
                                       getCartCount();
+                                    });*/
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => SingleProductDetailPage(
+                                                searchList[index].productId, searchList[index].vendorId)))
+                                        .then((value) {
+                                      getCartCount();
                                     });
                                   }
                                 } else {
                                   Toast.show(locale.storesClosedText, context,
-                                      duration: Toast.LENGTH_SHORT);
+                                      duration: Toast.LENGTH_SHORT,gravity: Toast.CENTER);
                                 }
                               },
                               behavior: HitTestBehavior.opaque,
@@ -522,14 +529,14 @@ class _SearchState extends State<SearchPage> {
                                       width: MediaQuery.of(context).size.width,
                                       color: white_color,
                                       padding: EdgeInsets.only(
-                                          left: 20.0, top: 15, bottom: 15),
+                                          left: 10.0, top: 15, bottom: 15),
                                       child: Row(
                                         children: <Widget>[
                                           Container(
                                             width: 93.3,
                                             height: 93.3,
                                             child: Image.network(
-                                              (searchList[index].type) == "gp"
+                                              (searchList[index].type).toString().toUpperCase() == "GP"
                                                   ? imageBaseUrl +
                                                       searchList[index]
                                                           .productImage
@@ -540,15 +547,15 @@ class _SearchState extends State<SearchPage> {
                                               fit: BoxFit.fill,
                                             ),
                                           ),
-                                          SizedBox(width: 13.3),
+                                          SizedBox(width: 10),
                                           Expanded(
                                             child: Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: <Widget>[
                                                 Text(
-                                                    (searchList[index].type) ==
-                                                            "gp"
+                                                    (searchList[index].type).toString().toUpperCase() ==
+                                                            "GP"
                                                         ? searchList[index]
                                                             .productName
                                                         : searchList[index]
@@ -584,7 +591,7 @@ class _SearchState extends State<SearchPage> {
                                                                   fontSize:
                                                                       13.0)),
                                                     ),
-                                                    Text(' |   ',
+                                                    Text(' |  ',
                                                         style: Theme.of(context)
                                                             .textTheme
                                                             .caption
@@ -739,10 +746,9 @@ class _SearchState extends State<SearchPage> {
       return;*/
 
     var type='';
-    if(uiType.toString() == "grocery" || uiType.toString() == "Grocery" || uiType.toString() == "1")
+    if(uiType.toString().toUpperCase() == "GROCERY" || uiType.toString() == "1")
       type ='["grocery_product"]';
-    else if(uiType.toString() == "resturant" ||
-        uiType.toString() == "Resturant" ||
+    else if(uiType.toString().toUpperCase() == "RESTURANT" ||
         uiType.toString() == "2")
       type='["resturant_product"]';
     else if(uiType.toString()=="3")
@@ -762,6 +768,7 @@ class _SearchState extends State<SearchPage> {
       "lat": '${lat.toString()}',
       "lng": '${lng.toString()}',
     }).then((response) {
+      print(response.body.toString());
       if (response.statusCode == 200) {
         var ab = response.body;
         var jsonData = jsonDecode(response.body);
