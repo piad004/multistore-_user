@@ -779,16 +779,20 @@ class _SearchState extends State<SearchPage> {
             tagObjsJson.map((tagJson) => Data.fromJson(tagJson)).toList();
 
         if (tagObjs.isNotEmpty) {
+          print("data fount : "+searchValue.toString());
           setState(() {
             searchList.clear();
             searchList = tagObjs;
           });
         } else {
+          print("data empty: "+searchValue.toString());
           setState(() {
+            searchList.clear();
             isFetch = false;
           });
         }
       } else {
+        print("not 200 error : "+ searchValue.toString());
         setState(() {
           isFetch = false;
         });

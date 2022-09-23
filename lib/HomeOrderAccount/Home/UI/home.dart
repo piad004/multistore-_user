@@ -103,7 +103,7 @@ class _HomeState extends State<Home> {
   var delvmartAbout;
   var delvmartUiType;
   var currency;
-  var isRatingDialogShow=false;
+  var isRatingDialogShow = false;
 
   TextEditingController searchController = TextEditingController();
   bool enteredFirst = false;
@@ -117,13 +117,12 @@ class _HomeState extends State<Home> {
   }
 
   @override
-  void dispose() async{
+  void dispose() async {
     super.dispose();
     setDialogVisible();
   }
 
-  void setDialogVisible() async{
-
+  void setDialogVisible() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool("isRatingDialogShow", false);
   }
@@ -551,19 +550,21 @@ class _HomeState extends State<Home> {
                                         builder: (context) {
                                           return InkWell(
                                             onTap: () {
-                                              hitNavigatorStore(
-                                                  context,
-                                                  e.ui_type,
-                                                  e.vendor_name,
-                                                  e.vendor_id,
-                                                  e.delivery_range,
-                                                  e.distance,
-                                                  e.about,
-                                                  e.online_status,
-                                                  e.vendor_category_id,
-                                                  e.vendor_loc,
-                                                  e.vendor_logo,
-                                                  e.vendor_phone);
+                                              if(e.vendor_id!=null && (e.vendor_id!="" || e.vendor_id!="0")) {
+                                                hitNavigatorStore(
+                                                    context,
+                                                    e.ui_type,
+                                                    e.vendor_name,
+                                                    e.vendor_id,
+                                                    e.delivery_range,
+                                                    e.distance,
+                                                    e.about,
+                                                    e.online_status,
+                                                    e.vendor_category_id,
+                                                    e.vendor_loc,
+                                                    e.vendor_logo,
+                                                    e.vendor_phone);
+                                              }
                                               /* Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -1644,6 +1645,7 @@ class _HomeState extends State<Home> {
 
   void hitServiceBestDeal(var lat, var lng) async {
     var url = bestDealUrl + '?lat=' + lat.toString() + '&lng=' + lng.toString();
+    print(url);
     var response = await http.get(Uri.parse(url));
     try {
       if (response.statusCode == 200) {
@@ -1668,6 +1670,7 @@ class _HomeState extends State<Home> {
   void hitServiceBestRated(var lat, var lng) async {
     var url =
         bestRatingUrl + '?lat=' + lat.toString() + '&lng=' + lng.toString();
+    print(url);
     var response = await http.get(Uri.parse(url));
     try {
       var body = jsonDecode(response.body);
@@ -1795,30 +1798,28 @@ class _HomeState extends State<Home> {
               isFetch = false;
             });
           }
+        }
       }
-      }
-        setState(() {
-          isFetch = false;
-        });
-
+      setState(() {
+        isFetch = false;
+      });
     }).catchError((e) {
       setState(() {
         isFetch = false;
       });
     });
   }
+
   void hitUserRating() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var userId = prefs.getInt('user_id');
-   var isRatingDialogShow= prefs.getBool("isRatingDialogShow");
+    var isRatingDialogShow = prefs.getBool("isRatingDialogShow");
 
     setState(() {
       isFetch = true;
     });
     //var url = https://delvfast.com/app/api/;
-    var url = userRatingUrl +
-        '?user_id=' +
-        userId.toString();
+    var url = userRatingUrl + '?user_id=' + userId.toString();
     print(url.toString());
     http.get(Uri.parse(url)).then((response) {
       var body = (response.body);
@@ -1827,29 +1828,29 @@ class _HomeState extends State<Home> {
         var jsonData = jsonDecode(response.body);
 
         if (jsonData['status'] == "1" &&
-            ((jsonData['rating_info']['status']).toString() == '0') && isRatingDialogShow==false) {
+            ((jsonData['rating_info']['status']).toString() == '0') &&
+            isRatingDialogShow == false) {
+          _showRatingDialog(
+              jsonData['rating_info']['cart_id'],
+              jsonData['rating_info']['vendor_id'],
+              jsonData['rating_info']['vendor_logo'],
+              jsonData['rating_info']['vendor_name'],
+              jsonData['rating_info']['dboy_id'],
+              jsonData['rating_info']['dboy_image'],
+              jsonData['rating_info']['dboy_name'],
+              new ReviewRatingVendor(null, null),
+              new ReviewRatingDelvboy(null, null));
 
-            _showRatingDialog(
-                jsonData['rating_info']['cart_id'],
-                jsonData['rating_info']['vendor_id'],
-                jsonData['rating_info']['vendor_logo'],
-                jsonData['rating_info']['vendor_name'],
-                jsonData['rating_info']['dboy_id'],
-                jsonData['rating_info']['dboy_image'],
-                jsonData['rating_info']['dboy_name'],
-                new ReviewRatingVendor(null, null),
-                new ReviewRatingDelvboy(null, null));
-
-         /*else {
+          /*else {
           setState(() {
             isFetch = false;
           });
         }*/
-      } else {
-        setState(() {
-          isFetch = false;
-        });
-      }
+        } else {
+          setState(() {
+            isFetch = false;
+          });
+        }
       }
     }).catchError((e) {
       setState(() {
@@ -1988,6 +1989,8 @@ class _HomeState extends State<Home> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString("lat", latss.toString());
     prefs.setString("lng", lngss.toString());
+    prefs.setString("userLat", latss.toString());
+    prefs.setString("userLng", lngss.toString());
     setState(() {
       lat = latss;
       lng = lngss;
@@ -2035,21 +2038,22 @@ class _HomeState extends State<Home> {
           cityName = address;
         });
       }
-      hitService();
-      hitBannerUrl(lat, lng);
+    /*  hitService();
+      hitBannerUrl(lat, lng);*/
+      refreshCall();
     });
   }
 
   Future<Null> refreshCall() async {
     refreshKey.currentState?.show(atTop: false);
     await Future.delayed(Duration(seconds: 2));
-    setState(() {
+    //setState(() {
       getCurrency();
       hitService();
       hitBannerUrl(lat, lng);
       hitServiceBestDeal(lat, lng);
       hitServiceBestRated(lat, lng);
-    });
+    //});
     return null;
   }
 
@@ -2096,197 +2100,215 @@ class _HomeState extends State<Home> {
       isVisible = false;
     }
 
-
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var isRatingDialogShow= prefs.getBool("isRatingDialogShow");
+    var isRatingDialogShow = prefs.getBool("isRatingDialogShow");
 
-    if(isRatingDialogShow==false){
-
+    if (isRatingDialogShow == false) {
       prefs.setBool("isRatingDialogShow", true);
 
-    return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return Dialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0)), //this right here
-            child: SingleChildScrollView(
-              child: Container(
-              height: 500,
-              child: Padding(
-                padding:
-                    const EdgeInsets.only(left: 12.0, right: 12, bottom: 12),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Image.network(vendorLogo!=null?vendorLogo:'',height: 50,width: 50,),
-                          Container(width: 200,
-                          padding: EdgeInsets.only(top:20),
-                          child:  Text(
-                            vendorName!=null?vendorName:'',
-                            maxLines: 2,
-                            style: TextStyle(
-                              color: Colors.blueGrey,
-                              fontSize: 12,
-                              fontWeight: FontWeight.normal,
-                            ),
+      return showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0)), //this right here
+              child: SingleChildScrollView(
+                child: Container(
+                  height: 500,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        left: 12.0, right: 12, bottom: 12),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Image.network(
+                                vendorLogo != null ? vendorLogo : '',
+                                height: 50,
+                                width: 50,
+                              ),
+                              Container(
+                                width: 200,
+                                padding: EdgeInsets.only(top: 20),
+                                child: Text(
+                                  vendorName != null ? vendorName : '',
+                                  maxLines: 2,
+                                  style: TextStyle(
+                                    color: Colors.blueGrey,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                            ]),
+                        Text(
+                          'Vendor Rating',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
-                          ),
-                        ]),
-                    Text(
-                      'Vendor Rating',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    /*SizedBox(
+                        ),
+                        /*SizedBox(
                   height: 10,
                 ),*/
-                    TextFormField(
-                      minLines: 4,
-                      maxLines: 4,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(5.0)),
-                            borderSide: BorderSide(color: Colors.blue)),
-                        // hintText: 'Review',
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(5.0)),
-                            borderSide: BorderSide(color: Colors.blue)),
-                        filled: true,
-                        contentPadding: EdgeInsets.only(
-                            bottom: 10.0, left: 10.0, right: 10.0),
-                        labelText: 'Review',
-                      ),
-                      initialValue: review,
-                      //validator: widget.ongoingOrders,
-                      onChanged: (String newValue) {
-                        review = newValue;
-                      },
-                    ),
-                    /* SizedBox(
-                      height: 10,
-                    ),*/
-                    Container(
-                        child: SmoothStarRating(
-                      rating: rating,
-                      size: 45,
-                      starCount: 5,
-                      onRated: (value) {
-                        setState(() {
-                          rating = value;
-                        });
-                      },
-                    )),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Container(
-                      color: kMainColor,
-                      width: MediaQuery.of(context).size.width - 80,
-                      height: 1,
-                    ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Image.network(deliveryBoyLogo!=null?deliveryBoyLogo:'',height: 50,width: 50,),
-                          Container(width: 200,
-                            padding: EdgeInsets.only(top:20),
-                            child:  Text(
-                              deliveryBoyName!=null?deliveryBoyName:'',
-                              maxLines: 2,
-                              style: TextStyle(
-                                color: Colors.blueGrey,
-                                fontSize: 12,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
+                        TextFormField(
+                          minLines: 4,
+                          maxLines: 4,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5.0)),
+                                borderSide: BorderSide(color: Colors.blue)),
+                            // hintText: 'Review',
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5.0)),
+                                borderSide: BorderSide(color: Colors.blue)),
+                            filled: true,
+                            contentPadding: EdgeInsets.only(
+                                bottom: 10.0, left: 10.0, right: 10.0),
+                            labelText: 'Review',
                           ),
-                        ]),
-                    Text(
-                      'Delivery Boy Rating',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextFormField(
-                      minLines: 4,
-                      maxLines: 4,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(5.0)),
-                            borderSide: BorderSide(color: Colors.blue)),
-                        // hintText: 'Review',
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(5.0)),
-                            borderSide: BorderSide(color: Colors.blue)),
-                        filled: true,
-                        contentPadding: EdgeInsets.only(
-                            bottom: 10.0, left: 10.0, right: 10.0),
-                        labelText: 'Review',
-                      ),
-                      //validator: widget.ongoingOrders,
-                      initialValue: dBoyReview,
-                      onChanged: (String newValue) {
-                        dBoyReview = newValue;
-                      },
-                    ),
-                    /* SizedBox(
+                          initialValue: review,
+                          //validator: widget.ongoingOrders,
+                          onChanged: (String newValue) {
+                            review = newValue;
+                          },
+                        ),
+                        /* SizedBox(
                       height: 10,
                     ),*/
-                    Container(
-                        child: SmoothStarRating(
-                      rating: rating,
-                      size: 45,
-                      starCount: 5,
-                      onRated: (value) {
-                        setState(() {
-                          dBoyRating = value;
-                        });
-                      },
-                    )),
-                    Visibility(
-                        visible: isVisible,
-                        child: SizedBox(
-                          width: 320.0,
-                          height: 40,
-                          child: IconsButton(
-                            onPressed: () {
-                             /* Future.delayed(
+                        Container(
+                            child: SmoothStarRating(
+                          rating: rating,
+                          size: 45,
+                          starCount: 5,
+                          onRated: (value) {
+                            setState(() {
+                              rating = value;
+                            });
+                          },
+                        )),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Container(
+                          color: kMainColor,
+                          width: MediaQuery.of(context).size.width - 80,
+                          height: 1,
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Image.network(
+                                deliveryBoyLogo != null ? deliveryBoyLogo : '',
+                                height: 50,
+                                width: 50,
+                                errorBuilder: (BuildContext context,
+                                    Object exception, StackTrace stackTrace) {
+                                  return  Image.asset(
+                                      'images/delivery_boy.png',
+                                    height: 50,
+                                    width: 50,);
+                                },
+                              ),
+                              Container(
+                                width: 200,
+                                padding: EdgeInsets.only(top: 20),
+                                child: Text(
+                                  deliveryBoyName != null
+                                      ? deliveryBoyName
+                                      : '',
+                                  maxLines: 2,
+                                  style: TextStyle(
+                                    color: Colors.blueGrey,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                            ]),
+                        Text(
+                          'Delivery Boy Rating',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        TextFormField(
+                          minLines: 4,
+                          maxLines: 4,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5.0)),
+                                borderSide: BorderSide(color: Colors.blue)),
+                            // hintText: 'Review',
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5.0)),
+                                borderSide: BorderSide(color: Colors.blue)),
+                            filled: true,
+                            contentPadding: EdgeInsets.only(
+                                bottom: 10.0, left: 10.0, right: 10.0),
+                            labelText: 'Review',
+                          ),
+                          //validator: widget.ongoingOrders,
+                          initialValue: dBoyReview,
+                          onChanged: (String newValue) {
+                            dBoyReview = newValue;
+                          },
+                        ),
+                        /* SizedBox(
+                      height: 10,
+                    ),*/
+                        Container(
+                            child: SmoothStarRating(
+                          rating: rating,
+                          size: 45,
+                          starCount: 5,
+                          onRated: (value) {
+                            setState(() {
+                              dBoyRating = value;
+                            });
+                          },
+                        )),
+                        Visibility(
+                            visible: isVisible,
+                            child: SizedBox(
+                              width: 320.0,
+                              height: 40,
+                              child: IconsButton(
+                                onPressed: () {
+                                  /* Future.delayed(
                                 const Duration(seconds: 2),
                                     () => setState(() => _isLoading = false),
                               );*/
-                              setState(() {
-                                isFetch=true;
-                              });
-                              getReviewOrders(
-                                  cartId,
-                                  vendorId,
-                                  review,
-                                  dBoyReview,
-                                  rating,
-                                  dBoyRating,
-                                  deliveryBoyId);
-                            },
-                            text: 'Save',
-                            iconData: /*isFetch
+                                  setState(() {
+                                    isFetch = true;
+                                  });
+                                  getReviewOrders(
+                                      cartId,
+                                      vendorId,
+                                      review,
+                                      dBoyReview,
+                                      rating,
+                                      dBoyRating,
+                                      deliveryBoyId);
+                                },
+                                text: 'Save',
+                                iconData:
+                                    /*isFetch
                                 ? Container(
                               width: 24,
                               height: 24,
@@ -2294,13 +2316,14 @@ class _HomeState extends State<Home> {
                               child: const CircularProgressIndicator(
                                 strokeWidth: 3,
                               ),
-                            ):*/Icons.done,
-                            color: Colors.green,
-                            textStyle: TextStyle(color: Colors.white),
-                            iconColor: Colors.white,
-                          ),
+                            ):*/
+                                    Icons.done,
+                                color: Colors.green,
+                                textStyle: TextStyle(color: Colors.white),
+                                iconColor: Colors.white,
+                              ),
 
-                          /*RaisedButton(
+                              /*RaisedButton(
                             onPressed: () {
                               getReviewOrders(cartId,vendorId,review,dBoyReview,rating,dBoyRating,deliveryBoyId);
                             },
@@ -2314,15 +2337,15 @@ class _HomeState extends State<Home> {
                             ),
                             color: const Color(0xFF66BB6A),
                           ),*/
-                        ))
-                  ],
+                            ))
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-            ),
-          );
-        });
- }
+            );
+          });
+    }
   }
 
   getReviewOrders(var cartId, var vendorId, var review, var dBoyReview,
@@ -2353,13 +2376,12 @@ class _HomeState extends State<Home> {
         });
 
         Navigator.pop(context);
-      }else {
+      } else {
         Toast.show(jsonData['message'], context, duration: Toast.LENGTH_LONG);
         setState(() {
-          isFetch=true;
+          isFetch = true;
         });
       }
-
 
       Navigator.pop(context);
     }).catchError((e) {

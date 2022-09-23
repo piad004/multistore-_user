@@ -127,7 +127,7 @@ class _RestaurantState extends State<Restaurant_Sub> {
                 (BuildContext context, bool innerBoxIsScrolled) {
               return <Widget>[
                 SliverAppBar(
-                  expandedHeight: 230,
+                  expandedHeight: 180,
                   backgroundColor: Colors.white,
                   pinned: true,
                   elevation: 0.0,
@@ -314,7 +314,7 @@ class _RestaurantState extends State<Restaurant_Sub> {
                       ],
                     ),
                   ),
-                  bottom: TabBar(
+                 /* bottom: TabBar(
                     indicatorColor: darkPrimaryColor,
                     labelColor: kMainTextColor,
                     indicatorPadding: EdgeInsets.only(right: 15.0, left: 15.0),
@@ -323,7 +323,7 @@ class _RestaurantState extends State<Restaurant_Sub> {
                       // Tab(text: 'Review'),
                       Tab(text: locale.informationText),
                     ],
-                  ),
+                  ),*/
                 ),
               ];
             },
@@ -332,9 +332,11 @@ class _RestaurantState extends State<Restaurant_Sub> {
               width: width,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
-                color: kMainColor,
+                //color: kMainColor,
+                color: kWhiteColor,
               ),
-              child: TabBarView(
+              child:
+              TabBarView(
                 children: [
                   ProductTabData(widget.item,widget.currencySymbol,(){
                     getCartCount();

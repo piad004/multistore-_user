@@ -44,8 +44,8 @@ android {
         applicationId "user.delvfast.com"
         minSdkVersion 21
         targetSdkVersion 32
-        versionCode 7
-        versionName "1.0.7"
+        versionCode 9
+        versionName "1.0.9"
         multiDexEnabled true
         dexOptions {
             preDexLibraries = false

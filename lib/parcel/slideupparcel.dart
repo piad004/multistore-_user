@@ -80,8 +80,9 @@ class _SlideUpPanelParcelState extends State<SlideUpPanelParcel> {
                                                     .toString()
                                                     .length >
                                                 5) {
-                                          _launchURL(
-                                              "tel://${widget.ongoingOrders.delivery_boy_phone}");
+                                          /*_launchURL(
+                                              "tel://${widget.ongoingOrders.delivery_boy_phone}");*/
+                                          _launchURL("${widget.ongoingOrders.delivery_boy_phone}");
                                         } else {
                                           Toast.show(
                                               locale.deliveryBoyNotAssignYet,
@@ -263,10 +264,15 @@ class _SlideUpPanelParcelState extends State<SlideUpPanelParcel> {
   }
 
   _launchURL(url) async {
-    if (await canLaunch(url)) {
+   /* if (await canLaunch(url)) {
       await launch(url);
     } else {
       throw 'Could not launch $url';
-    }
+    }*/
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: url,
+    );
+    await launch(launchUri.toString());
   }
 }

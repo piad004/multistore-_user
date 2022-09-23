@@ -561,6 +561,10 @@ class _ProductTabDataState extends State<ProductTabData> {
                   );
                 },
                 itemCount: 10):SizedBox.shrink(),
+        /*Divider(
+          color: kCardBackgroundColor,
+          thickness: 4.0,
+        ),*/
       ],
     );
   }

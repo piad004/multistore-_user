@@ -230,14 +230,23 @@ class StoresPageState extends State<StoresPage> with WidgetsBindingObserver{
                     readOnly: true,
                     autofocus: false,
                     onTap: (){
+                      if(ui_type != null && nearStores != null && nearStores.length>0){
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                              // builder: (context) => SearchPage('["shop"]',nearStores[0].vendor_category_id)))
-                              builder: (context) => SearchPage('["all"]',ui_type,nearStores[0].vendor_category_id,'','')))
+                              builder: (context) =>
+                                  SearchPage('["all"]',ui_type,
+                                      (nearStores[0].vendor_category_id != null)? nearStores[0].vendor_category_id:"",
+                                      '','')
+                          ))
                           .then((value) {
                         getCartCount();
                       });
+                    }else {
+                        Toast.show(locale.noStoresFoundText, context,
+                            duration: Toast.LENGTH_SHORT);
+                      }
                     },
                     onChanged: (value) {
                       nearStores = nearStoresSearch

@@ -212,7 +212,7 @@ class _OrderMapPharmaState extends State<OrderMapPharma> {
                             color: kCardBackgroundColor,
                             thickness: 1.0,
                           ),
-                          Row(
+                         /* Row(
                             children: <Widget>[
                               Padding(
                                 padding: EdgeInsets.only(
@@ -238,7 +238,7 @@ class _OrderMapPharmaState extends State<OrderMapPharma> {
                                 ),
                               ),
                             ],
-                          ),
+                          ),*/
                           Row(
                             children: <Widget>[
                               Padding(

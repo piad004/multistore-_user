@@ -210,7 +210,7 @@ class _OrderMapRestState extends State<OrderMapRest> {
                             color: kCardBackgroundColor,
                             thickness: 1.0,
                           ),
-                          Row(
+                          /*Row(
                             children: <Widget>[
                               Padding(
                                 padding: EdgeInsets.only(
@@ -241,7 +241,7 @@ class _OrderMapRestState extends State<OrderMapRest> {
                                 ),
                               ),
                             ],
-                          ),
+                          ),*/
                           Row(
                             children: <Widget>[
                               Padding(

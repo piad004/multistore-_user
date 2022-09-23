@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
+import 'package:user/Auth/MobileNumber/UI/phone_number.dart';
 import 'package:user/Components/entry_field.dart';
 import 'package:user/Locale/locales.dart';
 import 'package:user/Routes/routes.dart';
@@ -84,10 +85,17 @@ class _EditProfileFormState extends State<EditProfileForm> {
     super.dispose();
   }
 
+ /* Future<bool> back(){
+    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
+    PhoneNumber_New()), (Route<dynamic> route) => false);
+  }*/
+
   @override
   Widget build(BuildContext context) {
     var locale = AppLocalizations.of(context);
-    return ListView(
+    return
+    //WillPopScope( onWillPop: back,child:
+      ListView(
       scrollDirection: Axis.vertical,
       children: <Widget>[
         Divider(
@@ -200,7 +208,9 @@ class _EditProfileFormState extends State<EditProfileForm> {
           ),
         )
       ],
-    );
+    )
+    //,)
+    ;
   }
 
   void hitService(

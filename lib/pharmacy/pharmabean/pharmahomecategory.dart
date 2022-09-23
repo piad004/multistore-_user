@@ -54,18 +54,19 @@ class MedeniniVarient{
   dynamic addOnQty;
   dynamic isSelected;
   dynamic isFaviourite;
+  dynamic stock;
 
 
   MedeniniVarient(this.variant_id, this.product_id, this.quantity, this.unit,
-      this.strick_price, this.price, this.vendor_id,this.addOnQty,this.isFaviourite,this.isSelected);
+      this.strick_price, this.price, this.vendor_id,this.addOnQty,this.isFaviourite,this.isSelected,this.stock);
 
   factory MedeniniVarient.fromJson(dynamic json){
-    return MedeniniVarient(json['variant_id'], json['product_id'], json['quantity'], json['unit'], json['strick_price'], json['price'], json['vendor_id'],0,0,false);
+    return MedeniniVarient(json['variant_id'], json['product_id'], json['quantity'], json['unit'], json['strick_price'], json['price'], json['vendor_id'],0,0,false,json['stock']);
   }
 
   @override
   String toString() {
-    return '{variant_id: $variant_id, product_id: $product_id, quantity: $quantity, unit: $unit, strick_price: $strick_price, price: $price, vendor_id: $vendor_id, addOnQty: $addOnQty, isSelected: $isSelected, isFaviourite: $isFaviourite}';
+    return '{variant_id: $variant_id, product_id: $product_id, quantity: $quantity, unit: $unit, strick_price: $strick_price, price: $price, vendor_id: $vendor_id, addOnQty: $addOnQty, isSelected: $isSelected, isFaviourite: $isFaviourite,stock: $stock}';
   }
 
   @override

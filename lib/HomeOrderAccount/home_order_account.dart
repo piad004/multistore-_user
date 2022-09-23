@@ -8,9 +8,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
+import 'package:platform_device_id/platform_device_id.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:user/HomeOrderAccount/Account/UI/account_page.dart';
 import 'package:user/HomeOrderAccount/Home/UI/home.dart';
@@ -60,6 +62,7 @@ class _HomeOrderAccountState extends State<HomeOrderAccount> {
   CircularBottomNavigationController _navigationController;
   bool isRunning = false;
   NotificationListCubit notificationInit;
+  String _deviceId;
 
   @override
   void initState() {
@@ -70,6 +73,28 @@ class _HomeOrderAccountState extends State<HomeOrderAccount> {
     new CircularBottomNavigationController(_currentIndex);
     //setMenuIndex();
     getCurrency();
+    initPlatformState();
+  }
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initPlatformState() async {
+    String deviceId;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      deviceId = await PlatformDeviceId.getDeviceId;
+    } on PlatformException {
+      deviceId = 'Failed to get deviceId.';
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _deviceId = deviceId;
+      print("deviceId->$_deviceId");
+    });
   }
 
   void setFirebase() async {

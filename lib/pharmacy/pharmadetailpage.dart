@@ -155,7 +155,7 @@ class _ItemsPharmaPageState extends State<PharmaItemPage>
       isFetch = true;
       currency = preferences.getString("curency");
     });
-   // _buildProgressIndicator();
+    // _buildProgressIndicator();
     var url = pharmacy_product_by_category;
     http.post(url, body: {
       'resturant_cat_id': id.toString(),
@@ -417,7 +417,7 @@ class _ItemsPharmaPageState extends State<PharmaItemPage>
     }
   }
 
- /* // to show progressbar while loading data in background
+  /* // to show progressbar while loading data in background
   Widget _buildProgressIndicator() {
     return new Padding(
       padding: const EdgeInsets.all(8.0),
@@ -771,163 +771,128 @@ class _ItemsPharmaPageState extends State<PharmaItemPage>
                                                               ),
                                                               Row(
                                                                 crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .spaceBetween,
                                                                 children: [
-                                                                Text(
-                                                                    '$currency ${(categoryList3[index].variant.length > 0) ? categoryList3[index].variant[categoryList3[index].selectPos].price : 0}',
-                                                                    style: Theme.of(
-                                                                        context)
-                                                                        .textTheme
-                                                                        .caption),
-                                                                Positioned(
-                                                                  height: 30,
-                                                                  right: 20.0,
-                                                                  bottom: 5,
-                                                                  child: (categoryList3[
+                                                                  Text(
+                                                                      '$currency ${(categoryList3[index].variant.length > 0) ? categoryList3[index].variant[categoryList3[index].selectPos].price : 0}',
+                                                                      style: Theme.of(
+                                                                              context)
+                                                                          .textTheme
+                                                                          .caption),
+                                                                //  (categoryList3[index].variant[categoryList3[index].selectPos])
+                                                                  (categoryList3[
                                                                   index]
-                                                                      .addOnQty ==
-                                                                      0
-                                                                      ? Container(
-                                                                    height: 30.0,
-                                                                    padding: EdgeInsets.only(right: 10),
-                                                                    child: FlatButton(
-                                                                      child: Text(
-                                                                        locale
-                                                                            .addText,
-                                                                        style: Theme.of(
-                                                                            context)
-                                                                            .textTheme
-                                                                            .caption
-                                                                            .copyWith(
-                                                                            color:
-                                                                            kMainColor,
-                                                                            fontWeight:
-                                                                            FontWeight.bold),
-                                                                      ),
-                                                                      textTheme:
-                                                                      ButtonTextTheme
-                                                                          .accent,
-                                                                      onPressed: () {
-                                                                        setState(() {
-                                                                          categoryList3[
-                                                                          index]
-                                                                              .addOnQty++;
-                                                                          print(
-                                                                              '${categoryList3[index].addOnQty}');
-                                                                          addOrMinusProduct(
-                                                                              categoryList3[index]
-                                                                                  .product_name,
-                                                                              categoryList3[index]
-                                                                                  .variant[categoryList3[index]
-                                                                                  .selectPos]
-                                                                                  .unit,
-                                                                              double.parse(
-                                                                                  '${categoryList3[index].variant[categoryList3[index].selectPos].price}'),
-                                                                              int.parse(
-                                                                                  '${categoryList3[index].variant[categoryList3[index].selectPos].quantity}'),
-                                                                              categoryList3[index]
-                                                                                  .addOnQty,
-                                                                              categoryList3[index]
-                                                                                  .product_image,
-                                                                              categoryList3[index]
-                                                                                  .variant[categoryList3[index].selectPos]
-                                                                                  .variant_id);
-                                                                        });
-                                                                      },
-                                                                    ),
-                                                                  )
-                                                                      : Container(
-                                                                    height: 30.0,
+                                                                      .variant !=
+                                                                      null &&
+                                                                      categoryList3[
+                                                                      index]
+                                                                          .variant
+                                                                          .length >
+                                                                          0 &&
+                                                                      int.parse(
+                                                                          '${categoryList3[index].variant[categoryList3[index].selectPos].stock}') >
+                                                                          0)
+                                                                      ?
+                                                                  Positioned(
+                                                                    height: 30,
+                                                                    right: 20.0,
+                                                                    bottom: 5,
+                                                                    child: (categoryList3[index].addOnQty ==
+                                                                            0
+                                                                        ? Container(
+                                                                            height:
+                                                                                30.0,
+                                                                            padding:
+                                                                                EdgeInsets.only(right: 10),
+                                                                            child:
+                                                                                FlatButton(
+                                                                              child: Text(
+                                                                                locale.addText,
+                                                                                style: Theme.of(context).textTheme.caption.copyWith(color: kMainColor, fontWeight: FontWeight.bold),
+                                                                              ),
+                                                                              textTheme: ButtonTextTheme.accent,
+                                                                              onPressed: () {
+                                                                                setState(() {
+                                                                                  categoryList3[index].addOnQty++;
+                                                                                  print('${categoryList3[index].addOnQty}');
+                                                                                  addOrMinusProduct(categoryList3[index].product_name, categoryList3[index].variant[categoryList3[index].selectPos].unit, double.parse('${categoryList3[index].variant[categoryList3[index].selectPos].price}'), int.parse('${categoryList3[index].variant[categoryList3[index].selectPos].quantity}'), categoryList3[index].addOnQty, categoryList3[index].product_image, categoryList3[index].variant[categoryList3[index].selectPos].variant_id);
+                                                                                });
+                                                                              },
+                                                                            ),
+                                                                          )
+                                                                        : Container(
+                                                                            height:
+                                                                                30.0,
+                                                                            margin:
+                                                                                EdgeInsets.only(right: 10),
+                                                                            padding:
+                                                                                EdgeInsets.symmetric(horizontal: 11.0),
+                                                                            decoration:
+                                                                                BoxDecoration(
+                                                                              border: Border.all(color: kMainColor),
+                                                                              borderRadius: BorderRadius.circular(30.0),
+                                                                            ),
+                                                                            child:
+                                                                                Row(
+                                                                              children: <Widget>[
+                                                                                InkWell(
+                                                                                  onTap: () {
+                                                                                    setState(() {
+                                                                                      categoryList3[index].addOnQty--;
+                                                                                      addOrMinusProduct(categoryList3[index].product_name, categoryList3[index].variant[categoryList3[index].selectPos].unit, double.parse('${categoryList3[index].variant[categoryList3[index].selectPos].price}'), int.parse('${categoryList3[index].variant[categoryList3[index].selectPos].quantity}'), categoryList3[index].addOnQty, categoryList3[index].product_image, categoryList3[index].variant[categoryList3[index].selectPos].variant_id);
+                                                                                    });
+                                                                                  },
+                                                                                  child: Icon(
+                                                                                    Icons.remove,
+                                                                                    color: kMainColor,
+                                                                                    size: 20.0,
+                                                                                    //size: 23.3,
+                                                                                  ),
+                                                                                ),
+                                                                                SizedBox(width: 8.0),
+                                                                                Text(categoryList3[index].addOnQty.toString(), style: Theme.of(context).textTheme.caption),
+                                                                                SizedBox(width: 8.0),
+                                                                                InkWell(
+                                                                                  onTap: () {
+                                                                                    setState(() {
+                                                                                      categoryList3[index].addOnQty++;
+                                                                                      addOrMinusProduct(categoryList3[index].product_name, categoryList3[index].variant[categoryList3[index].selectPos].unit, double.parse('${categoryList3[index].variant[categoryList3[index].selectPos].price}'), int.parse('${categoryList3[index].variant[categoryList3[index].selectPos].quantity}'), categoryList3[index].addOnQty, categoryList3[index].product_image, categoryList3[index].variant[categoryList3[index].selectPos].variant_id);
+                                                                                    });
+                                                                                  },
+                                                                                  child: Icon(
+                                                                                    Icons.add,
+                                                                                    color: kMainColor,
+                                                                                    size: 20.0,
+                                                                                  ),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                          )),
+                                                                  ):
+                                                                  Container(
                                                                     margin: EdgeInsets.only(right: 10),
-                                                                    padding: EdgeInsets
-                                                                        .symmetric(
-                                                                        horizontal:
-                                                                        11.0),
-                                                                    decoration:
-                                                                    BoxDecoration(
-                                                                      border: Border.all(
+                                                                    child: Text(
+                                                                      locale
+                                                                          .outoffStockText,
+                                                                      style: Theme.of(
+                                                                          context)
+                                                                          .textTheme
+                                                                          .caption
+                                                                          .copyWith(
                                                                           color:
-                                                                          kMainColor),
-                                                                      borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                          30.0),
+                                                                          kMainColor,
+                                                                          fontWeight:
+                                                                          FontWeight
+                                                                              .bold),
                                                                     ),
-                                                                    child: Row(
-                                                                      children: <
-                                                                          Widget>[
-                                                                        InkWell(
-                                                                          onTap: () {
-                                                                            setState(
-                                                                                    () {
-                                                                                  categoryList3[index]
-                                                                                      .addOnQty--;
-                                                                                  addOrMinusProduct(
-                                                                                      categoryList3[index].product_name,
-                                                                                      categoryList3[index].variant[categoryList3[index].selectPos].unit,
-                                                                                      double.parse('${categoryList3[index].variant[categoryList3[index].selectPos].price}'),
-                                                                                      int.parse('${categoryList3[index].variant[categoryList3[index].selectPos].quantity}'),
-                                                                                      categoryList3[index].addOnQty,
-                                                                                      categoryList3[index].product_image,
-                                                                                      categoryList3[index].variant[categoryList3[index].selectPos].variant_id);
-                                                                                });
-                                                                          },
-                                                                          child: Icon(
-                                                                            Icons
-                                                                                .remove,
-                                                                            color:
-                                                                            kMainColor,
-                                                                            size:
-                                                                            20.0,
-                                                                            //size: 23.3,
-                                                                          ),
-                                                                        ),
-                                                                        SizedBox(
-                                                                            width:
-                                                                            8.0),
-                                                                        Text(
-                                                                            categoryList3[
-                                                                            index]
-                                                                                .addOnQty
-                                                                                .toString(),
-                                                                            style: Theme.of(
-                                                                                context)
-                                                                                .textTheme
-                                                                                .caption),
-                                                                        SizedBox(
-                                                                            width:
-                                                                            8.0),
-                                                                        InkWell(
-                                                                          onTap: () {
-                                                                            setState(
-                                                                                    () {
-                                                                                  categoryList3[index]
-                                                                                      .addOnQty++;
-                                                                                  addOrMinusProduct(
-                                                                                      categoryList3[index].product_name,
-                                                                                      categoryList3[index].variant[categoryList3[index].selectPos].unit,
-                                                                                      double.parse('${categoryList3[index].variant[categoryList3[index].selectPos].price}'),
-                                                                                      int.parse('${categoryList3[index].variant[categoryList3[index].selectPos].quantity}'),
-                                                                                      categoryList3[index].addOnQty,
-                                                                                      categoryList3[index].product_image,
-                                                                                      categoryList3[index].variant[categoryList3[index].selectPos].variant_id);
-                                                                                });
-                                                                          },
-                                                                          child: Icon(
-                                                                            Icons.add,
-                                                                            color:
-                                                                            kMainColor,
-                                                                            size:
-                                                                            20.0,
-                                                                          ),
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  )),
-                                                                ),
-                                                              ],),
+                                                                  ),
+
+                                                                ],
+                                                              ),
                                                               SizedBox(
                                                                 height: 20.0,
                                                               ),
@@ -1056,7 +1021,6 @@ class _ItemsPharmaPageState extends State<PharmaItemPage>
                                                             : Text(''),
                                                       ),
                                                     ),
-
                                                   ],
                                                 ),
                                                 Visibility(

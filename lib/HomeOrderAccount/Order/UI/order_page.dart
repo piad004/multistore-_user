@@ -801,7 +801,7 @@ class OrderPageState extends State<OrderPage> {
                                                   color: kCardBackgroundColor,
                                                   thickness: 1.0,
                                                 ),
-                                                Row(
+                                                /*Row(
                                                   children: <Widget>[
                                                     Padding(
                                                       padding: EdgeInsets.only(
@@ -827,7 +827,7 @@ class OrderPageState extends State<OrderPage> {
                                                                   0.05),
                                                     ),
                                                   ],
-                                                ),
+                                                ),*/
                                                 Row(
                                                   children: <Widget>[
                                                     Padding(
@@ -1007,7 +1007,7 @@ class OrderPageState extends State<OrderPage> {
                                                     color: kCardBackgroundColor,
                                                     thickness: 1.0,
                                                   ),
-                                                  Row(
+                                                  /*Row(
                                                     children: <Widget>[
                                                       Padding(
                                                         padding: EdgeInsets.only(
@@ -1033,7 +1033,7 @@ class OrderPageState extends State<OrderPage> {
                                                             0.05),
                                                       ),
                                                     ],
-                                                  ),
+                                                  ),*/
                                                   Row(
                                                     children: <Widget>[
                                                       Padding(
@@ -1218,7 +1218,7 @@ class OrderPageState extends State<OrderPage> {
                                                     color: kCardBackgroundColor,
                                                     thickness: 1.0,
                                                   ),
-                                                  Row(
+                                                  /*Row(
                                                     children: <Widget>[
                                                       Padding(
                                                         padding: EdgeInsets.only(
@@ -1244,7 +1244,7 @@ class OrderPageState extends State<OrderPage> {
                                                             0.05),
                                                       ),
                                                     ],
-                                                  ),
+                                                  ),*/
                                                   Row(
                                                     children: <Widget>[
                                                       Padding(
@@ -1430,7 +1430,7 @@ class OrderPageState extends State<OrderPage> {
                                                     color: kCardBackgroundColor,
                                                     thickness: 1.0,
                                                   ),
-                                                  Row(
+                                                 /* Row(
                                                     children: <Widget>[
                                                       Padding(
                                                         padding: EdgeInsets.only(
@@ -1456,7 +1456,7 @@ class OrderPageState extends State<OrderPage> {
                                                             0.05),
                                                       ),
                                                     ],
-                                                  ),
+                                                  ),*/
                                                   Row(
                                                     children: <Widget>[
                                                       Padding(

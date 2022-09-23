@@ -170,14 +170,23 @@ class StoresPharmaPageState extends State<StoresPharmaPage> {
                     autofocus: false,
                     readOnly: true,
                     onTap: (){
-                  Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                  builder: (context) => SearchPage(
-                  '["all"]','3',
-                  vendor_category_id,nearStoresSearch[0].vendor_id,''))).then((value) {
-                  getCartCount();
-                  });
+
+                      if(vendor_category_id != null && nearStoresSearch != null && nearStoresSearch.length>0){
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SearchPage(
+                                    '["all"]','3',
+                                    vendor_category_id,
+                                    (nearStoresSearch[0].vendor_id != null)?nearStoresSearch[0].vendor_id:"",
+                                    ''))).then((value) {
+                          getCartCount();
+                        });
+                      }else {
+                        Toast.show(locale.noStoresFoundText, context,
+                            duration: Toast.LENGTH_SHORT);
+                      }
+
                     },
                     /*onChanged: (value) {
                       nearStores = nearStoresSearch
